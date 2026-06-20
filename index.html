@@ -35,8 +35,10 @@
   .dot{width:9px;height:9px;border-radius:50%;background:rgba(244,239,230,.22);transition:background .3s;}
   .dot.done{background:var(--tape);}
   .dot.current{background:var(--tape);box-shadow:0 0 0 3px rgba(244,239,230,.25);}
+  .headbtns{display:flex;gap:8px;align-items:center;}
   .gear{width:44px;height:44px;border:none;background:rgba(0,0,0,.18);border-radius:12px;color:var(--tape);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
   .gear:active{transform:scale(.94);}
+  #openTutorial{font-family:"Anton";font-weight:400;font-size:24px;}
 
   main{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:0;}
   .state-label{font-family:"Anton";font-size:clamp(26px,8vw,48px);letter-spacing:.04em;text-transform:uppercase;line-height:1;opacity:.92;text-shadow:0 2px 0 rgba(0,0,0,.25);}
@@ -139,6 +141,23 @@
   .stance-badge:active{transform:scale(.95);}
   .stance-badge.orthodox{box-shadow:inset 0 0 0 2px rgba(244,239,230,.55);}
   .stance-badge.southpaw{box-shadow:inset 0 0 0 2px var(--prep);color:var(--prep);}
+
+  /* tutorial */
+  .tut{position:fixed;inset:0;z-index:30;background:rgba(11,9,8,.8);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:24px;}
+  .tut.open{display:flex;}
+  .tut-card{background:var(--canvas-2);border:1px solid var(--line);border-radius:18px;max-width:380px;width:100%;padding:24px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .tut-step{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--steel);}
+  .tut-card h3{font-family:"Anton";font-weight:400;letter-spacing:.04em;text-transform:uppercase;font-size:26px;margin:6px 0 12px;line-height:1;}
+  .tut-body{font-size:16px;line-height:1.5;color:rgba(244,239,230,.85);min-height:96px;}
+  .tut-body b{color:var(--prep);font-weight:700;}
+  .tut-dots{display:flex;gap:6px;justify-content:center;margin:18px 0 16px;}
+  .tut-dots .d{width:8px;height:8px;border-radius:50%;background:rgba(244,239,230,.22);transition:background .2s;}
+  .tut-dots .d.on{background:var(--tape);}
+  .tut-actions{display:flex;gap:10px;align-items:center;}
+  .tut-skip{background:none;border:none;color:var(--steel);font-family:inherit;font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:14px;cursor:pointer;padding:14px 6px;}
+  .tut-back{background:rgba(0,0,0,.28);color:var(--tape);border:none;border-radius:12px;font-family:inherit;font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:14px;padding:14px 16px;cursor:pointer;}
+  .tut-next{flex:1;border:none;border-radius:12px;background:var(--tape);color:var(--canvas);font-family:inherit;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:16px;padding:14px;cursor:pointer;}
+  .tut-back:active,.tut-next:active{transform:scale(.97);}
 </style>
 </head>
 <body>
@@ -149,7 +168,10 @@
       <div class="dots" id="dots"></div>
       <button id="stanceBadge" class="stance-badge" style="display:none;"></button>
     </div>
-    <button class="gear" id="openSettings" aria-label="Setup">&#9881;</button>
+    <div class="headbtns">
+      <button class="gear" id="openTutorial" aria-label="How it works">?</button>
+      <button class="gear" id="openSettings" aria-label="Setup">&#9881;</button>
+    </div>
   </header>
 
   <main>
@@ -330,6 +352,21 @@
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen. Your combos and program are saved on this device.</div>
     </div>
 
+  </div>
+</div>
+
+<!-- TUTORIAL -->
+<div class="tut" id="tut">
+  <div class="tut-card">
+    <div class="tut-step" id="tutStep"></div>
+    <h3 id="tutTitle"></h3>
+    <div class="tut-body" id="tutBody"></div>
+    <div class="tut-dots" id="tutDots"></div>
+    <div class="tut-actions">
+      <button class="tut-skip" id="tutSkip">Skip</button>
+      <button class="tut-back" id="tutBack">Back</button>
+      <button class="tut-next" id="tutNext">Next</button>
+    </div>
   </div>
 </div>
 
@@ -864,6 +901,34 @@
     ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p===b.dataset.pane));
   });
 
+  /* ---------- tutorial ---------- */
+  const TUT_STEPS = [
+    {h:"Your corner man", b:"Coach Fred runs your round timer and <b>calls boxing combos out loud</b> while you work. Lace up, hands up, and throw what you hear."},
+    {h:"Run the round", b:"<b>Start round</b> kicks things off &mdash; the same button pauses and resumes. <b>Skip</b> jumps to the next round or rest. <b>Reset</b> takes you back to the top."},
+    {h:"Read the calls", b:"Combos flash on screen and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between."},
+    {h:"Switch stance", b:"The badge under the round count shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you."},
+    {h:"Make it yours", b:"Tap the <b>gear</b> for setup. <b>Workout</b>: rounds, length and level. <b>Combos</b>: pick your pool or build your own. <b>More</b>: voice, pace and call style."},
+    {h:"Turn the sound on", b:"Flip your phone off silent and turn it up. On iPhone the coach only speaks <b>after you tap Start</b>. Replay this tour any time with the <b>?</b> up top."}
+  ];
+  let tutIdx = 0;
+  const tut = $("tut");
+  function renderTut(){
+    const s = TUT_STEPS[tutIdx];
+    $("tutStep").textContent = `Step ${tutIdx+1} of ${TUT_STEPS.length}`;
+    $("tutTitle").textContent = s.h;
+    $("tutBody").innerHTML = s.b;
+    $("tutDots").innerHTML = TUT_STEPS.map((_,i)=>`<div class="d ${i===tutIdx?"on":""}"></div>`).join("");
+    $("tutBack").style.visibility = tutIdx===0 ? "hidden" : "visible";
+    $("tutNext").textContent = tutIdx===TUT_STEPS.length-1 ? "Got it" : "Next";
+  }
+  function openTut(){ tutIdx=0; renderTut(); tut.classList.add("open"); }
+  function closeTut(){ tut.classList.remove("open"); try{ store.set("coachfred.tutSeen","1"); }catch(e){} }
+  $("openTutorial").addEventListener("click", openTut);
+  $("tutSkip").addEventListener("click", closeTut);
+  $("tutBack").addEventListener("click", ()=>{ if(tutIdx>0){ tutIdx--; renderTut(); } });
+  $("tutNext").addEventListener("click", ()=>{ if(tutIdx<TUT_STEPS.length-1){ tutIdx++; renderTut(); } else { closeTut(); } });
+  tut.addEventListener("click", e=>{ if(e.target===tut) closeTut(); });
+
   /* ---------- workout pane wiring ---------- */
   function syncModeUI(){
     $("uniformBox").style.display = cfg.mode==="uniform" ? "block" : "none";
@@ -1073,6 +1138,7 @@
 
   initUI();
   reset();
+  if(!store.get("coachfred.tutSeen")) openTut();
 })();
 </script>
 </body>
