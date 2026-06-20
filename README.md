@@ -69,9 +69,10 @@ Coach Fred is an installable Progressive Web App. Open it in a browser and use
 **Install app** (Chrome/Edge) or **Add to Home Screen** (Safari) for a
 fullscreen, native-feeling app. Once loaded it works **offline** — a service
 worker caches the app shell. Icons and manifest live alongside `index.html`
-(`manifest.webmanifest`, `sw.js`, `icon-*.png`); `gen_icons.py` regenerates the
-icons (no dependencies). A service worker needs HTTPS or `localhost`, both of
-which Render and the local server above provide.
+(`manifest.webmanifest`, `sw.js`, `icon-*.png`). The icons are generated from
+the boxing-glove master `icon-source.png` by `gen_icons.py` (`pip install
+Pillow`). A service worker needs HTTPS or `localhost`, both of which Render and
+the local server above provide.
 
 ## Themes
 Reskin the whole app from **Setup → More → Theme** (at the bottom). Twenty looks,
