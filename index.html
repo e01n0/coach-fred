@@ -420,7 +420,7 @@
   const MOVE_DEFAULT_ON = new Set(["Slip left","Slip right","Roll left","Roll right","Roll under","Step in","Step out","Step back","Pivot left","Pivot right","Duck","Weave","Parry","Shield","Block","Pull back"]);
   const MIX = { off:{inject:0,tail:0}, light:{inject:0.22,tail:0.42}, heavy:{inject:0.42,tail:0.6} };
   function mix(){ return MIX[cfg.moveMix] || MIX.light; }
-  const PRESETS_VER = 9;
+  const PRESETS_VER = 10;
   const MOVE_VER = 1;
   const isDigit = t => Object.prototype.hasOwnProperty.call(PUNCH, t);
 
@@ -566,7 +566,21 @@
     ["phase","Slip slip 1-2-3",["1","slip right","2","slip left","3"],3],
     ["phase","1-2-3 pivot 3-2",["1","2","3","pivot left","3","2"],3],
     ["phase","2-3-2 duck 2",["2","3","2","duck","2"],3],
-    ["phase","1-2 slip 2 roll 3",["1","2","slip right","2","roll","3"],3]
+    ["phase","1-2 slip 2 roll 3",["1","2","slip right","2","roll","3"],3],
+    // Punch-led defence: throw first, then slip/roll, then fire back (3-4 punch)
+    ["phase","1-2 slip 5",["1","2","slip right","5"],2],
+    ["phase","1-2 slip 2-3",["1","2","slip right","2","3"],2],
+    ["phase","2-3 slip 2",["2","3","slip left","2"],2],
+    ["phase","1-2-3 roll 2",["1","2","3","roll","2"],2],
+    ["phase","1-2-3-2 roll 2",["1","2","3","2","roll","2"],3],
+    ["phase","1 parry 2 roll 3-2",["1","parry","2","roll","3","2"],3],
+    // Punch then defend then defend (anticipate the return, no immediate counter)
+    ["phase","1 slip slip",["1","slip left","slip right"],2],
+    ["phase","1-2 slip slip",["1","2","slip left","slip right"],2],
+    ["phase","1-2 slip roll",["1","2","slip right","roll"],2],
+    ["phase","1-2-3 slip roll",["1","2","3","slip left","roll"],3],
+    ["phase","1-2-3-2 slip slip",["1","2","3","2","slip left","slip right"],3],
+    ["phase","1-2 pull 2 slip slip",["1","2","pull back","2","slip left","slip right"],3]
   ];
 
   /* ---------- themes (reskin the CSS variables) ---------- */
@@ -857,7 +871,7 @@
   const REAL_HEAD = [
     {t:["1"],lvl:1}, {t:["1","2"],lvl:1}, {t:["1","1"],lvl:1}, {t:["2","3"],lvl:1}, {t:["3","2"],lvl:1},
     {t:["1","1","2"],lvl:1}, {t:["1","2","3"],lvl:1}, {t:["1","3","2"],lvl:1}, {t:["1","2","1"],lvl:1},
-    {t:["1","1","1","2"],lvl:1}, {t:["5","2"],lvl:1}, {t:["6","3"],lvl:1},
+    {t:["1","1","1"],lvl:1}, {t:["1","1","1","2"],lvl:1}, {t:["5","2"],lvl:1}, {t:["6","3"],lvl:1},
     {t:["2","3","2"],lvl:2}, {t:["1","2","3","2"],lvl:2}, {t:["1","2","5"],lvl:2}, {t:["3","2","3"],lvl:2},
     {t:["1","5","2"],lvl:2}, {t:["1","2","1","2"],lvl:2}, {t:["1","2","3","4"],lvl:2}, {t:["2","3","2","3"],lvl:2},
     {t:["1","2","5","2"],lvl:2}, {t:["1","6","3","2"],lvl:2}, {t:["1","3","2","3"],lvl:2},
@@ -953,8 +967,13 @@
   function movementCall(){
     const mv = enabledMoves(); if(!mv.length) return null;
     const m = pick(mv);
-    const tokens = [m.name.toLowerCase(), ...counterFor(m.name)];
-    return {tokens, name:""};
+    const def = [m.name.toLowerCase(), ...counterFor(m.name)];
+    // Mostly lead with a punch so it reads punch-defend-punch, not defence-first.
+    if(Math.random() < 0.62){
+      const setup = pick([["1"],["1","2"],["1","1"],["1","2"],["1","2","3"]]);
+      return {tokens:[...setup, ...def], name:""};
+    }
+    return {tokens:def, name:""};
   }
   // In Build mode bias toward the higher tiers so complexity ramps with the
   // rounds — the layered families (1-2-3 → 1-2-3 slip → 1-2-3 slip 2) surface
