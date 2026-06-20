@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Coach Fred" />
+<meta name="application-name" content="Coach Fred" />
 <meta name="theme-color" content="#161311" />
-<title>Round Caller</title>
+<title>Coach Fred</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
@@ -433,7 +435,7 @@
   };
 
   let cfg = loadCfg();
-  try{ store.set("roundcaller.v2", JSON.stringify(cfg)); }catch(e){}
+  try{ store.set("coachfred.v2", JSON.stringify(cfg)); }catch(e){}
 
   function freshLibrary(){
     return PRESETS.map((p,i)=>({id:"p"+i, group:p[0], name:p[1], tokens:p[2], lvl:p[3]||1, enabled:true}));
@@ -445,7 +447,7 @@
   function loadCfg(){
     let c = JSON.parse(JSON.stringify(DEFAULTS));
     try{
-      const raw = store.get("roundcaller.v2");
+      const raw = store.get("coachfred.v2");
       if(raw){ const saved = JSON.parse(raw); c = Object.assign(c, saved); }
     }catch(e){}
     if(!c.library) c.library = freshLibrary();
@@ -464,7 +466,7 @@
     }
     return c;
   }
-  function save(){ try{ store.set("roundcaller.v2", JSON.stringify(cfg)); }catch(e){} }
+  function save(){ try{ store.set("coachfred.v2", JSON.stringify(cfg)); }catch(e){} }
 
   function allCombos(){ return cfg.library.concat(cfg.custom); }
 

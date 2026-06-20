@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: round-caller
+    name: coach-fred
     runtime: static
     # No build step: it's a single self-contained index.html
     buildCommand: ""

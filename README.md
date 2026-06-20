@@ -1,6 +1,8 @@
-# Round Caller
+# Coach Fred
 
-A boxing round timer for the heavy bag that calls combinations out loud. Single self-contained `index.html`, no build step.
+A boxing round timer for the heavy bag that calls combinations out loud — your corner man between the bells. Single self-contained `index.html`, no build step.
+
+> Named after Coach Fred from Cyberpunk 2077's *Beat on the Brat* boxing questline, who phones in advice while you fight.
 
 ## Deploy to Render
 
