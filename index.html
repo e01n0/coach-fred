@@ -34,9 +34,9 @@
   .round-tag{font-weight:700;letter-spacing:.16em;font-size:15px;text-transform:uppercase;opacity:.9;}
   .round-tag b{font-family:"Anton";letter-spacing:.05em;font-weight:400;}
   .dots{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;max-width:70vw;}
-  .dot{width:9px;height:9px;border-radius:50%;background:rgba(244,239,230,.22);transition:background .3s;}
+  .dot{width:9px;height:9px;border-radius:50%;background:color-mix(in srgb, var(--tape) 24%, transparent);transition:background .3s;}
   .dot.done{background:var(--tape);}
-  .dot.current{background:var(--tape);box-shadow:0 0 0 3px rgba(244,239,230,.25);}
+  .dot.current{background:var(--tape);box-shadow:0 0 0 3px color-mix(in srgb, var(--tape) 25%, transparent);}
   .headbtns{display:flex;gap:8px;align-items:center;}
   .gear{width:44px;height:44px;border:none;background:rgba(0,0,0,.18);border-radius:12px;color:var(--tape);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
   .gear:active{transform:scale(.94);}
@@ -50,8 +50,8 @@
   .combo-numbers .mv{font-family:"Barlow Semi Condensed";font-weight:700;font-size:.34em;text-transform:uppercase;letter-spacing:.08em;opacity:.85;align-self:center;}
   .combo-numbers.hit{animation:bark .42s cubic-bezier(.2,.9,.25,1.3) forwards;}
   @keyframes bark{0%{opacity:0;transform:scale(.7) translateY(8px);}55%{opacity:1;transform:scale(1.06);}100%{opacity:1;transform:scale(1);}}
-  .combo-names{margin-top:8px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:clamp(13px,4vw,18px);color:rgba(244,239,230,.78);min-height:1.2em;}
-  .idle-hint{color:rgba(244,239,230,.6);font-size:16px;letter-spacing:.04em;max-width:300px;line-height:1.4;}
+  .combo-names{margin-top:8px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:clamp(13px,4vw,18px);color:color-mix(in srgb, var(--tape) 78%, transparent);min-height:1.2em;}
+  .idle-hint{color:color-mix(in srgb, var(--tape) 60%, transparent);font-size:16px;letter-spacing:.04em;max-width:300px;line-height:1.4;}
 
   footer{flex:0 0 auto;display:flex;gap:12px;padding:10px 0 18px;}
   .btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:"Barlow Semi Condensed";font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:19px;padding:20px 12px;color:var(--canvas);background:var(--tape);transition:transform .08s,opacity .2s;}
@@ -129,7 +129,7 @@
   .stage{min-height:66px;background:var(--canvas-2);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
   .stage .ph{color:var(--steel);font-size:14px;line-height:1.3;}
   .stage .tk{font-family:"Anton";font-size:28px;letter-spacing:.03em;}
-  .stage .tkm{font-family:"Barlow Semi Condensed";font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:.06em;background:rgba(244,239,230,.13);padding:6px 9px;border-radius:8px;}
+  .stage .tkm{font-family:"Barlow Semi Condensed";font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:.06em;background:color-mix(in srgb, var(--tape) 13%, transparent);padding:6px 9px;border-radius:8px;}
   .stage-actions{display:flex;gap:8px;margin:8px 0 0;}
   .stage-actions button{flex:1;padding:11px;border:1px solid var(--line);background:transparent;color:var(--tape);border-radius:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;font-size:14px;}
   .pad-title{font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:14px 0 6px;}
@@ -147,7 +147,7 @@
 
   .stance-badge{margin-top:8px;display:inline-block;border:none;cursor:pointer;font-family:"Barlow Semi Condensed";font-weight:700;text-transform:uppercase;letter-spacing:.11em;font-size:13px;padding:7px 13px;border-radius:9px;background:rgba(0,0,0,.28);color:var(--tape);}
   .stance-badge:active{transform:scale(.95);}
-  .stance-badge.orthodox{box-shadow:inset 0 0 0 2px rgba(244,239,230,.55);}
+  .stance-badge.orthodox{box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--tape) 55%, transparent);}
   .stance-badge.southpaw{box-shadow:inset 0 0 0 2px var(--prep);color:var(--prep);}
 
   /* tutorial */
@@ -156,10 +156,10 @@
   .tut-card{background:var(--canvas-2);border:1px solid var(--line);border-radius:18px;max-width:380px;width:100%;padding:24px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
   .tut-step{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--steel);}
   .tut-card h3{font-family:"Anton";font-weight:400;letter-spacing:.04em;text-transform:uppercase;font-size:26px;margin:6px 0 12px;line-height:1;}
-  .tut-body{font-size:16px;line-height:1.5;color:rgba(244,239,230,.85);min-height:96px;}
+  .tut-body{font-size:16px;line-height:1.5;color:color-mix(in srgb, var(--tape) 85%, transparent);min-height:96px;}
   .tut-body b{color:var(--prep);font-weight:700;}
   .tut-dots{display:flex;gap:6px;justify-content:center;margin:18px 0 16px;}
-  .tut-dots .d{width:8px;height:8px;border-radius:50%;background:rgba(244,239,230,.22);transition:background .2s;}
+  .tut-dots .d{width:8px;height:8px;border-radius:50%;background:color-mix(in srgb, var(--tape) 22%, transparent);transition:background .2s;}
   .tut-dots .d.on{background:var(--tape);}
   .tut-actions{display:flex;gap:10px;align-items:center;}
   .tut-skip{background:none;border:none;color:var(--steel);font-family:inherit;font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:14px;cursor:pointer;padding:14px 6px;}
@@ -538,35 +538,35 @@
       "prep":"#fcee0a","prep-deep":"#5a5406","prep-edge":"#2a2703",
       "done":"#10181a","tape":"#fcee0a","steel":"#5f7d82","line":"#1d3036" } },
     rocky: { label:"Rocky Balboa", vars:{
-      "canvas":"#15100d","canvas-2":"#201812",
-      "work":"#9c1f1f","work-deep":"#4e0d0d","work-edge":"#1f0707",
+      "canvas":"#241511","canvas-2":"#311d16",
+      "work":"#a82424","work-deep":"#5e1212","work-edge":"#2a0808",
       "rest":"#3a6ea5","rest-deep":"#1e3a52","rest-edge":"#0c1d2b",
-      "prep":"#cf9b3f","prep-deep":"#4a3618","prep-edge":"#241a0b",
-      "done":"#1c140e","tape":"#efe2cc","steel":"#8c8174","line":"#33271d" } },
+      "prep":"#d4a24a","prep-deep":"#4a3618","prep-edge":"#241a0b",
+      "done":"#2c1a13","tape":"#f0e2cc","steel":"#9a8a7a","line":"#43291f" } },
     apollo: { label:"Apollo Creed", vars:{
-      "canvas":"#0c0f1a","canvas-2":"#161b2b",
-      "work":"#d4202f","work-deep":"#7a101a","work-edge":"#2a0810",
-      "rest":"#2456c0","rest-deep":"#122e6b","rest-edge":"#08163a",
-      "prep":"#e8c14a","prep-deep":"#4a3c14","prep-edge":"#241d09",
-      "done":"#111422","tape":"#f5f6fb","steel":"#7a8199","line":"#222842" } },
+      "canvas":"#15336e","canvas-2":"#1d4286",
+      "work":"#e01f2f","work-deep":"#9c1019","work-edge":"#4a0810",
+      "rest":"#4a90e2","rest-deep":"#1f5ab0","rest-edge":"#123f80",
+      "prep":"#ffd24a","prep-deep":"#c89a28","prep-edge":"#6e5418",
+      "done":"#15336e","tape":"#f4f8ff","steel":"#9fb2d8","line":"#2a4f96" } },
     clubber: { label:"Clubber Lang", vars:{
-      "canvas":"#0d0b08","canvas-2":"#171206",
-      "work":"#b80d28","work-deep":"#5e0815","work-edge":"#220409",
-      "rest":"#caa030","rest-deep":"#6e560f","rest-edge":"#2c2206",
-      "prep":"#e8c84a","prep-deep":"#4a3e12","prep-edge":"#241e08",
-      "done":"#15110a","tape":"#f0e6cf","steel":"#7d7458","line":"#241c0c" } },
+      "canvas":"#100d06","canvas-2":"#1c1608",
+      "work":"#c01030","work-deep":"#660818","work-edge":"#240409",
+      "rest":"#d0a830","rest-deep":"#74590f","rest-edge":"#2c2206",
+      "prep":"#f0cf4e","prep-deep":"#4a3e12","prep-edge":"#241e08",
+      "done":"#15110a","tape":"#f2e8cf","steel":"#847a58","line":"#2a210d" } },
     drago: { label:"Ivan Drago", vars:{
-      "canvas":"#0c0f12","canvas-2":"#151b20",
-      "work":"#c81f1f","work-deep":"#6c0f0f","work-edge":"#240606",
+      "canvas":"#0e151c","canvas-2":"#172230",
+      "work":"#d01f1f","work-deep":"#72100f","work-edge":"#240606",
       "rest":"#4a90b8","rest-deep":"#234a5e","rest-edge":"#0e2531",
-      "prep":"#aebcc6","prep-deep":"#3a444c","prep-edge":"#1c2228",
-      "done":"#0f1418","tape":"#e6edf2","steel":"#6a7882","line":"#1e2730" } },
+      "prep":"#b6c4ce","prep-deep":"#3a444c","prep-edge":"#1c2228",
+      "done":"#0f1820","tape":"#e6edf2","steel":"#7a8a96","line":"#243240" } },
     littlemac: { label:"Little Mac", vars:{
-      "canvas":"#0a1410","canvas-2":"#10201a",
+      "canvas":"#0d2418","canvas-2":"#123322",
       "work":"#e23b2e","work-deep":"#8c1d13","work-edge":"#2a0c08",
-      "rest":"#2e9e5b","rest-deep":"#155f34","rest-edge":"#082817",
+      "rest":"#2eae62","rest-deep":"#166b3a","rest-edge":"#082817",
       "prep":"#f2c14e","prep-deep":"#4a3a16","prep-edge":"#241b0c",
-      "done":"#0d1a13","tape":"#f0f7ef","steel":"#6f8478","line":"#16291f" } },
+      "done":"#0d1f15","tape":"#f0f7ef","steel":"#7a9485","line":"#1d3d2a" } },
     ironmike: { label:"Iron Mike", vars:{
       "canvas":"#0b0b0c","canvas-2":"#161618",
       "work":"#c0102a","work-deep":"#66091a","work-edge":"#220308",
@@ -574,77 +574,83 @@
       "prep":"#d0d0d0","prep-deep":"#3c3c40","prep-edge":"#1c1c1f",
       "done":"#0f0f11","tape":"#f2f2f2","steel":"#74787e","line":"#202227" } },
     hagler: { label:"Marvin Hagler", vars:{
-      "canvas":"#0d0e0f","canvas-2":"#16181a",
+      "canvas":"#101315","canvas-2":"#1a2024",
       "work":"#b51d2a","work-deep":"#5e0d14","work-edge":"#210508",
       "rest":"#5a6b78","rest-deep":"#2c3942","rest-edge":"#131a1f",
       "prep":"#c9ccd0","prep-deep":"#3a3d42","prep-edge":"#1c1e21",
-      "done":"#101113","tape":"#eef1f3","steel":"#737b82","line":"#1f2327" } },
+      "done":"#101113","tape":"#eef1f3","steel":"#7a838a","line":"#232a30" } },
     foreman: { label:"George Foreman", vars:{
-      "canvas":"#140f0a","canvas-2":"#1f160d",
+      "canvas":"#241509","canvas-2":"#31200c",
       "work":"#d23a1e","work-deep":"#7a1d0c","work-edge":"#2a0c05",
-      "rest":"#3f7d6e","rest-deep":"#1f4239","rest-edge":"#0c1f1b",
-      "prep":"#e3a93c","prep-deep":"#4a3814","prep-edge":"#241b0a",
-      "done":"#1a130c","tape":"#f2e7d3","steel":"#8c8070","line":"#2e2116" } },
+      "rest":"#3f9d86","rest-deep":"#1f5246","rest-edge":"#0c2a22",
+      "prep":"#e8ad3c","prep-deep":"#4a3814","prep-edge":"#241b0a",
+      "done":"#241609","tape":"#f4ead6","steel":"#9a8a74","line":"#44301a" } },
     ali: { label:"Muhammad Ali", vars:{
-      "canvas":"#100e0c","canvas-2":"#1b1713",
+      "canvas":"#161210","canvas-2":"#231c17",
       "work":"#cf1f2d","work-deep":"#76121b","work-edge":"#28070b",
-      "rest":"#2a6f9e","rest-deep":"#143a52","rest-edge":"#08202e",
-      "prep":"#e7c34a","prep-deep":"#4a3d14","prep-edge":"#241e09",
-      "done":"#181410","tape":"#f6efe2","steel":"#8a8374","line":"#2c2620" } },
+      "rest":"#2a78aa","rest-deep":"#14435e","rest-edge":"#08202e",
+      "prep":"#ecc74a","prep-deep":"#4a3d14","prep-edge":"#241e09",
+      "done":"#181410","tape":"#f6efe2","steel":"#8f8576","line":"#332b22" } },
     pacquiao: { label:"Manny Pacquiao", vars:{
-      "canvas":"#0a0d14","canvas-2":"#141a26",
-      "work":"#cf202f","work-deep":"#76101a","work-edge":"#2a070d",
-      "rest":"#1e62b8","rest-deep":"#103366","rest-edge":"#07193a",
-      "prep":"#f2c20e","prep-deep":"#4a3a06","prep-edge":"#241c03",
-      "done":"#10141e","tape":"#f4f6fb","steel":"#7a8497","line":"#202a3a" } },
+      "canvas":"#112a5e","canvas-2":"#163675",
+      "work":"#d0202f","work-deep":"#76101a","work-edge":"#2a070d",
+      "rest":"#1f6ad0","rest-deep":"#103a86","rest-edge":"#07215a",
+      "prep":"#f6c810","prep-deep":"#4a3a06","prep-edge":"#241c03",
+      "done":"#112a5e","tape":"#f4f7fc","steel":"#92a6c8","line":"#244780" } },
     ippo: { label:"Ippo Makunouchi", vars:{
-      "canvas":"#0c0e14","canvas-2":"#161a24",
+      "canvas":"#122150","canvas-2":"#182b66",
       "work":"#e23a32","work-deep":"#8c1a14","work-edge":"#2a0908",
-      "rest":"#2f5fb0","rest-deep":"#16356b","rest-edge":"#081b3a",
+      "rest":"#2f6ad0","rest-deep":"#163f8a","rest-edge":"#081b3a",
       "prep":"#f0c64e","prep-deep":"#4a3a14","prep-edge":"#241c0a",
-      "done":"#11141c","tape":"#eef1f7","steel":"#737d8c","line":"#1d2430" } },
+      "done":"#122150","tape":"#eef2fb","steel":"#8290b0","line":"#233a72" } },
     kinghippo: { label:"King Hippo", vars:{
-      "canvas":"#0c1014","canvas-2":"#161c22",
-      "work":"#e85a8a","work-deep":"#8a2a4e","work-edge":"#2a0c18",
-      "rest":"#1f86c0","rest-deep":"#0f4a6e","rest-edge":"#07222f",
+      "canvas":"#0c2230","canvas-2":"#123241",
+      "work":"#f06a96","work-deep":"#8a2a4e","work-edge":"#2a0c18",
+      "rest":"#1f9ad0","rest-deep":"#0f5a7e","rest-edge":"#072835",
       "prep":"#f2cf4e","prep-deep":"#4a3f14","prep-edge":"#241f0a",
-      "done":"#101418","tape":"#f4eef0","steel":"#7a838c","line":"#1d2630" } },
+      "done":"#0e2430","tape":"#f4eef0","steel":"#7a98a0","line":"#1f4350" } },
     ryu: { label:"Ryu", vars:{
-      "canvas":"#0e0f12","canvas-2":"#181a1f",
+      "canvas":"#14171c","canvas-2":"#20242c",
       "work":"#d22730","work-deep":"#7a1219","work-edge":"#28070a",
       "rest":"#2a78c8","rest-deep":"#143f72","rest-edge":"#07203a",
-      "prep":"#dfe3e8","prep-deep":"#3a3f46","prep-edge":"#1c1f24",
-      "done":"#101216","tape":"#f3f5f8","steel":"#79818c","line":"#1f242b" } },
+      "prep":"#e2e6ec","prep-deep":"#3a3f46","prep-edge":"#1c1f24",
+      "done":"#131619","tape":"#f3f5f8","steel":"#828a96","line":"#283038" } },
     scorpion: { label:"Scorpion", vars:{
-      "canvas":"#0c0a06","canvas-2":"#16110a",
+      "canvas":"#0e0b05","canvas-2":"#1b1409",
       "work":"#f0a81e","work-deep":"#8a5c08","work-edge":"#2a1c03",
       "rest":"#3a3f44","rest-deep":"#1d2024","rest-edge":"#0d0f11",
       "prep":"#f0c020","prep-deep":"#4a3a06","prep-edge":"#241c03",
-      "done":"#100c06","tape":"#f4ead0","steel":"#8a7d56","line":"#262017" } },
+      "done":"#100c06","tape":"#f4ead0","steel":"#8a7d56","line":"#2a2210" } },
     subzero: { label:"Sub-Zero", vars:{
-      "canvas":"#070d12","canvas-2":"#101a22",
+      "canvas":"#0a1622","canvas-2":"#12283a",
       "work":"#2fa4e0","work-deep":"#0f5a86","work-edge":"#062430",
       "rest":"#3a4650","rest-deep":"#1d262e","rest-edge":"#0c1217",
       "prep":"#bfe6f5","prep-deep":"#23414f","prep-edge":"#112430",
-      "done":"#0a121a","tape":"#eaf6fb","steel":"#6f8693","line":"#16242e" } },
+      "done":"#0a141f","tape":"#eaf6fb","steel":"#7896a6","line":"#1e3a4e" } },
     goku: { label:"Goku", vars:{
-      "canvas":"#0d0c10","canvas-2":"#181620",
-      "work":"#ef7d18","work-deep":"#8a4408","work-edge":"#2a1404",
-      "rest":"#2b5fd0","rest-deep":"#163a8a","rest-edge":"#08184a",
-      "prep":"#f2c41e","prep-deep":"#4a3a06","prep-edge":"#241c03",
-      "done":"#100e14","tape":"#f5eee0","steel":"#807a8a","line":"#221f2a" } },
+      "canvas":"#7a3408","canvas-2":"#8f4010",
+      "work":"#f07d18","work-deep":"#a8500a","work-edge":"#5a2a06",
+      "rest":"#2f6fd8","rest-deep":"#163f96","rest-edge":"#0a2358",
+      "prep":"#ffd21e","prep-deep":"#caa018","prep-edge":"#6e5410",
+      "done":"#7a3408","tape":"#fff4e4","steel":"#d6a884","line":"#9a531a" } },
+    vegeta: { label:"Vegeta", vars:{
+      "canvas":"#16204f","canvas-2":"#1f2c68",
+      "work":"#c0286f","work-deep":"#7a1644","work-edge":"#3a0a22",
+      "rest":"#3a56c8","rest-deep":"#1d2f86","rest-edge":"#0e1a54",
+      "prep":"#ffce3a","prep-deep":"#c89a20","prep-edge":"#6e5410",
+      "done":"#16204f","tape":"#eef1ff","steel":"#8a92c8","line":"#2a3a7e" } },
     brucelee: { label:"Bruce Lee", vars:{
-      "canvas":"#0c0c0a","canvas-2":"#16160f",
+      "canvas":"#0f0f0a","canvas-2":"#1b1b10",
       "work":"#d4341f","work-deep":"#7a1a0c","work-edge":"#2a0a04",
       "rest":"#2a2a26","rest-deep":"#161613","rest-edge":"#0b0b09",
       "prep":"#f2d21e","prep-deep":"#4a4006","prep-edge":"#241f03",
-      "done":"#100f0a","tape":"#f4f0dc","steel":"#8a8568","line":"#26241a" } },
+      "done":"#100f0a","tape":"#f4f0dc","steel":"#8a8568","line":"#2a2818" } },
     kenshiro: { label:"Kenshiro", vars:{
-      "canvas":"#0c0a0d","canvas-2":"#161019",
+      "canvas":"#150e22","canvas-2":"#20152f",
       "work":"#c01f3a","work-deep":"#6c0f20","work-edge":"#25060e",
       "rest":"#7a3fb0","rest-deep":"#3f1f66","rest-edge":"#1b0d2e",
       "prep":"#d4b24a","prep-deep":"#46380f","prep-edge":"#231c07",
-      "done":"#120e15","tape":"#f0e8ee","steel":"#857890","line":"#241c2a" } }
+      "done":"#140e1e","tape":"#f0e8ee","steel":"#8a7c96","line":"#2c2238" } }
   };
   const THEME_IDS = Object.keys(THEMES);
   function applyTheme(id){
@@ -1057,7 +1063,7 @@
     {h:"Read the calls", b:"Combos flash on screen and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between."},
     {h:"Switch stance", b:"The badge under the round count shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you."},
     {h:"Make it yours", b:"Tap the <b>gear</b> for setup. <b>Workout</b>: rounds, length and level. <b>Combos</b>: pick your pool or build your own. <b>More</b>: voice, pace and call style."},
-    {h:"Pick your fighter", b:"Down at the bottom of <b>More</b> &rarr; <b>Theme</b>, reskin the whole app. Twenty looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b> and <b>Goku</b>. Your corner, your colours."},
+    {h:"Pick your fighter", b:"Down at the bottom of <b>More</b> &rarr; <b>Theme</b>, reskin the whole app. Loads of looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Your corner, your colours."},
     {h:"Turn the sound on", b:"Flip your phone off silent and turn it up. On iPhone the coach only speaks <b>after you tap Start</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
   let tutIdx = 0;

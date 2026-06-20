@@ -42,7 +42,11 @@ boxers and beyond:
   Ivan Drago, Little Mac, Iron Mike, Marvin Hagler, George Foreman,
   Muhammad Ali, Manny Pacquiao, Ippo Makunouchi, King Hippo
 - **Games & screen:** Cyberpunk 2077, Ryu, Scorpion, Sub-Zero, Goku,
-  Bruce Lee, Kenshiro
+  Vegeta, Bruce Lee, Kenshiro
+
+Each theme is built around its fighter's signature colours &mdash; Apollo's
+red/white/blue, Goku's orange gi, Vegeta's Saiyan blue &mdash; not just a dark
+base.
 
 The choice is saved on your device.
 
