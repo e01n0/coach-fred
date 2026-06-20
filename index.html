@@ -479,8 +479,6 @@
   let wakeLock = null, audioCtx = null;
   let delivering = false, deliverTimers = [];
 
-  const PACE = { relaxed:[6.5,10], steady:[4,7], relentless:[2.4,4.5] };
-
   /* ---------- elements ---------- */
   const $ = id => document.getElementById(id);
   const app=$("app"), clock=$("clock"), stateLabel=$("stateLabel");
