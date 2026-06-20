@@ -37,7 +37,8 @@ python3 -m http.server 8080
 ## Themes
 Reskin the whole app from **Setup → More → Theme**. Pick your fighter:
 Coach Fred (default), Cyberpunk 2077, Rocky Balboa, Apollo Creed, Clubber Lang,
-Ivan Drago, Little Mac and Iron Mike. The choice is saved on your device.
+Ivan Drago, Little Mac, Iron Mike, Marvin Hagler, George Foreman, Muhammad Ali,
+Manny Pacquiao, Ippo Makunouchi and King Hippo. The choice is saved on your device.
 
 ## Notes
 - iOS only speaks after you tap Start, and the silent switch must be off.
