@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-title" content="Coach Fred" />
 <meta name="application-name" content="Coach Fred" />
 <meta name="theme-color" content="#161311" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
 <title>Coach Fred</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -88,6 +91,11 @@
   .theme-chip .nm{font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:12.5px;margin-bottom:9px;}
   .theme-chip .sw{display:flex;gap:5px;}
   .theme-chip .sw span{width:17px;height:17px;border-radius:5px;display:block;border:1px solid rgba(0,0,0,.25);}
+  .workouts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .wk{position:relative;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--canvas-2);color:var(--tape);cursor:pointer;font-family:inherit;transition:border-color .15s,box-shadow .15s;}
+  .wk.on{border-color:var(--work);box-shadow:0 0 0 1px var(--work);}
+  .wk .nm{font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:13px;}
+  .wk .sub{font-size:12px;color:var(--steel);margin-top:3px;font-variant-numeric:tabular-nums;}
   .toggle-row{display:flex;justify-content:space-between;align-items:center;}
   .switch{position:relative;width:54px;height:30px;flex:0 0 auto;}
   .switch input{opacity:0;width:0;height:0;}
@@ -215,6 +223,12 @@
     <!-- WORKOUT PANE -->
     <div class="pane on" id="pane-workout">
       <div class="field">
+        <div class="field-label"><span>Quick start</span></div>
+        <div class="workouts" id="workoutGrid"></div>
+        <div class="note">Real, ring-standard structures &mdash; tap one to load it, then tweak below. Tabata, HIIT and EMOM are timed interval formats; Pyramid, Burnout and Footwork change what the corner calls.</div>
+      </div>
+
+      <div class="field">
         <div class="field-label"><span>Structure</span></div>
         <div class="seg" id="segMode">
           <button data-v="uniform" class="on">Uniform</button>
@@ -264,11 +278,16 @@
         </div>
         <div class="field">
           <div class="field-label"><span>Rest</span><span class="val" id="vRest">1:00</span></div>
-          <input type="range" id="sRest" min="15" max="180" step="15" value="60">
+          <input type="range" id="sRest" min="0" max="180" step="15" value="60">
         </div>
-        <div class="field">
+        <div class="field" id="uniformFocusField">
           <div class="field-label"><span>Combos for all rounds</span></div>
           <select id="uniformFocus"></select>
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Round format</span></div>
+          <select id="sFormat"></select>
+          <div class="note" id="formatNote"></div>
         </div>
       </div>
 
@@ -357,7 +376,14 @@
         <select id="sVoice"></select>
         <div class="note">If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
       </div>
-      <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen. Your combos and program are saved on this device.</div>
+      <div class="field">
+        <div class="toggle-row">
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">10-second clapper</span>
+          <label class="switch"><input type="checkbox" id="sClapper" checked><span class="slider"></span></label>
+        </div>
+        <div class="note">A wooden clapper rattles in the last 10 seconds of rest &mdash; the ringside ten-second warning before the bell. The bell itself rings to start and end every round.</div>
+      </div>
+      <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen, or install from your browser. Works offline once loaded; your combos and program are saved on this device.</div>
 
       <div class="field">
         <div class="field-label"><span>Theme</span></div>
@@ -420,6 +446,51 @@
   const MOVE_DEFAULT_ON = new Set(["Slip left","Slip right","Roll left","Roll right","Roll under","Step in","Step out","Step back","Pivot left","Pivot right","Duck","Weave","Parry","Shield","Block","Pull back"]);
   const MIX = { off:{inject:0,tail:0}, light:{inject:0.22,tail:0.42}, heavy:{inject:0.42,tail:0.6} };
   function mix(){ return MIX[cfg.moveMix] || MIX.light; }
+
+  /* ---------- round formats ---------- */
+  // Pyramid / ladder: climb the straight punch count 1->6, then back down — a
+  // classic heavy-bag conditioning drill (ExpertBoxing, RDX, Spartans).
+  const PYRAMID = [
+    ["1"],["1","2"],["1","2","3"],["1","2","3","4"],["1","2","3","4","5"],["1","2","3","4","5","6"],
+    ["1","2","3","4","5"],["1","2","3","4"],["1","2","3"],["1","2"]
+  ];
+  // Real, coach-standard footwork drills called as single instructions
+  // (Precision Striking, AskMeBoxing, Gloveworx). left/right flip on southpaw.
+  const FOOT_DRILLS = [
+    ["step in"],["step out"],["step in","step out"],
+    ["step left"],["step right"],
+    ["pivot left"],["pivot right"],
+    ["circle left"],["circle right"],
+    ["shuffle left"],["shuffle right"],
+    ["pendulum step"],["L step"],["cut the angle"],["step drag"],
+    ["step in","1","step out"],["pivot left","2"],["1","circle right"]
+  ];
+  const FORMATS = [
+    ["combos","Combos (caller)","The corner calls combinations from your ticked pool."],
+    ["pyramid","Pyramid ladder","Climb the punch count 1→6 and back down, over and over."],
+    ["burnout","Burnout punch-out","Non-stop 1-2 straight punches — speed and volume over power."],
+    ["footwork","Footwork drills","Called footwork: pivots, shuffles, in-and-out, angles."],
+    ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the bell, rest the rest."]
+  ];
+  const FORMAT_LABEL = Object.fromEntries(FORMATS.map(f=>[f[0],f[1]]));
+
+  /* ---------- preset workouts (real, web-validated structures) ----------
+     Pro boxing is 3-min rounds / 1-min rest; amateur & Olympic men's bouts run
+     3x3. Heavy-bag sessions are typically 6-10x3 (ExpertBoxing, Sting, RDX).
+     Tabata 20/10 x8, HIIT 40/20, EMOM and burnout/pyramid drills from FightCamp
+     and Sweet Science of Fighting. */
+  const WORKOUTS = [
+    {id:"beginner", label:"Beginner",  sub:"3 × 2:00", cfg:{mode:"uniform",rounds:3,work:120,rest:60,level:"beginner",uniformFocus:"all",format:"combos",moveMix:"light",bodyMix:"some",pace:"relaxed"}},
+    {id:"amateur",  label:"Amateur",   sub:"3 × 3:00", cfg:{mode:"uniform",rounds:3,work:180,rest:60,level:"intermediate",uniformFocus:"all",format:"combos",pace:"steady"}},
+    {id:"club",     label:"Club bag",  sub:"6 × 3:00", cfg:{mode:"uniform",rounds:6,work:180,rest:60,level:"build",uniformFocus:"all",format:"combos",pace:"steady"}},
+    {id:"pro",      label:"Pro",       sub:"12 × 3:00",cfg:{mode:"uniform",rounds:12,work:180,rest:60,level:"build",uniformFocus:"all",format:"combos",pace:"steady"}},
+    {id:"tabata",   label:"Tabata",    sub:"8 × 20/10",cfg:{mode:"uniform",rounds:8,work:20,rest:10,prep:10,level:"intermediate",uniformFocus:"all",format:"combos",pace:"relentless"}},
+    {id:"hiit",     label:"HIIT",      sub:"10 × 40/20",cfg:{mode:"uniform",rounds:10,work:40,rest:20,level:"intermediate",uniformFocus:"all",format:"combos",pace:"relentless"}},
+    {id:"emom",     label:"EMOM",      sub:"10 × 1:00", cfg:{mode:"uniform",rounds:10,work:60,rest:0,level:"intermediate",uniformFocus:"all",format:"emom",pace:"steady"}},
+    {id:"pyramid",  label:"Pyramid",   sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"pyramid",pace:"steady"}},
+    {id:"burnout",  label:"Burnout",   sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:45,format:"burnout",pace:"relentless"}},
+    {id:"footwork", label:"Footwork",  sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"footwork",level:"intermediate",pace:"steady"}}
+  ];
   const PRESETS_VER = 10;
   const MOVE_VER = 1;
   const isDigit = t => Object.prototype.hasOwnProperty.call(PUNCH, t);
@@ -726,6 +797,7 @@
     ],
     pace:"steady", moveMix:"light", level:"build", bodyMix:"some", voice:null,
     stanceOn:true, stanceMode:"alternate", startStance:"orthodox", callStyle:"both", rate:1.25,
+    format:"combos", clapperOn:true,
     theme:"fred",
     library:null, custom:[], movement:null
   };
@@ -776,6 +848,7 @@
   let endAt = 0, pausedRemaining = 0, running = false, tickId = null, nextComboAt = 0;
   let wakeLock = null, audioCtx = null;
   let delivering = false, deliverTimers = [];
+  let currentFormat = "combos", currentSegSecs = 0, clapperFired = false, pyrIdx = 0, emomDone = false;
 
   /* ---------- elements ---------- */
   const $ = id => document.getElementById(id);
@@ -790,21 +863,64 @@
 
   /* ---------- audio ---------- */
   function ensureAudio(){ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==="suspended") audioCtx.resume(); }
+  let noiseBuf = null;
+  function noise(){
+    if(!noiseBuf){
+      noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate*0.5, audioCtx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
+    }
+    const s = audioCtx.createBufferSource(); s.buffer = noiseBuf; return s;
+  }
+  // One strike of a bright metallic ring bell: inharmonic partials + a noise strike.
+  function ding(start, gain){
+    const f0 = 620*(1+(Math.random()-.5)*0.01);
+    // Risset-style inharmonic ratios give the metallic "ring" of a struck bell.
+    const partials = [[1.0,1.0,1.7],[2.0,0.6,1.3],[2.76,0.42,1.0],[3.9,0.28,0.7],[5.4,0.2,0.5],[8.9,0.12,0.32]];
+    partials.forEach(([ratio,amp,dec])=>{
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type="sine"; o.frequency.value=f0*ratio;
+      g.gain.setValueAtTime(0,start);
+      g.gain.linearRampToValueAtTime(gain*amp,start+0.003);
+      g.gain.exponentialRampToValueAtTime(0.0006,start+dec);
+      o.connect(g).connect(audioCtx.destination);
+      o.start(start); o.stop(start+dec+0.05);
+    });
+    // hammer strike transient
+    const s=noise(), bp=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
+    bp.type="bandpass"; bp.frequency.value=3200; bp.Q.value=0.8;
+    g.gain.setValueAtTime(gain*0.5,start);
+    g.gain.exponentialRampToValueAtTime(0.0006,start+0.035);
+    s.connect(bp).connect(g).connect(audioCtx.destination);
+    s.start(start); s.stop(start+0.05);
+  }
   function bell(times=1){
     if(!audioCtx) return;
     const t0 = audioCtx.currentTime;
-    for(let n=0;n<times;n++){
-      const start = t0 + n*0.34;
-      [880,1320,1760].forEach((f,i)=>{
-        const o=audioCtx.createOscillator(), g=audioCtx.createGain();
-        o.type="sine"; o.frequency.value=f*(1+(Math.random()-.5)*0.01);
-        g.gain.setValueAtTime(0,start);
-        g.gain.linearRampToValueAtTime(0.32/(i+1),start+0.005);
-        g.gain.exponentialRampToValueAtTime(0.0008,start+0.5);
-        o.connect(g).connect(audioCtx.destination);
-        o.start(start); o.stop(start+0.55);
-      });
-    }
+    for(let n=0;n<times;n++) ding(t0 + n*0.34, 0.34);
+  }
+  // One wooden "clack" of the ringside ten-second clapper: noise burst + wood resonance.
+  function clack(start, gain){
+    const s=noise(), bp=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
+    bp.type="bandpass"; bp.frequency.value=1900*(1+(Math.random()-.5)*0.06); bp.Q.value=1.1;
+    g.gain.setValueAtTime(gain,start);
+    g.gain.exponentialRampToValueAtTime(0.0005,start+0.045);
+    s.connect(bp).connect(g).connect(audioCtx.destination);
+    s.start(start); s.stop(start+0.06);
+    [820,1280].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(), og=audioCtx.createGain();
+      o.type="triangle"; o.frequency.value=f*(1+(Math.random()-.5)*0.04);
+      og.gain.setValueAtTime(gain*0.4/(i+1),start);
+      og.gain.exponentialRampToValueAtTime(0.0005,start+0.04);
+      o.connect(og).connect(audioCtx.destination);
+      o.start(start); o.stop(start+0.05);
+    });
+  }
+  // The ten-second clapper: rapid wooden clacks warning the round is about to start.
+  function clapper(){
+    if(!audioCtx) return;
+    let t = audioCtx.currentTime + 0.02;
+    for(let i=0;i<11;i++){ clack(t, 0.5); t += 0.12 + Math.random()*0.02; }
   }
 
   /* ---------- speech ---------- */
@@ -912,6 +1028,7 @@
   const PERSHOT = 0.5;
   const BREATHER = { relentless:[1.0,2.0], steady:[1.8,3.0], relaxed:[3.0,4.5] };
   function scheduleNext(n){
+    if(currentFormat==="burnout"){ nextComboAt = Date.now() + (n||1)*PERSHOT*0.55*1000; return; }
     const br = rnd(...(BREATHER[cfg.pace] || BREATHER.steady));
     nextComboAt = Date.now() + ((n||1)*PERSHOT + br)*1000;
   }
@@ -985,15 +1102,24 @@
     for(let i=0;i<combos.length;i++){ r -= w[i]; if(r<=0) return combos[i]; }
     return combos[combos.length-1];
   }
+  function selectCombo(){
+    const {combos, freestyle} = eligible(currentFocus);
+    if(combos.length && freestyle) return Math.random()<0.5 ? pickEligible(combos) : freestyleCombo();
+    if(combos.length) return pickEligible(combos);
+    return freestyleCombo();
+  }
+  function footworkCall(){ return {tokens: pick(FOOT_DRILLS).slice(), name:""}; }
   function callCombo(){
+    if(currentFormat==="pyramid"){ deliver({tokens: PYRAMID[pyrIdx++ % PYRAMID.length].slice(), name:""}); return; }
+    if(currentFormat==="burnout"){ deliver({tokens:["1","2"], name:""}); return; }
+    if(currentFormat==="footwork"){ deliver(footworkCall()); return; }
+    if(currentFormat==="emom"){
+      if(emomDone){ nextComboAt = Date.now()+3600000; return; }
+      emomDone = true; deliver(selectCombo()); return;
+    }
     const focusWantsMovement = ["all","defence","phase","freestyle"].includes(currentFocus);
     if(focusWantsMovement && Math.random()<mix().inject*levelFactor()){ const m=movementCall(); if(m){ deliver(m); return; } }
-    const {combos, freestyle} = eligible(currentFocus);
-    let combo;
-    if(combos.length && freestyle) combo = Math.random()<0.5 ? pickEligible(combos) : freestyleCombo();
-    else if(combos.length) combo = pickEligible(combos);
-    else combo = freestyleCombo();
-    deliver(combo);
+    deliver(selectCombo());
   }
 
   /* ---------- wake lock ---------- */
@@ -1007,13 +1133,13 @@
     if(cfg.prep>0) seg.push({type:"prep", secs:cfg.prep});
     if(cfg.mode==="uniform"){
       for(let i=0;i<cfg.rounds;i++){
-        seg.push({type:"work", secs:cfg.work, label:`Round ${i+1}`, focus:cfg.uniformFocus});
-        if(i<cfg.rounds-1) seg.push({type:"rest", secs:cfg.rest});
+        seg.push({type:"work", secs:cfg.work, label:`Round ${i+1}`, focus:cfg.uniformFocus, format:cfg.format||"combos"});
+        if(cfg.rest>0 && i<cfg.rounds-1) seg.push({type:"rest", secs:cfg.rest});
       }
     } else {
       const p = cfg.program;
       p.forEach((r,i)=>{
-        seg.push({type:"work", secs:r.work, label:r.label||`Round ${i+1}`, focus:r.focus});
+        seg.push({type:"work", secs:r.work, label:r.label||`Round ${i+1}`, focus:r.focus, format:r.format||"combos"});
         if(r.rest>0 && i<p.length-1) seg.push({type:"rest", secs:r.rest});
       });
     }
@@ -1032,12 +1158,15 @@
     phase = seg.type;
     app.className = seg.type;
     skipBtn.disabled = false;
+    currentSegSecs = seg.secs; clapperFired = false;
     if(seg.type==="work"){
       workCount++; currentFocus = seg.focus;
+      currentFormat = seg.format || "combos"; pyrIdx = 0; emomDone = false;
       stateLabel.textContent = seg.label;
       idleHint.style.display="none";
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
-      bell(1); say(st ? `${seg.label}. ${st}` : seg.label);
+      const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
+      bell(1); say((st ? `${seg.label}. ${st}` : seg.label) + fmtSay);
       roundNow.textContent = workCount; roundTotal.textContent = totalWork;
     } else if(seg.type==="rest"){
       stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); bell(3); say("Rest");
@@ -1053,6 +1182,9 @@
     const remaining = Math.max(0, endAt-Date.now());
     const secs = remaining/1000;
     clock.textContent = fmt(Math.ceil(secs));
+    if((phase==="rest"||phase==="prep") && cfg.clapperOn && !clapperFired && currentSegSecs>11 && secs<=10){
+      clapperFired = true; clapper();
+    }
     if(phase==="work" && Date.now()>=nextComboAt && secs>1.5 && !delivering && !(("speechSynthesis" in window) && speechSynthesis.speaking)){
       callCombo();
     }
@@ -1135,6 +1267,7 @@
     {h:"Read the calls", b:"Combos flash on screen and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between."},
     {h:"Switch stance", b:"The badge under the round count shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you."},
     {h:"Make it yours", b:"Tap the <b>gear</b> for setup. <b>Workout</b>: rounds, length and level. <b>Combos</b>: pick your pool or build your own. <b>More</b>: voice, pace and call style."},
+    {h:"Pick a workout", b:"<b>Workout &rarr; Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Then <b>Round format</b> changes what the corner calls: <b>Pyramid</b> ladders, a <b>Burnout</b> punch-out, or <b>Footwork</b> drills."},
     {h:"Pick your fighter", b:"Down at the bottom of <b>More</b> &rarr; <b>Theme</b>, reskin the whole app. Loads of looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Your corner, your colours."},
     {h:"Turn the sound on", b:"Flip your phone off silent and turn it up. On iPhone the coach only speaks <b>after you tap Start</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
@@ -1162,6 +1295,31 @@
     $("uniformBox").style.display = cfg.mode==="uniform" ? "block" : "none";
     $("customBox").style.display  = cfg.mode==="custom"  ? "block" : "none";
   }
+
+  /* ---------- preset workouts + round format ---------- */
+  let activeWorkout = null;
+  function renderWorkouts(){
+    $("workoutGrid").innerHTML = WORKOUTS.map(w=>
+      `<button class="wk${w.id===activeWorkout?" on":""}" data-wk="${w.id}"><div class="nm">${w.label}</div><div class="sub">${w.sub}</div></button>`
+    ).join("");
+  }
+  function applyWorkout(id){
+    const w = WORKOUTS.find(x=>x.id===id); if(!w) return;
+    cfg.prep = 10; // reset to default; presets that want it set it below
+    Object.assign(cfg, w.cfg);
+    activeWorkout = id;
+    save(); initUI();
+    if(phase==="idle") reset();
+  }
+  function syncFormatUI(){
+    const special = (cfg.format||"combos")!=="combos";
+    $("uniformFocusField").style.display = special ? "none" : "block";
+    const f = FORMATS.find(x=>x[0]===(cfg.format||"combos"));
+    $("formatNote").textContent = f ? f[2] : "";
+  }
+  $("workoutGrid").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) applyWorkout(b.dataset.wk); });
+  $("sFormat").addEventListener("change", e=>{ cfg.format=e.target.value; activeWorkout=null; renderWorkouts(); syncFormatUI(); save(); if(phase==="idle") reset(); });
+  $("sClapper").addEventListener("change", e=>{ cfg.clapperOn=e.target.checked; save(); });
   function renderThemes(){
     const grid = $("themeGrid");
     grid.innerHTML = THEME_IDS.map(id=>{
@@ -1177,16 +1335,17 @@
     [...e.currentTarget.children].forEach(x=>x.classList.toggle("on", x===b));
     save();
   });
+  function touchWorkout(){ if(activeWorkout){ activeWorkout=null; renderWorkouts(); } }
   $("segMode").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
     [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on");
-    cfg.mode=b.dataset.v; syncModeUI(); save(); if(phase==="idle") reset();
+    cfg.mode=b.dataset.v; syncModeUI(); touchWorkout(); save(); if(phase==="idle") reset();
   });
-  $("sRounds").addEventListener("input",e=>{ cfg.rounds=+e.target.value; $("vRounds").textContent=cfg.rounds; save(); if(phase==="idle") reset(); });
-  $("sWork").addEventListener("input",e=>{ cfg.work=+e.target.value; $("vWork").textContent=fmt(cfg.work); save(); if(phase==="idle") reset(); });
-  $("sRest").addEventListener("input",e=>{ cfg.rest=+e.target.value; $("vRest").textContent=fmt(cfg.rest); save(); });
-  $("uniformFocus").addEventListener("change",e=>{ cfg.uniformFocus=e.target.value; save(); });
-  $("sLevel").addEventListener("change",e=>{ cfg.level=e.target.value; save(); if(phase==="idle") reset(); });
+  $("sRounds").addEventListener("input",e=>{ cfg.rounds=+e.target.value; $("vRounds").textContent=cfg.rounds; touchWorkout(); save(); if(phase==="idle") reset(); });
+  $("sWork").addEventListener("input",e=>{ cfg.work=+e.target.value; $("vWork").textContent=fmt(cfg.work); touchWorkout(); save(); if(phase==="idle") reset(); });
+  $("sRest").addEventListener("input",e=>{ cfg.rest=+e.target.value; $("vRest").textContent=fmt(cfg.rest); touchWorkout(); save(); });
+  $("uniformFocus").addEventListener("change",e=>{ cfg.uniformFocus=e.target.value; touchWorkout(); save(); });
+  $("sLevel").addEventListener("change",e=>{ cfg.level=e.target.value; touchWorkout(); save(); if(phase==="idle") reset(); });
   function syncStanceUI(){ $("startStanceBox").style.display = (cfg.stanceOn && cfg.stanceMode==="alternate") ? "block" : "none"; }
   $("sStance").addEventListener("change",e=>{ cfg.stanceOn=e.target.checked; syncStanceUI(); save(); });
   $("segStance").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.stanceMode=b.dataset.v; syncStanceUI(); save(); });
@@ -1205,6 +1364,8 @@
       const card=document.createElement("div"); card.className="prog-card";
       const focusOpts = [["all","All ticked"],["freestyle","Freestyle"]].concat(GROUPS.map(g=>[g.id,g.name]))
         .map(o=>`<option value="${o[0]}" ${o[0]===r.focus?"selected":""}>${o[1]}</option>`).join("");
+      const rfmt = r.format||"combos";
+      const fmtOpts = FORMATS.map(f=>`<option value="${f[0]}" ${f[0]===rfmt?"selected":""}>${f[1]}</option>`).join("");
       card.innerHTML = `
         <div class="prog-top">
           <input class="lbl" value="${(r.label||("Round "+(idx+1))).replace(/"/g,'&quot;')}" data-i="${idx}" data-k="label">
@@ -1221,7 +1382,9 @@
           </div>
         </div>
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Combos</div>
-        <select data-i="${idx}" data-k="focus">${focusOpts}</select>
+        <select data-i="${idx}" data-k="focus" ${rfmt!=="combos"?"disabled":""}>${focusOpts}</select>
+        <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Format</div>
+        <select data-i="${idx}" data-k="format">${fmtOpts}</select>
       `;
       list.appendChild(card);
     });
@@ -1241,10 +1404,11 @@
   $("progList").addEventListener("input", e=>{
     const el=e.target; const i=+el.dataset.i, k=el.dataset.k; if(i==null||!k) return;
     cfg.program[i][k]= el.value; save();
+    if(k==="format"){ renderProgram(); if(phase==="idle") reset(); }
   });
   $("addRound").addEventListener("click", ()=>{
     const n=cfg.program.length+1;
-    cfg.program.push({label:"Round "+n, work:180, rest:60, focus:"all"});
+    cfg.program.push({label:"Round "+n, work:180, rest:60, focus:"all", format:"combos"});
     renderProgram(); save(); if(phase==="idle") reset();
   });
 
@@ -1366,6 +1530,11 @@
     $("sWork").value=cfg.work; $("vWork").textContent=fmt(cfg.work);
     $("sRest").value=cfg.rest; $("vRest").textContent=fmt(cfg.rest);
     buildFocusSelect($("uniformFocus"), cfg.uniformFocus);
+    $("sFormat").innerHTML = FORMATS.map(f=>`<option value="${f[0]}">${f[1]}</option>`).join("");
+    $("sFormat").value = cfg.format || "combos";
+    syncFormatUI();
+    renderWorkouts();
+    $("sClapper").checked = cfg.clapperOn !== false;
     [...$("segPace").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.pace));
     [...$("segMoveMix").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.moveMix));
     $("sLevel").value = cfg.level;
@@ -1383,6 +1552,11 @@
   initUI();
   reset();
   if(!store.get("coachfred.tutSeen")) openTut();
+
+  /* ---------- PWA: register service worker for offline / installable ---------- */
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+  }
 })();
 </script>
 </body>
