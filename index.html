@@ -607,7 +607,7 @@
   }
   function clearDeliver(){ deliverTimers.forEach(t=>clearTimeout(t)); deliverTimers=[]; }
   const PERSHOT = 0.5;
-  const BREATHER = { relentless:[0.4,1.0], steady:[0.9,1.7], relaxed:[1.8,2.8] };
+  const BREATHER = { relentless:[1.0,2.0], steady:[1.8,3.0], relaxed:[3.0,4.5] };
   function scheduleNext(n){
     const br = rnd(...(BREATHER[cfg.pace] || BREATHER.steady));
     nextComboAt = Date.now() + ((n||1)*PERSHOT + br)*1000;
