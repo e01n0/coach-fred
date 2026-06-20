@@ -15,18 +15,20 @@
 <style>
   :root{
     --canvas:#161311; --canvas-2:#211b18;
-    --work:#e23b2e; --work-deep:#8c1d13;
-    --rest:#15808c; --rest-deep:#0c4850;
-    --prep:#e8b24c; --tape:#f4efe6; --steel:#8a827a; --line:#332b26;
+    --work:#e23b2e; --work-deep:#8c1d13; --work-edge:#2a0c08;
+    --rest:#15808c; --rest-deep:#0c4850; --rest-edge:#06262a;
+    --prep:#e8b24c; --prep-deep:#4a3a16; --prep-edge:#241b0c;
+    --done:#2a2420;
+    --tape:#f4efe6; --steel:#8a827a; --line:#332b26;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
   body{background:var(--canvas);color:var(--tape);font-family:"Barlow Semi Condensed",system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none;}
   #app{height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);transition:background .5s ease;background:radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,.04), transparent 60%),var(--canvas);}
-  #app.work{background:radial-gradient(130% 90% at 50% 18%, var(--work) 0%, var(--work-deep) 70%, #2a0c08 100%);}
-  #app.rest{background:radial-gradient(130% 90% at 50% 18%, var(--rest) 0%, var(--rest-deep) 70%, #06262a 100%);}
-  #app.prep{background:radial-gradient(130% 90% at 50% 18%, #4a3a16 0%, #241b0c 75%, var(--canvas) 100%);}
-  #app.done{background:radial-gradient(130% 90% at 50% 18%, #2a2420 0%, var(--canvas) 80%);}
+  #app.work{background:radial-gradient(130% 90% at 50% 18%, var(--work) 0%, var(--work-deep) 70%, var(--work-edge) 100%);}
+  #app.rest{background:radial-gradient(130% 90% at 50% 18%, var(--rest) 0%, var(--rest-deep) 70%, var(--rest-edge) 100%);}
+  #app.prep{background:radial-gradient(130% 90% at 50% 18%, var(--prep-deep) 0%, var(--prep-edge) 75%, var(--canvas) 100%);}
+  #app.done{background:radial-gradient(130% 90% at 50% 18%, var(--done) 0%, var(--canvas) 80%);}
 
   header{display:flex;align-items:center;justify-content:space-between;padding:14px 2px 4px;flex:0 0 auto;}
   .round-tag{font-weight:700;letter-spacing:.16em;font-size:15px;text-transform:uppercase;opacity:.9;}
@@ -80,6 +82,12 @@
   .seg button.on{background:var(--tape);color:var(--canvas);border-color:var(--tape);}
   select{width:100%;padding:13px;border-radius:11px;background:var(--canvas-2);color:var(--tape);border:1px solid var(--line);font-family:inherit;font-size:16px;}
   .note{font-size:13px;color:var(--steel);line-height:1.45;margin-top:14px;}
+  .theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .theme-chip{position:relative;text-align:left;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--canvas-2);color:var(--tape);cursor:pointer;font-family:inherit;transition:border-color .15s,box-shadow .15s;}
+  .theme-chip.on{border-color:var(--tape);box-shadow:0 0 0 1px var(--tape);}
+  .theme-chip .nm{font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:12.5px;margin-bottom:9px;}
+  .theme-chip .sw{display:flex;gap:5px;}
+  .theme-chip .sw span{width:17px;height:17px;border-radius:5px;display:block;border:1px solid rgba(0,0,0,.25);}
   .toggle-row{display:flex;justify-content:space-between;align-items:center;}
   .switch{position:relative;width:54px;height:30px;flex:0 0 auto;}
   .switch input{opacity:0;width:0;height:0;}
@@ -305,6 +313,11 @@
     <!-- MORE PANE -->
     <div class="pane" id="pane-more">
       <div class="field">
+        <div class="field-label"><span>Theme</span></div>
+        <div class="theme-grid" id="themeGrid"></div>
+        <div class="note">Reskin the corner. Picks change the whole app instantly &mdash; ring colours, gloves and all. Your fighter, your colours.</div>
+      </div>
+      <div class="field">
         <div class="field-label"><span>Call style</span></div>
         <div class="seg" id="segCall">
           <button data-v="numbers">Numbers</button>
@@ -509,6 +522,66 @@
     ["phase","2-3-2 duck 2",["2","3","2","duck","2"],3]
   ];
 
+  /* ---------- themes (reskin the CSS variables) ---------- */
+  const THEMES = {
+    fred: { label:"Coach Fred", vars:{
+      "canvas":"#161311","canvas-2":"#211b18",
+      "work":"#e23b2e","work-deep":"#8c1d13","work-edge":"#2a0c08",
+      "rest":"#15808c","rest-deep":"#0c4850","rest-edge":"#06262a",
+      "prep":"#e8b24c","prep-deep":"#4a3a16","prep-edge":"#241b0c",
+      "done":"#2a2420","tape":"#f4efe6","steel":"#8a827a","line":"#332b26" } },
+    cyberpunk: { label:"Cyberpunk 2077", vars:{
+      "canvas":"#0b0f10","canvas-2":"#14191b",
+      "work":"#ff124f","work-deep":"#7a0726","work-edge":"#2a0411",
+      "rest":"#00e5ff","rest-deep":"#066b7a","rest-edge":"#022a30",
+      "prep":"#fcee0a","prep-deep":"#5a5406","prep-edge":"#2a2703",
+      "done":"#10181a","tape":"#fcee0a","steel":"#5f7d82","line":"#1d3036" } },
+    rocky: { label:"Rocky Balboa", vars:{
+      "canvas":"#15100d","canvas-2":"#201812",
+      "work":"#9c1f1f","work-deep":"#4e0d0d","work-edge":"#1f0707",
+      "rest":"#3a6ea5","rest-deep":"#1e3a52","rest-edge":"#0c1d2b",
+      "prep":"#cf9b3f","prep-deep":"#4a3618","prep-edge":"#241a0b",
+      "done":"#1c140e","tape":"#efe2cc","steel":"#8c8174","line":"#33271d" } },
+    apollo: { label:"Apollo Creed", vars:{
+      "canvas":"#0c0f1a","canvas-2":"#161b2b",
+      "work":"#d4202f","work-deep":"#7a101a","work-edge":"#2a0810",
+      "rest":"#2456c0","rest-deep":"#122e6b","rest-edge":"#08163a",
+      "prep":"#e8c14a","prep-deep":"#4a3c14","prep-edge":"#241d09",
+      "done":"#111422","tape":"#f5f6fb","steel":"#7a8199","line":"#222842" } },
+    clubber: { label:"Clubber Lang", vars:{
+      "canvas":"#0d0b08","canvas-2":"#171206",
+      "work":"#b80d28","work-deep":"#5e0815","work-edge":"#220409",
+      "rest":"#caa030","rest-deep":"#6e560f","rest-edge":"#2c2206",
+      "prep":"#e8c84a","prep-deep":"#4a3e12","prep-edge":"#241e08",
+      "done":"#15110a","tape":"#f0e6cf","steel":"#7d7458","line":"#241c0c" } },
+    drago: { label:"Ivan Drago", vars:{
+      "canvas":"#0c0f12","canvas-2":"#151b20",
+      "work":"#c81f1f","work-deep":"#6c0f0f","work-edge":"#240606",
+      "rest":"#4a90b8","rest-deep":"#234a5e","rest-edge":"#0e2531",
+      "prep":"#aebcc6","prep-deep":"#3a444c","prep-edge":"#1c2228",
+      "done":"#0f1418","tape":"#e6edf2","steel":"#6a7882","line":"#1e2730" } },
+    littlemac: { label:"Little Mac", vars:{
+      "canvas":"#0a1410","canvas-2":"#10201a",
+      "work":"#e23b2e","work-deep":"#8c1d13","work-edge":"#2a0c08",
+      "rest":"#2e9e5b","rest-deep":"#155f34","rest-edge":"#082817",
+      "prep":"#f2c14e","prep-deep":"#4a3a16","prep-edge":"#241b0c",
+      "done":"#0d1a13","tape":"#f0f7ef","steel":"#6f8478","line":"#16291f" } },
+    ironmike: { label:"Iron Mike", vars:{
+      "canvas":"#0b0b0c","canvas-2":"#161618",
+      "work":"#c0102a","work-deep":"#66091a","work-edge":"#220308",
+      "rest":"#444a52","rest-deep":"#23272c","rest-edge":"#0f1114",
+      "prep":"#d0d0d0","prep-deep":"#3c3c40","prep-edge":"#1c1c1f",
+      "done":"#0f0f11","tape":"#f2f2f2","steel":"#74787e","line":"#202227" } }
+  };
+  const THEME_IDS = Object.keys(THEMES);
+  function applyTheme(id){
+    const t = THEMES[id] || THEMES.fred;
+    const r = document.documentElement;
+    for(const k in t.vars){ r.style.setProperty("--"+k, t.vars[k]); }
+    const mc = document.querySelector('meta[name="theme-color"]');
+    if(mc) mc.setAttribute("content", t.vars.canvas);
+  }
+
   /* ---------- state ---------- */
   const DEFAULTS = {
     mode:"uniform",
@@ -520,10 +593,13 @@
     ],
     pace:"steady", moveMix:"light", level:"build", bodyMix:"some", voice:null,
     stanceOn:true, stanceMode:"alternate", startStance:"orthodox", callStyle:"both", rate:1.25,
+    theme:"fred",
     library:null, custom:[], movement:null
   };
 
   let cfg = loadCfg();
+  if(!THEMES[cfg.theme]) cfg.theme = "fred";
+  applyTheme(cfg.theme);
   try{ store.set("coachfred.v2", JSON.stringify(cfg)); }catch(e){}
 
   function freshLibrary(){
@@ -934,6 +1010,21 @@
     $("uniformBox").style.display = cfg.mode==="uniform" ? "block" : "none";
     $("customBox").style.display  = cfg.mode==="custom"  ? "block" : "none";
   }
+  function renderThemes(){
+    const grid = $("themeGrid");
+    grid.innerHTML = THEME_IDS.map(id=>{
+      const t = THEMES[id], v = t.vars;
+      const dots = ["canvas","work","rest","prep","tape"].map(k=>`<span style="background:${v[k]}"></span>`).join("");
+      return `<button class="theme-chip${id===cfg.theme?" on":""}" data-theme="${id}"><div class="nm">${t.label}</div><div class="sw">${dots}</div></button>`;
+    }).join("");
+  }
+  $("themeGrid").addEventListener("click", e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    cfg.theme = b.dataset.theme;
+    applyTheme(cfg.theme);
+    [...e.currentTarget.children].forEach(x=>x.classList.toggle("on", x===b));
+    save();
+  });
   $("segMode").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
     [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on");
@@ -1133,6 +1224,7 @@
     syncStanceUI();
     [...$("segCall").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.callStyle));
     $("sRate").value=cfg.rate; $("vRate").innerHTML = cfg.rate.toFixed(2)+"\u00d7";
+    renderThemes();
     buildPunchPad(); renderMovePad(); renderStage();
   }
 
