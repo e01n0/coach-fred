@@ -92,6 +92,8 @@
   .combo-row .seq{font-family:"Anton";font-size:22px;letter-spacing:.05em;color:var(--tape);}
   .combo-row .meta{flex:1;min-width:0;}
   .combo-row .nm{font-size:13px;color:var(--steel);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+  .combo-row .lvl{flex:0 0 auto;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:999px;border:1px solid currentColor;opacity:.9;}
+  .lvl.l1{color:var(--rest);} .lvl.l2{color:var(--prep);} .lvl.l3{color:var(--work);}
   .chk{width:28px;height:28px;flex:0 0 auto;border-radius:8px;border:2px solid var(--steel);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--canvas);font-weight:800;}
   .chk.on{background:var(--rest);border-color:var(--rest);}
   .del{background:none;border:none;color:var(--steel);font-size:22px;cursor:pointer;padding:0 4px;flex:0 0 auto;}
@@ -939,6 +941,11 @@
   });
 
   /* ---------- combos library ---------- */
+  const LVL_LABEL = {1:"Beg", 2:"Int", 3:"Adv"};
+  function lvlBadge(lvl){
+    const n = lvl||1;
+    return `<span class="lvl l${n}" title="Level ${n}">${LVL_LABEL[n]||"Beg"}</span>`;
+  }
   function comboSeqLabel(tokens){
     return tokens.map(t=> isDigit(t) ? t : `<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:rgba(244,239,230,.13);padding:3px 7px;border-radius:7px;">${t}</span>`).join(" ");
   }
@@ -954,6 +961,7 @@
           <button class="chk ${c.enabled?'on':''}" data-id="${c.id}">${c.enabled?'&#10003;':''}</button>
           <div class="seq">${comboSeqLabel(c.tokens)}</div>
           <div class="meta"><div class="nm">${c.name}</div></div>
+          ${lvlBadge(c.lvl)}
           ${c.group==="custom" ? `<button class="del" data-del="${c.id}">&times;</button>` : ``}
         `;
         wrap.appendChild(row);
