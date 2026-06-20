@@ -313,11 +313,6 @@
     <!-- MORE PANE -->
     <div class="pane" id="pane-more">
       <div class="field">
-        <div class="field-label"><span>Theme</span></div>
-        <div class="theme-grid" id="themeGrid"></div>
-        <div class="note">Reskin the corner. Picks change the whole app instantly &mdash; ring colours, gloves and all. Your fighter, your colours.</div>
-      </div>
-      <div class="field">
         <div class="field-label"><span>Call style</span></div>
         <div class="seg" id="segCall">
           <button data-v="numbers">Numbers</button>
@@ -363,6 +358,12 @@
         <div class="note">If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
       </div>
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen. Your combos and program are saved on this device.</div>
+
+      <div class="field">
+        <div class="field-label"><span>Theme</span></div>
+        <div class="theme-grid" id="themeGrid"></div>
+        <div class="note">Reskin the corner. Pick your fighter &mdash; boxers, brawlers and a few legends from the games and screen. Changes the whole app instantly, and it&rsquo;s saved on this device.</div>
+      </div>
     </div>
 
   </div>
@@ -607,7 +608,43 @@
       "work":"#e85a8a","work-deep":"#8a2a4e","work-edge":"#2a0c18",
       "rest":"#1f86c0","rest-deep":"#0f4a6e","rest-edge":"#07222f",
       "prep":"#f2cf4e","prep-deep":"#4a3f14","prep-edge":"#241f0a",
-      "done":"#101418","tape":"#f4eef0","steel":"#7a838c","line":"#1d2630" } }
+      "done":"#101418","tape":"#f4eef0","steel":"#7a838c","line":"#1d2630" } },
+    ryu: { label:"Ryu", vars:{
+      "canvas":"#0e0f12","canvas-2":"#181a1f",
+      "work":"#d22730","work-deep":"#7a1219","work-edge":"#28070a",
+      "rest":"#2a78c8","rest-deep":"#143f72","rest-edge":"#07203a",
+      "prep":"#dfe3e8","prep-deep":"#3a3f46","prep-edge":"#1c1f24",
+      "done":"#101216","tape":"#f3f5f8","steel":"#79818c","line":"#1f242b" } },
+    scorpion: { label:"Scorpion", vars:{
+      "canvas":"#0c0a06","canvas-2":"#16110a",
+      "work":"#f0a81e","work-deep":"#8a5c08","work-edge":"#2a1c03",
+      "rest":"#3a3f44","rest-deep":"#1d2024","rest-edge":"#0d0f11",
+      "prep":"#f0c020","prep-deep":"#4a3a06","prep-edge":"#241c03",
+      "done":"#100c06","tape":"#f4ead0","steel":"#8a7d56","line":"#262017" } },
+    subzero: { label:"Sub-Zero", vars:{
+      "canvas":"#070d12","canvas-2":"#101a22",
+      "work":"#2fa4e0","work-deep":"#0f5a86","work-edge":"#062430",
+      "rest":"#3a4650","rest-deep":"#1d262e","rest-edge":"#0c1217",
+      "prep":"#bfe6f5","prep-deep":"#23414f","prep-edge":"#112430",
+      "done":"#0a121a","tape":"#eaf6fb","steel":"#6f8693","line":"#16242e" } },
+    goku: { label:"Goku", vars:{
+      "canvas":"#0d0c10","canvas-2":"#181620",
+      "work":"#ef7d18","work-deep":"#8a4408","work-edge":"#2a1404",
+      "rest":"#2b5fd0","rest-deep":"#163a8a","rest-edge":"#08184a",
+      "prep":"#f2c41e","prep-deep":"#4a3a06","prep-edge":"#241c03",
+      "done":"#100e14","tape":"#f5eee0","steel":"#807a8a","line":"#221f2a" } },
+    brucelee: { label:"Bruce Lee", vars:{
+      "canvas":"#0c0c0a","canvas-2":"#16160f",
+      "work":"#d4341f","work-deep":"#7a1a0c","work-edge":"#2a0a04",
+      "rest":"#2a2a26","rest-deep":"#161613","rest-edge":"#0b0b09",
+      "prep":"#f2d21e","prep-deep":"#4a4006","prep-edge":"#241f03",
+      "done":"#100f0a","tape":"#f4f0dc","steel":"#8a8568","line":"#26241a" } },
+    kenshiro: { label:"Kenshiro", vars:{
+      "canvas":"#0c0a0d","canvas-2":"#161019",
+      "work":"#c01f3a","work-deep":"#6c0f20","work-edge":"#25060e",
+      "rest":"#7a3fb0","rest-deep":"#3f1f66","rest-edge":"#1b0d2e",
+      "prep":"#d4b24a","prep-deep":"#46380f","prep-edge":"#231c07",
+      "done":"#120e15","tape":"#f0e8ee","steel":"#857890","line":"#241c2a" } }
   };
   const THEME_IDS = Object.keys(THEMES);
   function applyTheme(id){
@@ -1020,6 +1057,7 @@
     {h:"Read the calls", b:"Combos flash on screen and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between."},
     {h:"Switch stance", b:"The badge under the round count shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you."},
     {h:"Make it yours", b:"Tap the <b>gear</b> for setup. <b>Workout</b>: rounds, length and level. <b>Combos</b>: pick your pool or build your own. <b>More</b>: voice, pace and call style."},
+    {h:"Pick your fighter", b:"Down at the bottom of <b>More</b> &rarr; <b>Theme</b>, reskin the whole app. Twenty looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b> and <b>Goku</b>. Your corner, your colours."},
     {h:"Turn the sound on", b:"Flip your phone off silent and turn it up. On iPhone the coach only speaks <b>after you tap Start</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
   let tutIdx = 0;
