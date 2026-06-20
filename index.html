@@ -161,7 +161,7 @@
   /* tutorial */
   .tut{position:fixed;inset:0;z-index:30;background:rgba(11,9,8,.8);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:24px;}
   .tut.open{display:flex;}
-  .tut-card{background:var(--canvas-2);border:1px solid var(--line);border-radius:18px;max-width:380px;width:100%;padding:24px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .tut-card{background:var(--canvas-2);border:1px solid var(--line);border-radius:18px;max-width:380px;width:100%;padding:24px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:calc(100dvh - 48px);overflow-y:auto;}
   .tut-step{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--steel);}
   .tut-card h3{font-family:"Anton";font-weight:400;letter-spacing:.04em;text-transform:uppercase;font-size:26px;margin:6px 0 12px;line-height:1;}
   .tut-body{font-size:16px;line-height:1.5;color:color-mix(in srgb, var(--tape) 85%, transparent);min-height:96px;}
@@ -1269,6 +1269,7 @@
     {h:"Make it yours", b:"Tap the <b>gear</b> for setup. <b>Workout</b>: rounds, length and level. <b>Combos</b>: pick your pool or build your own. <b>More</b>: voice, pace and call style."},
     {h:"Pick a workout", b:"<b>Workout &rarr; Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Then <b>Round format</b> changes what the corner calls: <b>Pyramid</b> ladders, a <b>Burnout</b> punch-out, or <b>Footwork</b> drills."},
     {h:"Pick your fighter", b:"Down at the bottom of <b>More</b> &rarr; <b>Theme</b>, reskin the whole app. Loads of looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Your corner, your colours."},
+    {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Some phones show an <b>Install</b> banner you can tap straight away."},
     {h:"Turn the sound on", b:"Flip your phone off silent and turn it up. On iPhone the coach only speaks <b>after you tap Start</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
   let tutIdx = 0;
