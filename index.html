@@ -52,7 +52,8 @@
   footer{flex:0 0 auto;display:flex;gap:12px;padding:10px 0 18px;}
   .btn{flex:1;border:none;border-radius:16px;cursor:pointer;font-family:"Barlow Semi Condensed";font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:19px;padding:20px 12px;color:var(--canvas);background:var(--tape);transition:transform .08s,opacity .2s;}
   .btn:active{transform:scale(.97);}
-  .btn.secondary{flex:0 0 30%;background:rgba(0,0,0,.28);color:var(--tape);}
+  .btn.secondary{flex:0 0 28%;background:rgba(0,0,0,.28);color:var(--tape);}
+  .btn:disabled{opacity:.4;cursor:default;}
   .btn:disabled{opacity:.4;}
 
   .sheet{position:fixed;inset:0;background:var(--canvas);z-index:20;transform:translateY(100%);transition:transform .32s cubic-bezier(.3,.7,.3,1);display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
@@ -161,6 +162,7 @@
 
   <footer>
     <button class="btn secondary" id="resetBtn">Reset</button>
+    <button class="btn secondary" id="skipBtn" disabled>Skip</button>
     <button class="btn" id="startBtn">Start round</button>
   </footer>
 </div>
@@ -209,7 +211,14 @@
           <button data-v="southpaw">Southpaw</button>
           <button data-v="alternate" class="on">Alternate</button>
         </div>
-        <div class="note">Alternate flips orthodox/southpaw each round, starting orthodox. The stance is shown and called at the start of every round. Tap the badge on the main screen to flip it mid-session.</div>
+        <div id="startStanceBox" style="margin-top:12px;">
+          <div class="field-label"><span>Alternate starts with</span></div>
+          <div class="seg" id="segStartStance">
+            <button data-v="orthodox" class="on">Orthodox</button>
+            <button data-v="southpaw">Southpaw</button>
+          </div>
+        </div>
+        <div class="note">Alternate flips orthodox/southpaw each round, starting from the stance you pick above. The stance is shown and called at the start of every round. Tap the badge on the main screen to flip it mid-session.</div>
       </div>
 
       <div id="uniformBox">
@@ -430,7 +439,7 @@
       {label:"Round 3", work:180, rest:0,  focus:"all"}
     ],
     pace:"steady", moveMix:"light", level:"build", bodyMix:"some", voice:null,
-    stanceOn:true, stanceMode:"alternate", callStyle:"both", rate:1.25,
+    stanceOn:true, stanceMode:"alternate", startStance:"orthodox", callStyle:"both", rate:1.25,
     library:null, custom:[], movement:null
   };
 
@@ -483,7 +492,7 @@
   const $ = id => document.getElementById(id);
   const app=$("app"), clock=$("clock"), stateLabel=$("stateLabel");
   const comboNumbers=$("comboNumbers"), comboNames=$("comboNames"), idleHint=$("idleHint");
-  const startBtn=$("startBtn"), resetBtn=$("resetBtn");
+  const startBtn=$("startBtn"), resetBtn=$("resetBtn"), skipBtn=$("skipBtn");
   const roundNow=$("roundNow"), roundTotal=$("roundTotal"), dots=$("dots"), sheet=$("sheet");
 
   const fmt = s => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(Math.floor(s%60)).padStart(2,"0")}`;
@@ -628,7 +637,9 @@
     if(!cfg.stanceOn) return null;
     if(cfg.stanceMode==="orthodox") return "Orthodox";
     if(cfg.stanceMode==="southpaw") return "Southpaw";
-    return (n%2===1) ? "Orthodox" : "Southpaw";
+    const start = cfg.startStance==="southpaw" ? "Southpaw" : "Orthodox";
+    const other = start==="Orthodox" ? "Southpaw" : "Orthodox";
+    return (n%2===1) ? start : other;
   }
   function updateStanceBadge(st){
     const b=$("stanceBadge");
@@ -709,6 +720,7 @@
     clearDeliver(); delivering=false;
     phase = seg.type;
     app.className = seg.type;
+    skipBtn.disabled = false;
     if(seg.type==="work"){
       workCount++; currentFocus = seg.focus;
       stateLabel.textContent = seg.label;
@@ -738,7 +750,17 @@
   function run(){ running=true; startBtn.textContent="Pause"; acquireWake(); if(tickId) clearInterval(tickId); tickId=setInterval(tick,200); }
   function pause(){ running=false; startBtn.textContent="Resume"; pausedRemaining=Math.max(0,endAt-Date.now()); clearInterval(tickId); tickId=null; if("speechSynthesis" in window) speechSynthesis.cancel(); clearDeliver(); delivering=false; releaseWake(); }
   function resume(){ endAt=Date.now()+pausedRemaining; if(phase==="work") nextComboAt=Date.now()+700; run(); }
-  function finish(){ phase="done"; app.className="done"; running=false; clearInterval(tickId); tickId=null; stateLabel.textContent="Done"; comboNames.textContent="That's the session. Nice work."; clock.textContent="00:00"; updateStanceBadge(null); bell(3); say("Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots(); }
+  function skip(){
+    if(phase!=="work" && phase!=="rest" && phase!=="prep") return;
+    if("speechSynthesis" in window) speechSynthesis.cancel();
+    clearDeliver(); delivering=false;
+    advance();
+    if(!running && phase!=="done"){
+      pausedRemaining = Math.max(0, endAt-Date.now());
+      clock.textContent = fmt(Math.ceil(pausedRemaining/1000));
+    }
+  }
+  function finish(){ phase="done"; app.className="done"; running=false; skipBtn.disabled=true; clearInterval(tickId); tickId=null; stateLabel.textContent="Done"; comboNames.textContent="That's the session. Nice work."; clock.textContent="00:00"; updateStanceBadge(null); bell(3); say("Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots(); }
 
   function reset(){
     running=false; clearInterval(tickId); tickId=null;
@@ -754,6 +776,7 @@
     comboNumbers.innerHTML=""; comboNames.textContent="";
     idleHint.style.display="block";
     startBtn.textContent="Start round";
+    skipBtn.disabled=true;
     roundNow.textContent="1"; roundTotal.textContent=totalWork;
     updateStanceBadge(null);
     paintDots();
@@ -776,6 +799,7 @@
     else { ensureAudio(); resume(); }
   });
   resetBtn.addEventListener("click", reset);
+  skipBtn.addEventListener("click", ()=>{ ensureAudio(); skip(); });
   $("stanceBadge").addEventListener("click", ()=>{
     if(!currentStance) return;
     currentStance = currentStance==="Orthodox" ? "Southpaw" : "Orthodox";
@@ -808,8 +832,10 @@
   $("sRest").addEventListener("input",e=>{ cfg.rest=+e.target.value; $("vRest").textContent=fmt(cfg.rest); save(); });
   $("uniformFocus").addEventListener("change",e=>{ cfg.uniformFocus=e.target.value; save(); });
   $("sLevel").addEventListener("change",e=>{ cfg.level=e.target.value; save(); if(phase==="idle") reset(); });
-  $("sStance").addEventListener("change",e=>{ cfg.stanceOn=e.target.checked; save(); });
-  $("segStance").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.stanceMode=b.dataset.v; save(); });
+  function syncStanceUI(){ $("startStanceBox").style.display = (cfg.stanceOn && cfg.stanceMode==="alternate") ? "block" : "none"; }
+  $("sStance").addEventListener("change",e=>{ cfg.stanceOn=e.target.checked; syncStanceUI(); save(); });
+  $("segStance").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.stanceMode=b.dataset.v; syncStanceUI(); save(); });
+  $("segStartStance").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.startStance=b.dataset.v; save(); });
 
   function buildFocusSelect(sel, val){
     const opts = [["all","All ticked combos"],["freestyle","Freestyle (random)"]].concat(GROUPS.map(g=>[g.id,g.name]));
@@ -985,6 +1011,8 @@
     [...$("segBody").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.bodyMix));
     $("sStance").checked = cfg.stanceOn;
     [...$("segStance").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.stanceMode));
+    [...$("segStartStance").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.startStance));
+    syncStanceUI();
     [...$("segCall").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.callStyle));
     $("sRate").value=cfg.rate; $("vRate").innerHTML = cfg.rate.toFixed(2)+"\u00d7";
     buildPunchPad(); renderMovePad(); renderStage();
