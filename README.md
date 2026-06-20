@@ -44,10 +44,10 @@ boxers and beyond:
 - **Games & screen:** Cyberpunk 2077, Ryu, Scorpion, Sub-Zero, Goku,
   Vegeta, Bruce Lee, Kenshiro
 
-Each theme is built around its fighter's real signature colours, with a mix of
-bright and dark looks &mdash; Goku's orange gi, Scorpion's yellow, Sub-Zero's
-ice blue, Ryu's white gi and Apollo's red/white/blue sit alongside the darker
-corners like Iron Mike, Cyberpunk 2077 and Kenshiro.
+Each theme uses its fighter's authentic colours: Rocky's black &amp; gold,
+Apollo's Old Glory red/white/blue, Pacquiao's Philippine-flag blue/red/yellow,
+Drago's Soviet red, Ali's white-with-black-trim, Goku's orange gi, Scorpion's
+`#E3C519` yellow, Vegeta's Saiyan blue and Cyberpunk 2077's neon yellow-on-cyan.
 
 The choice is saved on your device.
 
