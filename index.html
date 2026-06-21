@@ -160,7 +160,10 @@
   .coffee .cup{font-size:15px;line-height:1;}
   .coffee-row{flex:0 0 auto;display:flex;justify-content:center;padding:0 0 14px;}
   #app.work .coffee-row,#app.rest .coffee-row,#app.prep .coffee-row{display:none;}
-  .sheet-foot{flex:0 0 auto;display:flex;justify-content:center;padding:12px 20px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(0,0,0,.18);}
+  .sheet-foot{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 20px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(0,0,0,.18);}
+  .ver{font-family:"Barlow Semi Condensed",sans-serif;font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb, var(--tape) 38%, transparent);}
+  .testbtn{font-family:"Barlow Semi Condensed",sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tape);background:rgba(0,0,0,.28);border:1px solid color-mix(in srgb, var(--tape) 22%, transparent);border-radius:999px;padding:8px 16px;cursor:pointer;transition:transform .08s,border-color .2s;}
+  .testbtn:active{transform:scale(.96);border-color:color-mix(in srgb, var(--tape) 44%, transparent);}
 
   .sheet{position:fixed;inset:0;background:var(--canvas);z-index:20;transform:translateY(100%);transition:transform .32s cubic-bezier(.3,.7,.3,1);display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 0;}
   .sheet.open{transform:translateY(0);}
@@ -554,6 +557,13 @@
         </div>
         <div class="note help">A wooden clapper rattles in the last 10 seconds of rest &mdash; the ringside ten-second warning before the bell. The bell itself rings to start and end every round.</div>
       </div>
+      <div class="field">
+        <div class="toggle-row">
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Sound check</span>
+          <button type="button" class="testbtn" id="testSound">Test bell</button>
+        </div>
+        <div class="note help">Tap to hear the bell right now &mdash; handy for checking your volume and that audio is working. iOS only allows sound after a tap.</div>
+      </div>
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen, or install from your browser. Works offline once loaded; your combos and program are saved on this device.</div>
 
       <details class="acc">
@@ -581,6 +591,7 @@
   </div>
   <div class="sheet-foot">
     <a class="coffee" href="https://buymeacoffee.com/coachfred" target="_blank" rel="noopener noreferrer"><span class="cup">&#9749;</span> Buy me a coffee</a>
+    <span class="ver" id="appVersion"></span>
   </div>
 </div>
 
@@ -1122,10 +1133,13 @@
     s.start(start); s.stop(start+0.05);
   }
   function bell(times=1){
+    if(!audioCtx) ensureAudio();
     if(!audioCtx) return 0;
-    const t0 = audioCtx.currentTime;
+    // A small lead means a context that was only just resumed still plays the
+    // strike instead of dropping it because currentTime is sitting at zero.
+    const t0 = audioCtx.currentTime + 0.06;
     for(let n=0;n<times;n++) ding(t0 + n*0.34, 0.34);
-    return times*0.34;   // seconds until the last strike has landed
+    return 0.06 + times*0.34;   // seconds until the last strike has landed
   }
   // Ring the bell, then speak once it has landed so the voice doesn't bury it.
   function bellThenSay(times, text){
@@ -1534,14 +1548,24 @@
     const starting = (phase==="idle" || phase==="done");
     if(starting) primeSpeech();   // must fire inside the user gesture so iOS unlocks speech
     // Wait for the freshly-created AudioContext to actually start before the
-    // first segment, so round one's bell isn't dropped while it's still resuming.
-    ensureAudio().then(()=>{
+    // first segment, so round one's bell isn't dropped while it's still resuming
+    // — but never hang the session if resume() stalls or never settles.
+    let went=false;
+    const go=()=>{ if(went) return; went=true;
       if(starting){ reset(); segIndex=0; loadSegment(0); run(); }
       else if(running){ pause(); }
       else { resume(); }
-    });
+    };
+    ensureAudio().then(go, go);
+    setTimeout(go, 250);
   });
   resetBtn.addEventListener("click", reset);
+  // Visible build tag so it's obvious which version is loaded (caching check).
+  const APP_VERSION = "v6";
+  $("appVersion").textContent = "Coach Fred " + APP_VERSION;
+  console.log("Coach Fred " + APP_VERSION);
+  // Instant bell test — verify audio works without running a whole session.
+  $("testSound").addEventListener("click", ()=>{ ensureAudio().then(()=>bell(1), ()=>bell(1)); });
   skipBtn.addEventListener("click", ()=>{ ensureAudio(); skip(); });
   $("stanceBadge").addEventListener("click", ()=>{
     if(!currentStance) return;
