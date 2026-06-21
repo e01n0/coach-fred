@@ -1,13 +1,15 @@
 /* Coach Fred service worker — offline app shell.
    Bump CACHE when shipping changes so clients pick them up. */
-const CACHE = "coachfred-v9";
+const CACHE = "coachfred-v10";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
-  "./apple-touch-icon.png"
+  "./apple-touch-icon.png",
+  "./sounds/bell.wav",
+  "./sounds/clack.wav"
 ];
 
 self.addEventListener("install", e => {

@@ -560,9 +560,12 @@
       <div class="field">
         <div class="toggle-row">
           <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Sound check</span>
-          <button type="button" class="testbtn" id="testSound">Test bell</button>
+          <span style="display:flex;gap:8px;">
+            <button type="button" class="testbtn" id="testSound">Bell</button>
+            <button type="button" class="testbtn" id="testClap">Clapper</button>
+          </span>
         </div>
-        <div class="note help">Tap to hear the bell right now &mdash; handy for checking your volume and that audio is working. iOS only allows sound after a tap.</div>
+        <div class="note help">Tap to hear the bell or clapper right now &mdash; handy for checking your volume and that audio is working. iOS only allows sound after a tap.</div>
       </div>
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen, or install from your browser. Works offline once loaded; your combos and program are saved on this device.</div>
 
@@ -1101,7 +1104,30 @@
   // restore it. iOS/Safari (16.4+) honours this via the Audio Session API; Android
   // and others ignore it and lean on the OS's own automatic ducking. Always on.
   function duckOtherAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type = "transient"; }catch(e){} }
-  function ensureAudio(){ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } duckOtherAudio(); return (audioCtx.state==="suspended") ? audioCtx.resume() : Promise.resolve(); }
+  function ensureAudio(){ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } duckOtherAudio(); loadSamples(); return (audioCtx.state==="suspended") ? audioCtx.resume() : Promise.resolve(); }
+
+  // Real recorded sounds (bundled, cached for offline). Decoded once the context
+  // exists; if a file is missing or won't decode we fall back to synthesis.
+  // bell.wav: qubodup "Bell-ring" (CC0). clack.wav: a clave strike (public domain).
+  let bellAB=null, clackAB=null, bellBuf=null, clackBuf=null, decodeStarted=false;
+  fetch("sounds/bell.wav").then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>{bellAB=b;}).catch(()=>{});
+  fetch("sounds/clack.wav").then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>{clackAB=b;}).catch(()=>{});
+  function decodeAB(ab, set){
+    if(!ab) return;
+    try{ const p=audioCtx.decodeAudioData(ab.slice(0), set, ()=>{}); if(p&&p.then) p.then(set,()=>{}); }catch(e){}
+  }
+  function loadSamples(){
+    if(decodeStarted || !audioCtx || !(bellAB&&clackAB)) return;
+    decodeStarted = true;
+    decodeAB(bellAB, b=>bellBuf=b);
+    decodeAB(clackAB, b=>clackBuf=b);
+  }
+  function playSample(buf, start, gain){
+    const s=audioCtx.createBufferSource(); s.buffer=buf;
+    const g=audioCtx.createGain(); g.gain.value=gain;
+    s.connect(g).connect(audioCtx.destination);
+    s.start(start);
+  }
   let noiseBuf = null;
   function noise(){
     if(!noiseBuf){
@@ -1149,8 +1175,9 @@
     // A small lead means a context that was only just resumed still plays the
     // strike instead of dropping it because currentTime is sitting at zero.
     const t0 = audioCtx.currentTime + 0.06;
-    for(let n=0;n<times;n++) ding(t0 + n*0.46, 0.5);
-    const dur = 0.06 + times*0.46;   // seconds until the last strike has landed
+    if(bellBuf){ for(let n=0;n<times;n++) playSample(bellBuf, t0 + n*0.5, 0.95); }
+    else { for(let n=0;n<times;n++) ding(t0 + n*0.46, 0.5); }
+    const dur = bellBuf ? (0.06 + times*0.5) : (0.06 + times*0.46);   // until the last strike lands
     soundUntil = Math.max(soundUntil, Date.now() + Math.round(dur*1000) + 150);
     return dur;
   }
@@ -1178,7 +1205,8 @@
     if(!audioCtx) ensureAudio();
     if(!audioCtx) return;
     const t0 = audioCtx.currentTime; let t = t0 + 0.02;
-    for(let i=0;i<11;i++){ clack(t, 0.62); t += 0.12 + Math.random()*0.02; }
+    if(clackBuf){ for(let i=0;i<11;i++){ playSample(clackBuf, t, 0.85); t += 0.11 + Math.random()*0.02; } }
+    else { for(let i=0;i<11;i++){ clack(t, 0.62); t += 0.12 + Math.random()*0.02; } }
     soundUntil = Math.max(soundUntil, Date.now() + Math.round((t - t0)*1000) + 80);
   }
 
@@ -1582,11 +1610,12 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v9";
+  const APP_VERSION = "v10";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant bell test — verify audio works without running a whole session.
   $("testSound").addEventListener("click", ()=>{ ensureAudio().then(()=>bell(1), ()=>bell(1)); });
+  $("testClap").addEventListener("click", ()=>{ ensureAudio().then(()=>clapper(), ()=>clapper()); });
   skipBtn.addEventListener("click", ()=>{ ensureAudio(); skip(); });
   $("stanceBadge").addEventListener("click", ()=>{
     if(!currentStance) return;
