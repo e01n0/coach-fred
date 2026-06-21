@@ -59,6 +59,25 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
 
 In **Custom rounds** each round can use a different format.
 
+## How the corner calls
+On the default **Combos** format the caller works like a corner man, not a
+shuffle:
+
+- **Reactive calling** — calls answer the shot you just threw. A hook draws the
+  slip-and-counter, a long burst draws a defensive reset, a jab draws the
+  straight behind it.
+- **Fatigue shaping** — on rounds long enough to have an arc (45s+), the pace
+  eases through the back half, then spikes for the final push, with a spoken
+  *"last ten — empty the tank"* in the closing seconds.
+- **Defensive-only beats** — pure *slip · roll · reset* calls with no punch, to
+  drill head movement. These come up most on the **Defence** focus and with
+  **Movement mix → Heavy**.
+
+## Your record
+Coach Fred keeps a tally on your device — rounds, sessions, minutes on the bag
+and your current day streak. See it under **Setup → Settings → Your record**; it
+rides along in your **.coach** backup.
+
 ## Sounds
 A bright, metallic **ring bell** starts and ends every round. In the last ten
 seconds of rest, a wooden **ten-second clapper** rattles — the ringside warning
