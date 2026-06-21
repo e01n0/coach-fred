@@ -555,7 +555,7 @@
           <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">10-second clapper</span>
           <label class="switch"><input type="checkbox" id="sClapper" checked><span class="slider"></span></label>
         </div>
-        <div class="note help">A wooden clapper rattles in the last 10 seconds of rest &mdash; the ringside ten-second warning before the bell. The bell itself rings to start and end every round.</div>
+        <div class="note help">A wooden clapper rattles in the last 10 seconds of each round &mdash; the ringside ten-second warning that the round is about to end. The bell itself rings to start and end every round.</div>
       </div>
       <div class="field">
         <div class="toggle-row">
@@ -1110,27 +1110,37 @@
     }
     const s = audioCtx.createBufferSource(); s.buffer = noiseBuf; return s;
   }
-  // One strike of a bright metallic ring bell: inharmonic partials + a noise strike.
+  // One strike of a bright brass ring-bell: detuned inharmonic partials for the
+  // metallic shimmer, a long clangy ring, and a sharp hammer strike. Everything
+  // runs through a soft limiter so the stacked partials clang without harsh
+  // digital clipping.
   function ding(start, gain){
-    const f0 = 620*(1+(Math.random()-.5)*0.01);
-    // Risset-style inharmonic ratios give the metallic "ring" of a struck bell.
-    const partials = [[1.0,1.0,1.7],[2.0,0.6,1.3],[2.76,0.42,1.0],[3.9,0.28,0.7],[5.4,0.2,0.5],[8.9,0.12,0.32]];
-    partials.forEach(([ratio,amp,dec])=>{
+    const out=audioCtx.createGain(); out.gain.value=gain;
+    const comp=audioCtx.createDynamicsCompressor();
+    comp.threshold.value=-10; comp.knee.value=8; comp.ratio.value=6; comp.attack.value=0.002; comp.release.value=0.25;
+    out.connect(comp).connect(audioCtx.destination);
+    const f0 = 760*(1+(Math.random()-.5)*0.01);
+    // ratio, amplitude, decay(s), detune(cents) — detuned pairs beat for shimmer.
+    const partials = [
+      [1.00,1.00,2.6, 0],[2.00,0.72,2.1, 7],[2.41,0.58,1.7,-8],[3.00,0.46,1.4, 6],
+      [4.18,0.36,1.1,-9],[5.43,0.27,0.85,8],[6.79,0.19,0.62,-7],[8.21,0.13,0.46,10]
+    ];
+    partials.forEach(([ratio,amp,dec,det])=>{
       const o=audioCtx.createOscillator(), g=audioCtx.createGain();
-      o.type="sine"; o.frequency.value=f0*ratio;
+      o.type="sine"; o.frequency.value=f0*ratio; o.detune.value=det;
       g.gain.setValueAtTime(0,start);
-      g.gain.linearRampToValueAtTime(gain*amp,start+0.003);
-      g.gain.exponentialRampToValueAtTime(0.0006,start+dec);
-      o.connect(g).connect(audioCtx.destination);
+      g.gain.linearRampToValueAtTime(amp,start+0.002);
+      g.gain.exponentialRampToValueAtTime(0.0004,start+dec);
+      o.connect(g).connect(out);
       o.start(start); o.stop(start+dec+0.05);
     });
-    // hammer strike transient
-    const s=noise(), bp=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
-    bp.type="bandpass"; bp.frequency.value=3200; bp.Q.value=0.8;
-    g.gain.setValueAtTime(gain*0.5,start);
-    g.gain.exponentialRampToValueAtTime(0.0006,start+0.035);
-    s.connect(bp).connect(g).connect(audioCtx.destination);
-    s.start(start); s.stop(start+0.05);
+    // sharp metallic hammer strike — bright high-passed noise click
+    const s=noise(), hp=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
+    hp.type="highpass"; hp.frequency.value=2600;
+    g.gain.setValueAtTime(0.9,start);
+    g.gain.exponentialRampToValueAtTime(0.0005,start+0.05);
+    s.connect(hp).connect(g).connect(out);
+    s.start(start); s.stop(start+0.07);
   }
   function bell(times=1){
     if(!audioCtx) ensureAudio();
@@ -1138,8 +1148,8 @@
     // A small lead means a context that was only just resumed still plays the
     // strike instead of dropping it because currentTime is sitting at zero.
     const t0 = audioCtx.currentTime + 0.06;
-    for(let n=0;n<times;n++) ding(t0 + n*0.34, 0.34);
-    return 0.06 + times*0.34;   // seconds until the last strike has landed
+    for(let n=0;n<times;n++) ding(t0 + n*0.46, 0.5);
+    return 0.06 + times*0.46;   // seconds until the last strike has landed
   }
   // Ring the bell, then speak once it has landed so the voice doesn't bury it.
   function bellThenSay(times, text){
@@ -1167,7 +1177,7 @@
   function clapper(){
     if(!audioCtx) return;
     let t = audioCtx.currentTime + 0.02;
-    for(let i=0;i<11;i++){ clack(t, 0.5); t += 0.12 + Math.random()*0.02; }
+    for(let i=0;i<11;i++){ clack(t, 0.62); t += 0.12 + Math.random()*0.02; }
   }
 
   /* ---------- speech ---------- */
@@ -1477,7 +1487,7 @@
     const remaining = Math.max(0, endAt-Date.now());
     const secs = remaining/1000;
     clock.textContent = fmt(Math.ceil(secs));
-    if((phase==="rest"||phase==="prep") && cfg.clapperOn && !clapperFired && currentSegSecs>11 && secs<=10){
+    if(phase==="work" && cfg.clapperOn && !clapperFired && currentSegSecs>11 && secs<=10){
       clapperFired = true; clapper();
     }
     if(phase==="work" && cfg.fatigueOn !== false && !tankFired && currentSegSecs>=45 && secs<=12 && secs>2){
@@ -1561,7 +1571,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v6";
+  const APP_VERSION = "v7";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant bell test — verify audio works without running a whole session.
