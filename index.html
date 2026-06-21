@@ -175,6 +175,13 @@
   .save-row button{padding:13px 18px;border-radius:11px;border:none;background:var(--tape);color:var(--canvas);font-weight:700;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;}
   .save-row button:disabled{opacity:.4;}
 
+  .backup-row{display:flex;gap:8px;margin-top:4px;}
+  .backup-row button{flex:1;padding:13px;border-radius:11px;border:1px solid var(--line);background:var(--canvas-2);color:var(--tape);font-family:inherit;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:14px;cursor:pointer;}
+  .backup-row button:active{transform:scale(.97);}
+  .backup-status{font-size:13px;line-height:1.4;margin-top:11px;min-height:1.2em;}
+  .backup-status.ok{color:var(--rest);}
+  .backup-status.err{color:var(--work);}
+
   .stance-badge{margin-top:8px;display:inline-block;border:none;cursor:pointer;font-family:"Barlow Semi Condensed";font-weight:700;text-transform:uppercase;letter-spacing:.11em;font-size:13px;padding:7px 13px;border-radius:9px;background:rgba(0,0,0,.28);color:var(--tape);}
   .stance-badge:active{transform:scale(.95);}
   .stance-badge.orthodox{box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--tape) 55%, transparent);}
@@ -429,6 +436,19 @@
         <div class="acc-body">
           <div class="theme-grid" id="themeGrid"></div>
           <div class="note">Reskin the corner. Pick your fighter &mdash; boxers, brawlers and a few legends from the games and screen. Changes the whole app instantly, and it&rsquo;s saved on this device.</div>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary><span class="acc-t">Backup &amp; restore</span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;">Everything lives on this device. Back up to save your settings, custom combos and movement to a file you can keep or carry to another phone. Restoring replaces what&rsquo;s currently here.</div>
+          <div class="backup-row">
+            <button id="backupBtn">Back up</button>
+            <button id="restoreBtn">Restore</button>
+          </div>
+          <input type="file" id="restoreFile" accept="application/json,.json" hidden>
+          <div class="backup-status" id="backupStatus"></div>
         </div>
       </details>
     </div>
@@ -1605,6 +1625,60 @@
     renderThemes();
     buildPunchPad(); renderMovePad(); renderStage();
   }
+
+  /* ---------- backup & restore ---------- */
+  function refreshAllFromCfg(){
+    if(!THEMES[cfg.theme]) cfg.theme="fred";
+    applyTheme(cfg.theme);
+    if("speechSynthesis" in window) loadVoices();
+    initUI();
+    renderLibrary(); renderMovement(); renderProgram();
+    buildFocusSelect($("uniformFocus"), cfg.uniformFocus);
+    reset();
+  }
+  function setBackupStatus(msg, kind){
+    const el=$("backupStatus"); if(!el) return;
+    el.textContent = msg || "";
+    el.className = "backup-status" + (kind ? " "+kind : "");
+  }
+  $("backupBtn").addEventListener("click", ()=>{
+    try{
+      const payload = { app:"coach-fred", type:"backup", version:1, exportedAt:new Date().toISOString(), data:cfg };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `coach-fred-backup-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+      setBackupStatus("Backup saved to your downloads.", "ok");
+    }catch(e){ setBackupStatus("Couldn't create the backup file.", "err"); }
+  });
+  $("restoreBtn").addEventListener("click", ()=> $("restoreFile").click());
+  $("restoreFile").addEventListener("change", e=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file){ return; }
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const obj = JSON.parse(reader.result);
+        const data = (obj && obj.app==="coach-fred" && obj.data) ? obj.data : obj;
+        const looksValid = data && typeof data==="object" && !Array.isArray(data) &&
+          (("pace" in data)||("library" in data)||("custom" in data)||("rounds" in data)||("schedule" in data));
+        if(!looksValid) throw new Error("not a backup");
+        store.set("coachfred.v2", JSON.stringify(data));
+        cfg = loadCfg();
+        save();
+        refreshAllFromCfg();
+        setBackupStatus("Restored — your settings and combos are back.", "ok");
+      }catch(err){
+        setBackupStatus("That file isn't a valid Coach Fred backup.", "err");
+      }finally{
+        e.target.value = "";
+      }
+    };
+    reader.onerror = ()=>{ setBackupStatus("Couldn't read that file.", "err"); e.target.value=""; };
+    reader.readAsText(file);
+  });
 
   initUI();
   reset();
