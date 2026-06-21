@@ -279,9 +279,9 @@
           <label class="switch"><input type="checkbox" id="sStance" checked><span class="slider"></span></label>
         </div>
         <div class="seg" id="segStance" style="margin-top:12px;">
-          <button data-v="orthodox">Orthodox</button>
+          <button data-v="orthodox" class="on">Orthodox</button>
           <button data-v="southpaw">Southpaw</button>
-          <button data-v="alternate" class="on">Alternate</button>
+          <button data-v="alternate">Alternate</button>
         </div>
         <div id="startStanceBox" style="margin-top:12px;">
           <div class="field-label"><span>Alternate starts with</span></div>
@@ -329,17 +329,17 @@
           <div class="field">
             <div class="field-label"><span>Call style</span></div>
             <div class="seg" id="segCall">
-              <button data-v="numbers">Numbers</button>
+              <button data-v="numbers" class="on">Numbers</button>
               <button data-v="names">Names</button>
-              <button data-v="both" class="on">Both</button>
+              <button data-v="both">Both</button>
             </div>
             <div class="note">How punches are spoken. Numbers: "one, two". Names: "jab, cross". Both: "one jab, two cross", and body shots are always called by name ("body hook").</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Combo pace</span></div>
             <div class="seg" id="segPace">
-              <button data-v="relaxed">Relaxed</button>
-              <button data-v="steady" class="on">Steady</button>
+              <button data-v="relaxed" class="on">Relaxed</button>
+              <button data-v="steady">Steady</button>
               <button data-v="relentless">Relentless</button>
             </div>
           </div>
@@ -839,8 +839,8 @@
       {label:"Round 2", work:180, rest:60, focus:"all"},
       {label:"Round 3", work:180, rest:0,  focus:"all"}
     ],
-    pace:"steady", moveMix:"light", level:"build", bodyMix:"some", voice:null,
-    stanceOn:true, stanceMode:"alternate", startStance:"orthodox", callStyle:"both", rate:1.25,
+    pace:"relaxed", moveMix:"light", level:"build", bodyMix:"some", voice:null,
+    stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"numbers", rate:1.25,
     format:"combos", clapperOn:true,
     theme:"fred",
     library:null, custom:[], movement:null
@@ -1466,7 +1466,7 @@
   function comboSeqLabel(tokens){
     return tokens.map(t=> isDigit(t) ? t : `<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:color-mix(in srgb, var(--tape) 13%, transparent);padding:3px 7px;border-radius:7px;">${t}</span>`).join(" ");
   }
-  const libOpen = {basics:true};   // group id -> open; collapsed by default, Basics open
+  const libOpen = {};   // group id -> open; all collapsed by default
   function renderLibrary(){
     const wrap=$("library"); wrap.innerHTML="";
     GROUPS.forEach(g=>{
