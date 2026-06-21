@@ -70,9 +70,9 @@
   .coffee .cup{font-size:15px;line-height:1;}
   .coffee-row{flex:0 0 auto;display:flex;justify-content:center;padding:0 0 14px;}
   #app.work .coffee-row,#app.rest .coffee-row,#app.prep .coffee-row{display:none;}
-  .sheet-foot{flex:0 0 auto;display:flex;justify-content:center;padding:12px 20px 14px;border-top:1px solid var(--line);}
+  .sheet-foot{flex:0 0 auto;display:flex;justify-content:center;padding:12px 20px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(0,0,0,.18);}
 
-  .sheet{position:fixed;inset:0;background:var(--canvas);z-index:20;transform:translateY(100%);transition:transform .32s cubic-bezier(.3,.7,.3,1);display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
+  .sheet{position:fixed;inset:0;background:var(--canvas);z-index:20;transform:translateY(100%);transition:transform .32s cubic-bezier(.3,.7,.3,1);display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 0;}
   .sheet.open{transform:translateY(0);}
   .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;}
   .sheet-head h2{font-family:"Anton";font-weight:400;letter-spacing:.05em;font-size:26px;text-transform:uppercase;}
