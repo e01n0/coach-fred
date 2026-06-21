@@ -1510,7 +1510,7 @@
       bellThenSay(1, (st ? `${seg.label}. ${st}` : seg.label) + fmtSay);
       roundNow.textContent = pad2(workCount); roundTotal.textContent = pad2(totalWork);
     } else if(seg.type==="rest"){
-      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); bellThenSay(3, "Rest");
+      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); bellThenSay(2, "Rest");
     } else if(seg.type==="prep"){
       stateLabel.textContent="Get ready"; comboNumbers.innerHTML=""; comboNames.textContent=""; idleHint.style.display="none"; updateStanceBadge(null);
     }
@@ -1610,7 +1610,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v10";
+  const APP_VERSION = "v11";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant bell test — verify audio works without running a whole session.
