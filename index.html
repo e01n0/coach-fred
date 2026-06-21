@@ -408,6 +408,19 @@
           </div>
         </div>
       </details>
+
+      <details class="acc">
+        <summary><span class="acc-t">Share combos</span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;">Send just your own combos to a training partner as a <b>.combo</b> file, or pull theirs in. Importing <b>adds</b> to your list &mdash; it won&rsquo;t touch your settings or wipe what you&rsquo;ve already built.</div>
+          <div class="backup-row">
+            <button id="shareCombosBtn">Share mine</button>
+            <button id="importCombosBtn">Import combos</button>
+          </div>
+          <input type="file" id="importCombosFile" accept=".combo,application/json,.json" hidden>
+          <div class="backup-status" id="combosStatus"></div>
+        </div>
+      </details>
     </div>
 
     <!-- SETTINGS PANE -->
@@ -442,12 +455,12 @@
       <details class="acc">
         <summary><span class="acc-t">Backup &amp; restore</span></summary>
         <div class="acc-body">
-          <div class="note" style="margin-top:0;">Everything lives on this device. Back up to save your settings, custom combos and movement to a file you can keep or carry to another phone. Restoring replaces what&rsquo;s currently here.</div>
+          <div class="note" style="margin-top:0;">Everything lives on this device. Back up to save your settings, custom combos and movement to a <b>.coach</b> file you can keep or carry to another phone. Restoring replaces what&rsquo;s currently here.</div>
           <div class="backup-row">
             <button id="backupBtn">Back up</button>
             <button id="restoreBtn">Restore</button>
           </div>
-          <input type="file" id="restoreFile" accept="application/json,.json" hidden>
+          <input type="file" id="restoreFile" accept=".coach,application/json,.json" hidden>
           <div class="backup-status" id="backupStatus"></div>
         </div>
       </details>
@@ -1647,7 +1660,7 @@
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = `coach-fred-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.href = url; a.download = `coach-fred-backup-${new Date().toISOString().slice(0,10)}.coach`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url), 2000);
       setBackupStatus("Backup saved to your downloads.", "ok");
@@ -1677,6 +1690,79 @@
       }
     };
     reader.onerror = ()=>{ setBackupStatus("Couldn't read that file.", "err"); e.target.value=""; };
+    reader.readAsText(file);
+  });
+
+  /* ---------- share / import combos (custom combos only, merges) ---------- */
+  function setCombosStatus(msg, kind){
+    const el=$("combosStatus"); if(!el) return;
+    el.textContent = msg || "";
+    el.className = "backup-status" + (kind ? " "+kind : "");
+  }
+  function validCombo(c){
+    return c && typeof c==="object" && Array.isArray(c.tokens) && c.tokens.length &&
+      c.tokens.every(t=>typeof t==="string" && t.length);
+  }
+  $("shareCombosBtn").addEventListener("click", ()=>{
+    if(!cfg.custom || !cfg.custom.length){ setCombosStatus("You haven't built any combos to share yet.", "err"); return; }
+    try{
+      const payload = { app:"coach-fred", type:"combos", version:1, exportedAt:new Date().toISOString(),
+        data: cfg.custom.map(c=>({name:c.name, tokens:c.tokens, lvl:c.lvl})) };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `coach-fred-combos-${new Date().toISOString().slice(0,10)}.combo`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+      setCombosStatus(`Shared ${cfg.custom.length} combo${cfg.custom.length>1?"s":""} to your downloads.`, "ok");
+    }catch(e){ setCombosStatus("Couldn't create the file.", "err"); }
+  });
+  $("importCombosBtn").addEventListener("click", ()=> $("importCombosFile").click());
+  $("importCombosFile").addEventListener("change", e=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file){ return; }
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const obj = JSON.parse(reader.result);
+        // Accept a combos export (data array), a raw array, or a full backup (data.custom / custom)
+        const list = Array.isArray(obj) ? obj
+                   : (obj && Array.isArray(obj.data)) ? obj.data
+                   : (obj && obj.data && Array.isArray(obj.data.custom)) ? obj.data.custom
+                   : (obj && Array.isArray(obj.custom)) ? obj.custom
+                   : null;
+        if(!list) throw new Error("shape");
+        const incoming = list.filter(validCombo);
+        if(!incoming.length) throw new Error("empty");
+        const sig = c => c.tokens.join(" ").toLowerCase();
+        const have = new Set(cfg.custom.map(sig));
+        let added=0, skipped=0;
+        incoming.forEach((c,i)=>{
+          if(have.has(sig(c))){ skipped++; return; }
+          have.add(sig(c));
+          const tokens = c.tokens.slice();
+          const pc = tokens.filter(isDigit).length;
+          const lvl = (c.lvl===1||c.lvl===2||c.lvl===3) ? c.lvl : (pc<=2?1:(pc<=4?2:3));
+          const name = (typeof c.name==="string" && c.name.trim()) ? c.name.trim()
+                     : tokens.map(t=>isDigit(t)?t:t.split(" ")[0]).join("-");
+          cfg.custom.push({id:"c"+Date.now()+"-"+i, group:"custom", name, tokens, lvl, enabled:true});
+          added++;
+        });
+        save(); renderLibrary();
+        if(added){
+          let msg = `Added ${added} combo${added>1?"s":""}`;
+          if(skipped) msg += `, skipped ${skipped} you already had`;
+          setCombosStatus(msg+".", "ok");
+        } else {
+          setCombosStatus("Those combos are already in your list.", "err");
+        }
+      }catch(err){
+        setCombosStatus("That file doesn't contain Coach Fred combos.", "err");
+      }finally{
+        e.target.value = "";
+      }
+    };
+    reader.onerror = ()=>{ setCombosStatus("Couldn't read that file.", "err"); e.target.value=""; };
     reader.readAsText(file);
   });
 
