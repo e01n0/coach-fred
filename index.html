@@ -104,6 +104,19 @@
   .switch input:checked + .slider{background:var(--rest);}
   .switch input:checked + .slider:before{transform:translateX(24px);}
 
+  /* collapsible accordion */
+  .acc{border-bottom:1px solid var(--line);}
+  .acc>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:16px 0;font-family:"Barlow Semi Condensed";font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:15px;color:var(--tape);}
+  .acc>summary::-webkit-details-marker{display:none;}
+  .acc>summary .acc-t{flex:1;}
+  .acc>summary .cnt{font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--steel);}
+  .acc>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--steel);border-bottom:2px solid var(--steel);transform:rotate(-45deg);transition:transform .2s;flex:0 0 auto;margin-left:2px;}
+  .acc[open]>summary::after{transform:rotate(45deg);}
+  .acc>summary:active{opacity:.7;}
+  .acc .acc-body{padding-bottom:16px;}
+  .acc .acc-body>.field:first-child{padding-top:0;}
+  .acc .acc-body>.field:last-child{border-bottom:none;padding-bottom:0;}
+
   /* combos pane */
   .grp-title{font-family:"Anton";font-weight:400;letter-spacing:.05em;text-transform:uppercase;font-size:18px;color:var(--steel);margin:18px 0 8px;}
   .combo-row{display:flex;align-items:center;gap:12px;padding:11px 12px;background:var(--canvas-2);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;}
@@ -216,7 +229,7 @@
   <div class="tabs" id="tabs">
     <button data-pane="workout" class="on">Workout</button>
     <button data-pane="combos">Combos</button>
-    <button data-pane="more">More</button>
+    <button data-pane="more">Settings</button>
   </div>
   <div class="sheet-body">
 
@@ -296,76 +309,89 @@
         <button class="addbig" id="addRound">+ Add round</button>
         <div class="note">Each round can pull from a different combo set. Rest sits between rounds; the last round has no trailing rest.</div>
       </div>
+
+      <details class="acc">
+        <summary><span class="acc-t">Coach calls</span></summary>
+        <div class="acc-body">
+          <div class="field">
+            <div class="field-label"><span>Call style</span></div>
+            <div class="seg" id="segCall">
+              <button data-v="numbers">Numbers</button>
+              <button data-v="names">Names</button>
+              <button data-v="both" class="on">Both</button>
+            </div>
+            <div class="note">How punches are spoken. Numbers: "one, two". Names: "jab, cross". Both: "one jab, two cross", and body shots are always called by name ("body hook").</div>
+          </div>
+          <div class="field">
+            <div class="field-label"><span>Combo pace</span></div>
+            <div class="seg" id="segPace">
+              <button data-v="relaxed">Relaxed</button>
+              <button data-v="steady" class="on">Steady</button>
+              <button data-v="relentless">Relentless</button>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label"><span>Movement mix</span></div>
+            <div class="seg" id="segMoveMix">
+              <button data-v="off">Off</button>
+              <button data-v="light" class="on">Light</button>
+              <button data-v="heavy">Heavy</button>
+            </div>
+            <div class="note">Sets the ceiling for how much defence gets called between punches: slips, rolls, steps, pivots. The Level then scales it down (beginner is sparse). Pick which moves are in play under Combos &rarr; Movement.</div>
+          </div>
+          <div class="field">
+            <div class="field-label"><span>Body shots</span></div>
+            <div class="seg" id="segBody">
+              <button data-v="off">Off</button>
+              <button data-v="some" class="on">Some</button>
+              <button data-v="lots">Lots</button>
+            </div>
+            <div class="note">Sets the ceiling for body shots (1b, 2b jab/cross to body, and 3b, 4b body hooks) mixed into freestyle combos. The Level scales it down, so beginner stays light. Named body combos live in Combos &rarr; Body.</div>
+          </div>
+        </div>
+      </details>
     </div>
 
     <!-- COMBOS PANE -->
     <div class="pane" id="pane-combos">
       <div class="note" style="margin-top:6px;">Tick the combos you want in the pool. The caller picks from ticked ones at random. Add your own at the bottom.</div>
       <div id="library"></div>
-      <div class="grp-title">Build a combo</div>
-      <div class="builder">
-        <div class="stage" id="stage"><span class="ph">Tap punches and movement below to build a multi-phase combo.</span></div>
-        <div class="stage-actions">
-          <button id="stageBack">&#9003;&nbsp; Back</button>
-          <button id="stageClear">Clear</button>
-        </div>
-        <div class="pad-title">Punches</div>
-        <div class="pad" id="punchPad"></div>
-        <div class="pad-title">Movement &middot; your ticked calls</div>
-        <div class="chips" id="movePad"></div>
-        <div class="save-row">
-          <input id="comboName" placeholder="Name (optional)">
-          <button id="saveCombo" disabled>Save</button>
-        </div>
-        <div class="note">1 jab, 2 cross, 3 lead hook, 4 rear hook, 5/6 uppercuts. Body shots use a b: 1b/2b to the body, 3b/4b body hooks. Drop a slip or roll mid-combo to make it multi-phase, e.g. 1&nbsp;2 &middot; slip right &middot; 3&nbsp;2. Build directions as orthodox &mdash; left/right flip automatically on southpaw rounds.</div>
-      </div>
 
-      <div class="grp-title" style="color:var(--tape);margin-top:24px;">Movement</div>
-      <div class="note" style="margin-top:0;">Slips, rolls, steps, pivots and guard work. Ticked ones get woven between your punches, with the punch each slip loads. Directions are shown orthodox and flip automatically on southpaw rounds.</div>
-      <div id="moveLibrary"></div>
-      <div class="add-row">
-        <input id="moveSeq" placeholder="Add movement e.g. shoulder roll">
-        <button id="addMove">Add</button>
-      </div>
+      <details class="acc">
+        <summary><span class="acc-t">Build a combo</span></summary>
+        <div class="acc-body builder">
+          <div class="stage" id="stage"><span class="ph">Tap punches and movement below to build a multi-phase combo.</span></div>
+          <div class="stage-actions">
+            <button id="stageBack">&#9003;&nbsp; Back</button>
+            <button id="stageClear">Clear</button>
+          </div>
+          <div class="pad-title">Punches</div>
+          <div class="pad" id="punchPad"></div>
+          <div class="pad-title">Movement &middot; your ticked calls</div>
+          <div class="chips" id="movePad"></div>
+          <div class="save-row">
+            <input id="comboName" placeholder="Name (optional)">
+            <button id="saveCombo" disabled>Save</button>
+          </div>
+          <div class="note">1 jab, 2 cross, 3 lead hook, 4 rear hook, 5/6 uppercuts. Body shots use a b: 1b/2b to the body, 3b/4b body hooks. Drop a slip or roll mid-combo to make it multi-phase, e.g. 1&nbsp;2 &middot; slip right &middot; 3&nbsp;2. Build directions as orthodox &mdash; left/right flip automatically on southpaw rounds.</div>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary><span class="acc-t">Movement</span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;">Slips, rolls, steps, pivots and guard work. Ticked ones get woven between your punches, with the punch each slip loads. Directions are shown orthodox and flip automatically on southpaw rounds.</div>
+          <div id="moveLibrary"></div>
+          <div class="add-row">
+            <input id="moveSeq" placeholder="Add movement e.g. shoulder roll">
+            <button id="addMove">Add</button>
+          </div>
+        </div>
+      </details>
     </div>
 
-    <!-- MORE PANE -->
+    <!-- SETTINGS PANE -->
     <div class="pane" id="pane-more">
-      <div class="field">
-        <div class="field-label"><span>Call style</span></div>
-        <div class="seg" id="segCall">
-          <button data-v="numbers">Numbers</button>
-          <button data-v="names">Names</button>
-          <button data-v="both" class="on">Both</button>
-        </div>
-        <div class="note">How punches are spoken. Numbers: "one, two". Names: "jab, cross". Both: "one jab, two cross", and body shots are always called by name ("body hook").</div>
-      </div>
-      <div class="field">
-        <div class="field-label"><span>Combo pace</span></div>
-        <div class="seg" id="segPace">
-          <button data-v="relaxed">Relaxed</button>
-          <button data-v="steady" class="on">Steady</button>
-          <button data-v="relentless">Relentless</button>
-        </div>
-      </div>
-      <div class="field">
-        <div class="field-label"><span>Movement mix</span></div>
-        <div class="seg" id="segMoveMix">
-          <button data-v="off">Off</button>
-          <button data-v="light" class="on">Light</button>
-          <button data-v="heavy">Heavy</button>
-        </div>
-        <div class="note">Sets the ceiling for how much defence gets called between punches: slips, rolls, steps, pivots. The Level then scales it down (beginner is sparse). Pick which moves are in play under Combos &rarr; Movement.</div>
-      </div>
-      <div class="field">
-        <div class="field-label"><span>Body shots</span></div>
-        <div class="seg" id="segBody">
-          <button data-v="off">Off</button>
-          <button data-v="some" class="on">Some</button>
-          <button data-v="lots">Lots</button>
-        </div>
-        <div class="note">Sets the ceiling for body shots (1b, 2b jab/cross to body, and 3b, 4b body hooks) mixed into freestyle combos. The Level scales it down, so beginner stays light. Named body combos live in Combos &rarr; Body.</div>
-      </div>
       <div class="field">
         <div class="field-label"><span>Voice speed</span><span class="val" id="vRate">1.25&times;</span></div>
         <input type="range" id="sRate" min="0.8" max="1.6" step="0.05" value="1.25">
@@ -385,11 +411,13 @@
       </div>
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen, or install from your browser. Works offline once loaded; your combos and program are saved on this device.</div>
 
-      <div class="field">
-        <div class="field-label"><span>Theme</span></div>
-        <div class="theme-grid" id="themeGrid"></div>
-        <div class="note">Reskin the corner. Pick your fighter &mdash; boxers, brawlers and a few legends from the games and screen. Changes the whole app instantly, and it&rsquo;s saved on this device.</div>
-      </div>
+      <details class="acc">
+        <summary><span class="acc-t">Theme</span></summary>
+        <div class="acc-body">
+          <div class="theme-grid" id="themeGrid"></div>
+          <div class="note">Reskin the corner. Pick your fighter &mdash; boxers, brawlers and a few legends from the games and screen. Changes the whole app instantly, and it&rsquo;s saved on this device.</div>
+        </div>
+      </details>
     </div>
 
   </div>
@@ -1266,9 +1294,9 @@
     {h:"Run the round", b:"<b>Start round</b> kicks things off &mdash; the same button pauses and resumes. <b>Skip</b> jumps to the next round or rest. <b>Reset</b> takes you back to the top."},
     {h:"Read the calls", b:"Combos flash on screen and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between."},
     {h:"Switch stance", b:"The badge under the round count shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you."},
-    {h:"Make it yours", b:"Tap the <b>gear</b> for setup. <b>Workout</b>: rounds, length and level. <b>Combos</b>: pick your pool or build your own. <b>More</b>: voice, pace and call style."},
+    {h:"Make it yours", b:"Tap the <b>gear</b> for setup. <b>Workout</b>: rounds, length, level and how the corner calls &mdash; pace, call style and how much movement and body work get woven in. <b>Combos</b>: pick your pool or build your own. <b>Settings</b>: voice, speed and theme."},
     {h:"Pick a workout", b:"<b>Workout &rarr; Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Then <b>Round format</b> changes what the corner calls: <b>Pyramid</b> ladders, a <b>Burnout</b> punch-out, or <b>Footwork</b> drills."},
-    {h:"Pick your fighter", b:"Down at the bottom of <b>More</b> &rarr; <b>Theme</b>, reskin the whole app. Loads of looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Your corner, your colours."},
+    {h:"Pick your fighter", b:"Down in <b>Settings</b> &rarr; <b>Theme</b>, reskin the whole app. Loads of looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Your corner, your colours."},
     {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Some phones show an <b>Install</b> banner you can tap straight away."},
     {h:"Turn the sound on", b:"Flip your phone off silent and turn it up. On iPhone the coach only speaks <b>after you tap Start</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
@@ -1422,12 +1450,18 @@
   function comboSeqLabel(tokens){
     return tokens.map(t=> isDigit(t) ? t : `<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:color-mix(in srgb, var(--tape) 13%, transparent);padding:3px 7px;border-radius:7px;">${t}</span>`).join(" ");
   }
+  const libOpen = {basics:true};   // group id -> open; collapsed by default, Basics open
   function renderLibrary(){
     const wrap=$("library"); wrap.innerHTML="";
     GROUPS.forEach(g=>{
       const items = (g.id==="custom" ? cfg.custom : cfg.library.filter(c=>c.group===g.id));
       if(g.id==="custom" && items.length===0) return;
-      const t=document.createElement("div"); t.className="grp-title"; t.textContent=g.name; wrap.appendChild(t);
+      const onCount = items.filter(c=>c.enabled).length;
+      const d=document.createElement("details"); d.className="acc"; d.dataset.grp=g.id; if(libOpen[g.id]) d.open=true;
+      const sum=document.createElement("summary");
+      sum.innerHTML=`<span class="acc-t">${g.name}</span><span class="cnt">${onCount} on</span>`;
+      d.appendChild(sum);
+      const body=document.createElement("div"); body.className="acc-body";
       items.forEach(c=>{
         const row=document.createElement("div"); row.className="combo-row";
         row.innerHTML = `
@@ -1437,10 +1471,16 @@
           ${lvlBadge(c.lvl)}
           ${c.group==="custom" ? `<button class="del" data-del="${c.id}">&times;</button>` : ``}
         `;
-        wrap.appendChild(row);
+        body.appendChild(row);
       });
+      d.appendChild(body);
+      wrap.appendChild(d);
     });
   }
+  $("library").addEventListener("toggle", e=>{
+    const d=e.target.closest && e.target.closest("details.acc");
+    if(d && d.dataset.grp) libOpen[d.dataset.grp]=d.open;
+  }, true);
   $("library").addEventListener("click", e=>{
     const chk=e.target.closest(".chk"); const del=e.target.closest(".del");
     if(chk){ const id=chk.dataset.id; const c=allCombos().find(x=>x.id===id); if(c){ c.enabled=!c.enabled; save(); renderLibrary(); } }
