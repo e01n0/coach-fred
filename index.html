@@ -14,7 +14,7 @@
 <title>Coach Fred</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Semi+Condensed:wght@500;600;700&family=Chakra+Petch:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root{
     --canvas:#161311; --canvas-2:#211b18;
@@ -23,6 +23,27 @@
     --prep:#e8b24c; --prep-deep:#4a3a16; --prep-edge:#241b0c;
     --done:#2a2420;
     --tape:#f4efe6; --steel:#8a827a; --line:#332b26;
+
+    /* ---- Hazard HUD token contract ----
+       Colour tokens are DERIVED from the active theme, so every fighter
+       theme reskins the same HUD geometry with no per-theme edits. prep is
+       always picked to read against canvas, so it makes a safe accent and
+       canvas makes a safe ink on it. */
+    --hud-bg:         var(--canvas);
+    --hud-surface:    var(--canvas-2);
+    --hud-ink:        var(--tape);     /* clock + primary text */
+    --hud-muted:      var(--steel);    /* labels, readouts */
+    --hud-line:       var(--line);     /* borders, brackets */
+    --hud-accent:     var(--prep);     /* hazard accent */
+    --hud-accent-ink: var(--canvas);   /* text on the accent fill */
+    --hud-signal-a:   var(--work);     /* chromatic split A */
+    --hud-signal-b:   var(--rest);     /* chromatic split B */
+    --hud-fx: 0;                       /* 0 or 1, gates split + grid + glitch */
+    /* geometry constants, fixed, never themed */
+    --hud-chamfer: 14px;
+    --hud-bracket: 22px;
+    --hud-stripe: 10px;
+    --hud-bw: 1.5px;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
@@ -62,6 +83,75 @@
   .btn.secondary{flex:0 0 28%;background:rgba(0,0,0,.28);color:var(--tape);}
   .btn:disabled{opacity:.4;cursor:default;}
   .btn:disabled{opacity:.4;}
+
+  /* ============================================================
+     HAZARD HUD  -  structure only, every colour from the theme.
+     Geometry is fixed via --hud-* constants; colour flows from
+     the derived --hud-* tokens, so all fighter themes reskin it.
+     ============================================================ */
+  :root{ --hud-disp:"Chakra Petch","Barlow Semi Condensed",system-ui,sans-serif;
+         --hud-mono:"Share Tech Mono",ui-monospace,Menlo,Consolas,monospace; }
+
+  /* header readouts */
+  .round-tag{font-family:var(--hud-mono);font-weight:400;letter-spacing:.14em;font-size:14px;color:var(--hud-muted);text-transform:uppercase;display:flex;align-items:baseline;gap:.18em;}
+  .round-tag .rl{color:var(--hud-muted);}
+  .round-tag .rs{color:var(--hud-accent);opacity:.85;}
+  .round-tag b{font-family:var(--hud-mono);font-weight:400;letter-spacing:.05em;color:var(--hud-ink);}
+  .hud-sys{font-family:var(--hud-mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb, var(--hud-muted) 80%, transparent);margin-top:5px;}
+  .hud-sys b{color:var(--hud-accent);font-weight:400;}
+
+  /* the timer panel: notched surface, faint grid, corner brackets */
+  main{position:relative;padding:18px 16px 14px;}
+  main::before{content:"";position:absolute;inset:0;z-index:0;
+    background-color:color-mix(in srgb, var(--hud-surface) 86%, transparent);
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--hud-line) calc(var(--hud-fx)*72%), transparent) var(--hud-bw), transparent var(--hud-bw)),
+      linear-gradient(90deg, color-mix(in srgb, var(--hud-line) calc(var(--hud-fx)*72%), transparent) var(--hud-bw), transparent var(--hud-bw));
+    background-size:27px 27px;
+    border:var(--hud-bw) solid var(--hud-line);
+    clip-path:polygon(var(--hud-chamfer) 0, 100% 0, 100% calc(100% - var(--hud-chamfer)), calc(100% - var(--hud-chamfer)) 100%, 0 100%, 0 var(--hud-chamfer));
+  }
+  /* L brackets on all four corners, drawn from theme accent */
+  main::after{content:"";position:absolute;inset:9px;z-index:2;pointer-events:none;
+    --bk:color-mix(in srgb, var(--hud-accent) 66%, var(--hud-line));
+    background:
+      linear-gradient(var(--bk),var(--bk)) left top, linear-gradient(var(--bk),var(--bk)) left top,
+      linear-gradient(var(--bk),var(--bk)) right top, linear-gradient(var(--bk),var(--bk)) right top,
+      linear-gradient(var(--bk),var(--bk)) left bottom, linear-gradient(var(--bk),var(--bk)) left bottom,
+      linear-gradient(var(--bk),var(--bk)) right bottom, linear-gradient(var(--bk),var(--bk)) right bottom;
+    background-repeat:no-repeat;
+    background-size:var(--hud-bracket) 2px, 2px var(--hud-bracket),
+                    var(--hud-bracket) 2px, 2px var(--hud-bracket),
+                    var(--hud-bracket) 2px, 2px var(--hud-bracket),
+                    var(--hud-bracket) 2px, 2px var(--hud-bracket);
+  }
+  main>*{position:relative;z-index:1;}
+
+  /* state line  ->  "// READY" data readout */
+  .state-label{font-family:var(--hud-mono);font-size:clamp(15px,4.5vw,22px);letter-spacing:.26em;text-transform:uppercase;color:var(--hud-muted);text-shadow:none;opacity:1;line-height:1;margin-bottom:2px;}
+  .state-label::before{content:"// ";color:var(--hud-accent);}
+
+  /* clock dominates: large tabular figures, optional chromatic split */
+  .clock{font-family:var(--hud-disp);font-weight:700;font-size:clamp(96px,33vw,210px);font-variant-numeric:tabular-nums;color:var(--hud-ink);letter-spacing:.005em;
+    text-shadow:calc(var(--hud-fx)*-2px) 0 0 var(--hud-signal-a), calc(var(--hud-fx)*2px) 0 0 var(--hud-signal-b);}
+
+  /* footer: primary heavy/filled + hazard stripe, secondaries ghost, all chamfered */
+  .btn{font-family:var(--hud-disp);font-weight:700;border-radius:0;letter-spacing:.12em;
+    clip-path:polygon(var(--hud-chamfer) 0, 100% 0, 100% calc(100% - var(--hud-chamfer)), calc(100% - var(--hud-chamfer)) 100%, 0 100%, 0 var(--hud-chamfer));}
+  #startBtn{position:relative;min-height:56px;background:var(--hud-accent);color:var(--hud-accent-ink);padding-left:26px;overflow:hidden;}
+  #startBtn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--hud-stripe);
+    background:repeating-linear-gradient(45deg, var(--hud-accent) 0 6px, var(--hud-bg) 6px 12px);}
+  .btn.secondary{min-height:52px;background:transparent;color:var(--hud-ink);border:var(--hud-bw) solid color-mix(in srgb, var(--hud-accent) 55%, var(--hud-line));}
+  .btn.secondary:active{background:color-mix(in srgb, var(--hud-accent) 14%, transparent);}
+  .btn:focus-visible{outline:2px solid var(--hud-accent);outline-offset:3px;}
+  .gear:focus-visible,.coffee:focus-visible{outline:2px solid var(--hud-accent);outline-offset:3px;}
+
+  /* fx flicker only when motion is welcome and the theme opts in */
+  @media (prefers-reduced-motion: no-preference){
+    .clock{animation:hud-flick calc(7s / (var(--hud-fx) + 0.0001)) steps(1) infinite;}
+    @keyframes hud-flick{0%,97%,100%{opacity:1;}98%{opacity:.82;}99%{opacity:.94;}}
+  }
+  @media (prefers-reduced-motion: reduce){ .clock{animation:none;} }
 
   /* buy me a coffee — discreet, on every surface */
   .coffee{display:inline-flex;align-items:center;gap:7px;font-family:"Barlow Semi Condensed",sans-serif;font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb, var(--tape) 48%, transparent);text-decoration:none;padding:7px 15px;border-radius:999px;border:1px solid color-mix(in srgb, var(--tape) 16%, transparent);background:rgba(0,0,0,.16);transition:color .2s,border-color .2s,transform .08s;}
@@ -219,9 +309,10 @@
 <div id="app">
   <header>
     <div>
-      <div class="round-tag">Round <b id="roundNow">1</b> / <b id="roundTotal">6</b></div>
+      <div class="round-tag"><span class="rl">RND</span> <b id="roundNow">01</b><span class="rs">//</span><b id="roundTotal">06</b></div>
       <div class="dots" id="dots"></div>
       <button id="stanceBadge" class="stance-badge" style="display:none;"></button>
+      <div class="hud-sys">SYS<b>//</b>RDY 0x1A</div>
     </div>
     <div class="headbtns">
       <button class="gear" id="openTutorial" aria-label="How it works">?</button>
@@ -753,6 +844,15 @@
       "rest":"#15808c","rest-deep":"#0c4850","rest-edge":"#06262a",
       "prep":"#e8b24c","prep-deep":"#4a3a16","prep-edge":"#241b0c",
       "done":"#2a2420","tape":"#f4efe6","steel":"#8a827a","line":"#332b26" } },
+    nightcity: { label:"Night City", vars:{
+      "canvas":"#07090a","canvas-2":"#0e1416",
+      "work":"#ff2a2a","work-deep":"#8a0606","work-edge":"#2a0303",
+      "rest":"#0affff","rest-deep":"#066b7a","rest-edge":"#022a30",
+      "prep":"#fcee0a","prep-deep":"#5a5406","prep-edge":"#2a2703",
+      "done":"#0a1012","tape":"#f2f6f6","steel":"#5f7d82","line":"#16323a",
+      /* HUD showcase: hazard yellow accent + effects on */
+      "hud-accent":"#fcee0a","hud-accent-ink":"#07090a",
+      "hud-signal-a":"#ff2a2a","hud-signal-b":"#0affff","hud-fx":"1" } },
     cyberpunk: { label:"Cyberpunk 2077", vars:{
       "canvas":"#0b0f10","canvas-2":"#14191b",
       "work":"#ff1111","work-deep":"#8a0606","work-edge":"#2a0303",
@@ -869,9 +969,13 @@
       "done":"#101512","tape":"#eef0ec","steel":"#80908a","line":"#233029" } }
   };
   const THEME_IDS = Object.keys(THEMES);
+  /* HUD tokens a theme may override; cleared first so non-overriding
+     themes fall back to the derived :root defaults (geometry stays fixed) */
+  const HUD_OVERRIDES = ["hud-accent","hud-accent-ink","hud-bg","hud-surface","hud-ink","hud-muted","hud-line","hud-signal-a","hud-signal-b","hud-fx"];
   function applyTheme(id){
     const t = THEMES[id] || THEMES.fred;
     const r = document.documentElement;
+    HUD_OVERRIDES.forEach(k=>r.style.removeProperty("--"+k));
     for(const k in t.vars){ r.style.setProperty("--"+k, t.vars[k]); }
     const mc = document.querySelector('meta[name="theme-color"]');
     if(mc) mc.setAttribute("content", t.vars.canvas);
@@ -969,6 +1073,7 @@
   const roundNow=$("roundNow"), roundTotal=$("roundTotal"), dots=$("dots"), sheet=$("sheet");
 
   const fmt = s => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+  const pad2 = n => String(n).padStart(2,"0");
   const rnd = (a,b) => a + Math.random()*(b-a);
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
 
@@ -1330,7 +1435,7 @@
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
       const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
       bell(1); say((st ? `${seg.label}. ${st}` : seg.label) + fmtSay);
-      roundNow.textContent = workCount; roundTotal.textContent = totalWork;
+      roundNow.textContent = pad2(workCount); roundTotal.textContent = pad2(totalWork);
     } else if(seg.type==="rest"){
       stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); bell(3); say("Rest");
     } else if(seg.type==="prep"){
@@ -1397,7 +1502,7 @@
     idleHint.style.display="block";
     startBtn.textContent="Start round";
     skipBtn.disabled=true;
-    roundNow.textContent="1"; roundTotal.textContent=totalWork;
+    roundNow.textContent="01"; roundTotal.textContent=pad2(totalWork);
     updateStanceBadge(null);
     paintDots();
   }
