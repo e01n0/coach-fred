@@ -1080,6 +1080,7 @@
   let endAt = 0, pausedRemaining = 0, running = false, tickId = null, nextComboAt = 0;
   let wakeLock = null, audioCtx = null;
   let delivering = false, deliverTimers = [];
+  let soundUntil = 0;   // ms timestamp: the voice never speaks until any bell/clapper has finished
   let currentFormat = "combos", currentSegSecs = 0, clapperFired = false, pyrIdx = 0, emomDone = false;
   let lastTokens = null, tankFired = false;
 
@@ -1149,13 +1150,12 @@
     // strike instead of dropping it because currentTime is sitting at zero.
     const t0 = audioCtx.currentTime + 0.06;
     for(let n=0;n<times;n++) ding(t0 + n*0.46, 0.5);
-    return 0.06 + times*0.46;   // seconds until the last strike has landed
+    const dur = 0.06 + times*0.46;   // seconds until the last strike has landed
+    soundUntil = Math.max(soundUntil, Date.now() + Math.round(dur*1000) + 150);
+    return dur;
   }
-  // Ring the bell, then speak once it has landed so the voice doesn't bury it.
-  function bellThenSay(times, text){
-    const dur = bell(times);
-    deliverTimers.push(setTimeout(()=>say(text), Math.round((dur+0.18)*1000)));
-  }
+  // Ring the bell, then speak. say() holds itself until the strike has landed.
+  function bellThenSay(times, text){ bell(times); say(text); }
   // One wooden "clack" of the ringside ten-second clapper: noise burst + wood resonance.
   function clack(start, gain){
     const s=noise(), bp=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
@@ -1175,9 +1175,11 @@
   }
   // The ten-second clapper: rapid wooden clacks warning the round is about to start.
   function clapper(){
+    if(!audioCtx) ensureAudio();
     if(!audioCtx) return;
-    let t = audioCtx.currentTime + 0.02;
+    const t0 = audioCtx.currentTime; let t = t0 + 0.02;
     for(let i=0;i<11;i++){ clack(t, 0.62); t += 0.12 + Math.random()*0.02; }
+    soundUntil = Math.max(soundUntil, Date.now() + Math.round((t - t0)*1000) + 80);
   }
 
   /* ---------- speech ---------- */
@@ -1197,7 +1199,14 @@
     const v = speechSynthesis.getVoices().find(x=>x.name===cfg.voice); if(v) u.voice=v;
     return u;
   }
-  function say(text){ if(!("speechSynthesis" in window)) return; speechSynthesis.speak(mkUtter(text)); }
+  // The voice always follows the sound: if a bell/clapper is still ringing,
+  // hold the line until it has finished rather than talking over it.
+  function say(text){
+    if(!("speechSynthesis" in window)) return;
+    const wait = soundUntil - Date.now();
+    if(wait > 30) deliverTimers.push(setTimeout(()=>speechSynthesis.speak(mkUtter(text)), wait));
+    else speechSynthesis.speak(mkUtter(text));
+  }
   function primeSpeech(){ if(!("speechSynthesis" in window)) return; const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); }
 
   /* ---------- combo selection + delivery ---------- */
@@ -1488,16 +1497,19 @@
     const secs = remaining/1000;
     clock.textContent = fmt(Math.ceil(secs));
     if(phase==="work" && cfg.clapperOn && !clapperFired && currentSegSecs>11 && secs<=10){
-      clapperFired = true; clapper();
+      clapperFired = true;
+      if("speechSynthesis" in window) speechSynthesis.cancel();   // let the clapper ring clean
+      delivering=false; clearDeliver();
+      clapper();
     }
-    if(phase==="work" && cfg.fatigueOn !== false && !tankFired && currentSegSecs>=45 && secs<=12 && secs>2){
+    if(phase==="work" && cfg.fatigueOn !== false && !tankFired && currentSegSecs>=45 && secs<=10 && secs>3){
       tankFired = true;
       if("speechSynthesis" in window) speechSynthesis.cancel();
       delivering=false; clearDeliver();
-      say(pick(TANK_LINES));
-      nextComboAt = Date.now() + 1500;   // a beat to let the call land, then the pace spikes
+      say(pick(TANK_LINES));             // holds until the clapper has finished, then calls
+      nextComboAt = Date.now() + 2800;   // clapper + the call land, then the pace spikes
     }
-    if(phase==="work" && Date.now()>=nextComboAt && secs>1.5 && !delivering && !(("speechSynthesis" in window) && speechSynthesis.speaking)){
+    if(phase==="work" && Date.now()>=nextComboAt && Date.now()>=soundUntil && secs>1.5 && !delivering && !(("speechSynthesis" in window) && speechSynthesis.speaking)){
       callCombo();
     }
     if(remaining<=0){ if(phase==="work") onRoundComplete(); advance(); }
@@ -1571,7 +1583,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v7";
+  const APP_VERSION = "v8";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant bell test — verify audio works without running a whole session.
