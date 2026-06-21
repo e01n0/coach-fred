@@ -1466,7 +1466,7 @@
     if((phase==="rest"||phase==="prep") && cfg.clapperOn && !clapperFired && currentSegSecs>11 && secs<=10){
       clapperFired = true; clapper();
     }
-    if(phase==="work" && !tankFired && currentSegSecs>=45 && secs<=12 && secs>2){
+    if(phase==="work" && cfg.fatigueOn !== false && !tankFired && currentSegSecs>=45 && secs<=12 && secs>2){
       tankFired = true;
       if("speechSynthesis" in window) speechSynthesis.cancel();
       delivering=false; clearDeliver();
