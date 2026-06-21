@@ -94,6 +94,12 @@
   .seg button.on{background:var(--tape);color:var(--canvas);border-color:var(--tape);}
   select{width:100%;padding:13px;border-radius:11px;background:var(--canvas-2);color:var(--tape);border:1px solid var(--line);font-family:inherit;font-size:16px;}
   .note{font-size:13px;color:var(--steel);line-height:1.45;margin-top:14px;}
+  .note.help{display:none;}
+  .note.help.open{display:block;}
+  .lbl-grp{display:inline-flex;align-items:center;gap:7px;}
+  .help-btn{flex:0 0 auto;width:18px;height:18px;line-height:1;padding:0;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--steel);font-family:inherit;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s,background .15s;}
+  .help-btn.on{color:var(--canvas);background:var(--steel);border-color:var(--steel);}
+  .help-btn:active{opacity:.7;}
   .theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .theme-chip{position:relative;text-align:left;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--canvas-2);color:var(--tape);cursor:pointer;font-family:inherit;transition:border-color .15s,box-shadow .15s;}
   .theme-chip.on{border-color:var(--tape);box-shadow:0 0 0 1px var(--tape);}
@@ -258,7 +264,7 @@
       <div class="field">
         <div class="field-label"><span>Quick start</span></div>
         <div class="workouts" id="workoutGrid"></div>
-        <div class="note">Real, ring-standard structures &mdash; tap one to load it, then tweak below. Tabata, HIIT and EMOM are timed interval formats; Pyramid, Burnout and Footwork change what the corner calls.</div>
+        <div class="note help">Real, ring-standard structures &mdash; tap one to load it, then tweak below. Tabata, HIIT and EMOM are timed interval formats; Pyramid, Burnout and Footwork change what the corner calls.</div>
       </div>
 
       <div class="field">
@@ -277,7 +283,7 @@
           <option value="advanced">Advanced</option>
           <option value="build">Build up over rounds</option>
         </select>
-        <div class="note">Beginner sticks to simple combos with sparse movement and body work; each level unlocks more and mixes in more defence and body. Build up starts at beginner in round one and ramps to advanced by the final round (per stance when alternating), layering defence then counters onto the same combos as it climbs &mdash; e.g. round 1 calls 1-2-3, later rounds 1-2-3 slip, then 1-2-3 slip 2.</div>
+        <div class="note help">Beginner keeps it simple; each level unlocks more and mixes in more defence and body work. <b>How scaling works:</b> Movement mix and Body shots set the ceiling &mdash; your Level scales it down, so Beginner stays sparse and Advanced fills it in. Build up ramps beginner&rarr;advanced across the rounds (per stance when alternating), layering defence then counters onto the same combos as it climbs &mdash; e.g. round 1 calls 1-2-3, later rounds 1-2-3 slip, then 1-2-3 slip 2.</div>
       </div>
 
       <div class="field">
@@ -297,7 +303,7 @@
             <button data-v="southpaw">Southpaw</button>
           </div>
         </div>
-        <div class="note">Alternate flips orthodox/southpaw each round, starting from the stance you pick above. The stance is shown and called at the start of every round. Tap the badge on the main screen to flip it mid-session.</div>
+        <div class="note help">Alternate flips orthodox/southpaw each round, starting from the stance you pick above. The stance is shown and called at the start of every round. Tap the badge on the main screen to flip it mid-session.</div>
       </div>
 
       <div id="uniformBox">
@@ -340,7 +346,7 @@
               <button data-v="names">Names</button>
               <button data-v="both">Both</button>
             </div>
-            <div class="note">How punches are spoken. Numbers: "one, two". Names: "jab, cross". Both: "one jab, two cross", and body shots are always called by name ("body hook").</div>
+            <div class="note help">How punches are spoken. Numbers: "one, two". Names: "jab, cross". Both: "one jab, two cross", and body shots are always called by name ("body hook").</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Combo pace</span></div>
@@ -357,7 +363,7 @@
               <button data-v="light" class="on">Light</button>
               <button data-v="heavy">Heavy</button>
             </div>
-            <div class="note">Sets the ceiling for how much defence gets called between punches: slips, rolls, steps, pivots. The Level then scales it down (beginner is sparse). Pick which moves are in play under Combos &rarr; Movement.</div>
+            <div class="note help">Sets the ceiling for defence woven between punches: slips, rolls, steps, pivots. Your Level scales it down &mdash; see <b>How scaling works</b> under Level. Pick which moves are in play under Combos &rarr; Movement.</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Body shots</span></div>
@@ -366,7 +372,7 @@
               <button data-v="some" class="on">Some</button>
               <button data-v="lots">Lots</button>
             </div>
-            <div class="note">Sets the ceiling for body shots (1b, 2b jab/cross to body, and 3b, 4b body hooks) mixed into freestyle combos. The Level scales it down, so beginner stays light. Named body combos live in Combos &rarr; Body.</div>
+            <div class="note help">Sets the ceiling for body shots (1b, 2b jab/cross to body, and 3b, 4b body hooks) mixed into freestyle combos. Your Level scales it down &mdash; see <b>How scaling works</b> under Level. Named body combos live in Combos &rarr; Body.</div>
           </div>
         </div>
       </details>
@@ -428,19 +434,19 @@
       <div class="field">
         <div class="field-label"><span>Voice speed</span><span class="val" id="vRate">1.25&times;</span></div>
         <input type="range" id="sRate" min="0.8" max="1.6" step="0.05" value="1.25">
-        <div class="note">How fast the coach talks. The next combo isn't called until you've had time to finish the current one, and longer combos wait longer before the next call.</div>
+        <div class="note help">How fast the coach talks. The next combo isn't called until you've had time to finish the current one, and longer combos wait longer before the next call.</div>
       </div>
       <div class="field">
         <div class="field-label"><span>Coach voice</span></div>
         <select id="sVoice"></select>
-        <div class="note">If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
+        <div class="note help">If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
       </div>
       <div class="field">
         <div class="toggle-row">
           <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">10-second clapper</span>
           <label class="switch"><input type="checkbox" id="sClapper" checked><span class="slider"></span></label>
         </div>
-        <div class="note">A wooden clapper rattles in the last 10 seconds of rest &mdash; the ringside ten-second warning before the bell. The bell itself rings to start and end every round.</div>
+        <div class="note help">A wooden clapper rattles in the last 10 seconds of rest &mdash; the ringside ten-second warning before the bell. The bell itself rings to start and end every round.</div>
       </div>
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen, or install from your browser. Works offline once loaded; your combos and program are saved on this device.</div>
 
@@ -1641,6 +1647,30 @@
     $("sRate").value=cfg.rate; $("vRate").innerHTML = cfg.rate.toFixed(2)+"\u00d7";
     renderThemes();
     buildPunchPad(); renderMovePad(); renderStage();
+    initHelpPoppers();
+  }
+
+  /* ---------- help poppers: collapse the explanatory notes behind a tap ---------- */
+  function initHelpPoppers(){
+    document.querySelectorAll(".note.help").forEach(note=>{
+      if(note.dataset.wired) return;
+      note.dataset.wired = "1";
+      const field = note.closest(".field") || note.parentElement;
+      const anchor = field && field.querySelector(".field-label, .toggle-row");
+      if(!anchor) return;
+      const title = anchor.querySelector("span");
+      if(!title) return;
+      const btn = document.createElement("button");
+      btn.type = "button"; btn.className = "help-btn"; btn.textContent = "?";
+      btn.setAttribute("aria-label", "Explain"); btn.setAttribute("aria-expanded", "false");
+      const grp = document.createElement("span"); grp.className = "lbl-grp";
+      title.replaceWith(grp); grp.appendChild(title); grp.appendChild(btn);
+      btn.addEventListener("click", ()=>{
+        const open = note.classList.toggle("open");
+        btn.classList.toggle("on", open);
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    });
   }
 
   /* ---------- backup & restore ---------- */
