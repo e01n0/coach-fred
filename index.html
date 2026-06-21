@@ -939,7 +939,11 @@
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
 
   /* ---------- audio ---------- */
-  function ensureAudio(){ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==="suspended") audioCtx.resume(); }
+  // Duck other apps' music while the coach calls and the bell/clapper sound, then
+  // restore it. iOS/Safari (16.4+) honours this via the Audio Session API; Android
+  // and others ignore it and lean on the OS's own automatic ducking. Always on.
+  function duckOtherAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type = "transient"; }catch(e){} }
+  function ensureAudio(){ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==="suspended") audioCtx.resume(); duckOtherAudio(); }
   let noiseBuf = null;
   function noise(){
     if(!noiseBuf){
