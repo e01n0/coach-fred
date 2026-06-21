@@ -100,6 +100,10 @@
   .help-btn{flex:0 0 auto;width:18px;height:18px;line-height:1;padding:0;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--steel);font-family:inherit;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s,background .15s;}
   .help-btn.on{color:var(--canvas);background:var(--steel);border-color:var(--steel);}
   .help-btn:active{opacity:.7;}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .stat{background:var(--canvas-2);border:1px solid var(--line);border-radius:12px;padding:11px 6px;text-align:center;}
+  .stat .snum{display:block;font-family:"Anton";font-size:24px;color:var(--tape);line-height:1;}
+  .stat .slbl{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel);margin-top:5px;}
   .theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .theme-chip{position:relative;text-align:left;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--canvas-2);color:var(--tape);cursor:pointer;font-family:inherit;transition:border-color .15s,box-shadow .15s;}
   .theme-chip.on{border-color:var(--tape);box-shadow:0 0 0 1px var(--tape);}
@@ -431,6 +435,10 @@
 
     <!-- SETTINGS PANE -->
     <div class="pane" id="pane-more">
+      <div class="field" id="statsField">
+        <div class="field-label"><span>Your record</span></div>
+        <div class="stats-grid" id="statsBox"></div>
+      </div>
       <div class="field">
         <div class="field-label"><span>Voice speed</span><span class="val" id="vRate">1.25&times;</span></div>
         <input type="range" id="sRate" min="0.8" max="1.6" step="0.05" value="1.25">
@@ -921,6 +929,25 @@
   }
   function save(){ try{ store.set("coachfred.v2", JSON.stringify(cfg)); }catch(e){} }
 
+  /* ---------- stat / streak memory (gives returning users something to come back to) ---------- */
+  function freshStats(){ return {rounds:0, sessions:0, workSecs:0, streak:0, best:0, lastDay:null}; }
+  function loadStats(){ try{ const r=store.get("coachfred.stats"); if(r) return Object.assign(freshStats(), JSON.parse(r)); }catch(e){} return freshStats(); }
+  function saveStats(){ try{ store.set("coachfred.stats", JSON.stringify(stats)); }catch(e){} }
+  let stats = loadStats();
+  const dayKey = d => `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  function onRoundComplete(){ stats.rounds++; stats.workSecs += currentSegSecs||0; saveStats(); }
+  function onSessionComplete(){
+    const today = dayKey(new Date());
+    if(stats.lastDay !== today){
+      const y = dayKey(new Date(Date.now()-86400000));
+      stats.streak = (stats.lastDay===y) ? stats.streak+1 : 1;
+      stats.lastDay = today;
+      if(stats.streak > (stats.best||0)) stats.best = stats.streak;
+    }
+    stats.sessions++;
+    saveStats();
+  }
+
   function allCombos(){ return cfg.library.concat(cfg.custom); }
 
   /* ---------- engine state ---------- */
@@ -932,6 +959,7 @@
   let wakeLock = null, audioCtx = null;
   let delivering = false, deliverTimers = [];
   let currentFormat = "combos", currentSegSecs = 0, clapperFired = false, pyrIdx = 0, emomDone = false;
+  let lastTokens = null, tankFired = false;
 
   /* ---------- elements ---------- */
   const $ = id => document.getElementById(id);
@@ -1114,13 +1142,23 @@
   function clearDeliver(){ deliverTimers.forEach(t=>clearTimeout(t)); deliverTimers=[]; }
   const PERSHOT = 0.5;
   const BREATHER = { relentless:[1.0,2.0], steady:[1.8,3.0], relaxed:[3.0,4.5] };
+  const TANK_LINES = ["Last ten — empty the tank!", "Final ten, let it all go!", "Ten seconds — everything you've got!", "Last ten, dig deep!"];
   function scheduleNext(n){
     if(currentFormat==="burnout"){ nextComboAt = Date.now() + (n||1)*PERSHOT*0.55*1000; return; }
-    const br = rnd(...(BREATHER[cfg.pace] || BREATHER.steady));
+    let br = rnd(...(BREATHER[cfg.pace] || BREATHER.steady));
+    // Fatigue shaping: a real corner eases the pace through the back half of a
+    // round, then spikes it for the final push. Only on rounds long enough to
+    // have an arc — short interval rounds (Tabata/HIIT) stay flat.
+    const left = Math.max(0, endAt - Date.now())/1000;
+    if(currentSegSecs >= 45){
+      if(left <= 15) br *= 0.55;                              // final 15s: empty the tank
+      else if(left/currentSegSecs < 0.5) br *= 1.22;         // back half: ease off
+    }
     nextComboAt = Date.now() + ((n||1)*PERSHOT + br)*1000;
   }
   function deliver(combo){
     const tokens = combo.tokens;
+    lastTokens = tokens.slice();
     comboNumbers.innerHTML = tokens.map(t=> isDigit(t) ? `<span>${t}</span>` : `<span class="mv">${orient(t)}</span>`).join("");
     const names = tokens.map(t=> isDigit(t) ? PUNCH[t] : orient(t)).join(" \u00b7 ");
     comboNames.textContent = combo.name ? `${combo.name.toUpperCase()}  \u2014  ${names}` : names;
@@ -1179,6 +1217,36 @@
     }
     return {tokens:def, name:""};
   }
+  // Pure head-movement beat: slips/rolls with no punch, to drill defence on its
+  // own ("slip, roll, reset"). A real corner peppers these between combos.
+  function defensiveBeat(){
+    const mv = enabledMoves(); if(!mv.length) return null;
+    const n = Math.random()<0.55 ? 2 : 3;
+    const seq = [];
+    for(let i=0;i<n;i++) seq.push(pick(mv).name.toLowerCase());
+    seq.push("reset");
+    return {tokens:seq, name:""};
+  }
+  // Reactive calling: answer the shot the fighter just threw. A shallow markov-ish
+  // bias — a hook draws the slip-counter, a long burst draws a defensive reset, a
+  // jab draws the straight behind it — so calls feel like a corner, not a shuffle.
+  function reactiveCall(){
+    if(!lastTokens || !lastTokens.length) return null;
+    const last = lastTokens[lastTokens.length-1];
+    if(!isDigit(last)) return null;
+    const mv = enabledMoves();
+    if((last==="3"||last==="4") && mv.length){            // hook -> slip and counter
+      const slips = mv.filter(m=>/slip|roll/i.test(m.name));
+      const m = pick(slips.length ? slips : mv);
+      return {tokens:[m.name.toLowerCase(), ...counterFor(m.name)], name:""};
+    }
+    if(last==="5"||last==="6"||lastTokens.length>=4){      // big artillery / long burst -> reset out
+      return defensiveBeat() || {tokens: pick([["1"],["1","2"]]), name:""};
+    }
+    if(last==="1") return {tokens: pick([["2"],["2","3"],["1","2"]]), name:""};   // jab -> the straight behind it
+    if(last==="2") return {tokens: pick([["3"],["3","2"],["1"]]), name:""};       // cross -> come back with the hook
+    return null;
+  }
   // In Build mode bias toward the higher tiers so complexity ramps with the
   // rounds — the layered families (1-2-3 → 1-2-3 slip → 1-2-3 slip 2) surface
   // more as the level climbs, while the simpler bases still show up now and then.
@@ -1205,6 +1273,13 @@
       emomDone = true; deliver(selectCombo()); return;
     }
     const focusWantsMovement = ["all","defence","phase","freestyle"].includes(currentFocus);
+    if(focusWantsMovement && enabledMoves().length){
+      // Pure defensive beats — heavy when the round is about head movement.
+      const defBias = (currentFocus==="defence" ? 0.45 : 0) + (cfg.moveMix==="heavy" ? 0.18 : 0);
+      if(defBias && Math.random()<defBias){ const d=defensiveBeat(); if(d){ deliver(d); return; } }
+      // Reactive: bias the next call off the last one.
+      if(Math.random() < 0.4){ const r=reactiveCall(); if(r){ deliver(r); return; } }
+    }
     if(focusWantsMovement && Math.random()<mix().inject*levelFactor()){ const m=movementCall(); if(m){ deliver(m); return; } }
     deliver(selectCombo());
   }
@@ -1249,6 +1324,7 @@
     if(seg.type==="work"){
       workCount++; currentFocus = seg.focus;
       currentFormat = seg.format || "combos"; pyrIdx = 0; emomDone = false;
+      tankFired = false; lastTokens = null;
       stateLabel.textContent = seg.label;
       idleHint.style.display="none";
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
@@ -1272,10 +1348,17 @@
     if((phase==="rest"||phase==="prep") && cfg.clapperOn && !clapperFired && currentSegSecs>11 && secs<=10){
       clapperFired = true; clapper();
     }
+    if(phase==="work" && !tankFired && currentSegSecs>=45 && secs<=12 && secs>2){
+      tankFired = true;
+      if("speechSynthesis" in window) speechSynthesis.cancel();
+      delivering=false; clearDeliver();
+      say(pick(TANK_LINES));
+      nextComboAt = Date.now() + 1500;   // a beat to let the call land, then the pace spikes
+    }
     if(phase==="work" && Date.now()>=nextComboAt && secs>1.5 && !delivering && !(("speechSynthesis" in window) && speechSynthesis.speaking)){
       callCombo();
     }
-    if(remaining<=0) advance();
+    if(remaining<=0){ if(phase==="work") onRoundComplete(); advance(); }
   }
   function run(){ running=true; startBtn.textContent="Pause"; acquireWake(); if(tickId) clearInterval(tickId); tickId=setInterval(tick,200); }
   function pause(){ running=false; startBtn.textContent="Resume"; pausedRemaining=Math.max(0,endAt-Date.now()); clearInterval(tickId); tickId=null; if("speechSynthesis" in window) speechSynthesis.cancel(); clearDeliver(); delivering=false; releaseWake(); }
@@ -1290,7 +1373,14 @@
       clock.textContent = fmt(Math.ceil(pausedRemaining/1000));
     }
   }
-  function finish(){ phase="done"; app.className="done"; running=false; skipBtn.disabled=true; clearInterval(tickId); tickId=null; stateLabel.textContent="Done"; comboNames.textContent="That's the session. Nice work."; clock.textContent="00:00"; updateStanceBadge(null); bell(3); say("Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots(); }
+  function finish(){
+    phase="done"; app.className="done"; running=false; skipBtn.disabled=true; clearInterval(tickId); tickId=null;
+    onSessionComplete();
+    stateLabel.textContent="Done";
+    const streakBit = stats.streak>1 ? `  ·  ${stats.streak}-day streak` : "";
+    comboNames.textContent = `That's the session. Nice work.  •  ${totalWork} round${totalWork===1?"":"s"} done${streakBit}`;
+    clock.textContent="00:00"; updateStanceBadge(null); bell(3); say("Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots();
+  }
 
   function reset(){
     running=false; clearInterval(tickId); tickId=null;
@@ -1339,7 +1429,7 @@
   });
 
   /* ---------- sheet + tabs ---------- */
-  $("openSettings").addEventListener("click", ()=>{ renderLibrary(); renderMovement(); renderProgram(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); sheet.classList.add("open"); });
+  $("openSettings").addEventListener("click", ()=>{ renderLibrary(); renderMovement(); renderProgram(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats(); sheet.classList.add("open"); });
   $("closeSettings").addEventListener("click", ()=>{ save(); sheet.classList.remove("open"); if(phase==="idle") reset(); });
   $("tabs").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
@@ -1647,7 +1737,19 @@
     $("sRate").value=cfg.rate; $("vRate").innerHTML = cfg.rate.toFixed(2)+"\u00d7";
     renderThemes();
     buildPunchPad(); renderMovePad(); renderStage();
-    initHelpPoppers();
+    initHelpPoppers(); renderStats();
+  }
+
+  /* ---------- your record ---------- */
+  function renderStats(){
+    const el = $("statsBox"); if(!el) return;
+    const cells = [
+      [stats.rounds||0, "Rounds"],
+      [stats.sessions||0, "Sessions"],
+      [stats.streak||0, "Day streak"],
+      [Math.round((stats.workSecs||0)/60), "Mins on bag"]
+    ];
+    el.innerHTML = cells.map(c=>`<div class="stat"><span class="snum">${c[0]}</span><span class="slbl">${c[1]}</span></div>`).join("");
   }
 
   /* ---------- help poppers: collapse the explanatory notes behind a tap ---------- */
@@ -1690,7 +1792,7 @@
   }
   $("backupBtn").addEventListener("click", ()=>{
     try{
-      const payload = { app:"coach-fred", type:"backup", version:1, exportedAt:new Date().toISOString(), data:cfg };
+      const payload = { app:"coach-fred", type:"backup", version:1, exportedAt:new Date().toISOString(), data:cfg, stats:stats };
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1715,6 +1817,8 @@
         store.set("coachfred.v2", JSON.stringify(data));
         cfg = loadCfg();
         save();
+        if(obj && obj.stats && typeof obj.stats==="object"){ try{ store.set("coachfred.stats", JSON.stringify(obj.stats)); }catch(e){} }
+        stats = loadStats();
         refreshAllFromCfg();
         setBackupStatus("Restored — your settings and combos are back.", "ok");
       }catch(err){
