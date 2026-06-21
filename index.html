@@ -547,6 +547,13 @@
         </div>
         <div class="note help">A wooden clapper rattles in the last 10 seconds of rest &mdash; the ringside ten-second warning before the bell. The bell itself rings to start and end every round.</div>
       </div>
+      <div class="field">
+        <div class="toggle-row">
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Fatigue shaping</span>
+          <label class="switch"><input type="checkbox" id="sFatigue" checked><span class="slider"></span></label>
+        </div>
+        <div class="note help">Like a real corner, the pace eases through the back half of a long round, then spikes for the final ten. Turn off for an even, metronome-steady pace throughout.</div>
+      </div>
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen, or install from your browser. Works offline once loaded; your combos and program are saved on this device.</div>
 
       <details class="acc">
@@ -992,7 +999,7 @@
     ],
     pace:"relaxed", moveMix:"light", level:"build", bodyMix:"some", voice:null,
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"numbers", rate:1.25,
-    format:"combos", clapperOn:true,
+    format:"combos", clapperOn:true, fatigueOn:true,
     theme:"fred",
     library:null, custom:[], movement:null
   };
@@ -1115,9 +1122,15 @@
     s.start(start); s.stop(start+0.05);
   }
   function bell(times=1){
-    if(!audioCtx) return;
+    if(!audioCtx) return 0;
     const t0 = audioCtx.currentTime;
     for(let n=0;n<times;n++) ding(t0 + n*0.34, 0.34);
+    return times*0.34;   // seconds until the last strike has landed
+  }
+  // Ring the bell, then speak once it has landed so the voice doesn't bury it.
+  function bellThenSay(times, text){
+    const dur = bell(times);
+    deliverTimers.push(setTimeout(()=>say(text), Math.round((dur+0.18)*1000)));
   }
   // One wooden "clack" of the ringside ten-second clapper: noise burst + wood resonance.
   function clack(start, gain){
@@ -1255,7 +1268,7 @@
     // round, then spikes it for the final push. Only on rounds long enough to
     // have an arc — short interval rounds (Tabata/HIIT) stay flat.
     const left = Math.max(0, endAt - Date.now())/1000;
-    if(currentSegSecs >= 45){
+    if(cfg.fatigueOn !== false && currentSegSecs >= 45){
       if(left <= 15) br *= 0.55;                              // final 15s: empty the tank
       else if(left/currentSegSecs < 0.5) br *= 1.22;         // back half: ease off
     }
@@ -1434,10 +1447,10 @@
       idleHint.style.display="none";
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
       const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
-      bell(1); say((st ? `${seg.label}. ${st}` : seg.label) + fmtSay);
+      bellThenSay(1, (st ? `${seg.label}. ${st}` : seg.label) + fmtSay);
       roundNow.textContent = pad2(workCount); roundTotal.textContent = pad2(totalWork);
     } else if(seg.type==="rest"){
-      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); bell(3); say("Rest");
+      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); bellThenSay(3, "Rest");
     } else if(seg.type==="prep"){
       stateLabel.textContent="Get ready"; comboNumbers.innerHTML=""; comboNames.textContent=""; idleHint.style.display="none"; updateStanceBadge(null);
     }
@@ -1484,7 +1497,7 @@
     stateLabel.textContent="Done";
     const streakBit = stats.streak>1 ? `  ·  ${stats.streak}-day streak` : "";
     comboNames.textContent = `That's the session. Nice work.  •  ${totalWork} round${totalWork===1?"":"s"} done${streakBit}`;
-    clock.textContent="00:00"; updateStanceBadge(null); bell(3); say("Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots();
+    clock.textContent="00:00"; updateStanceBadge(null); bellThenSay(3, "Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots();
   }
 
   function reset(){
@@ -1603,6 +1616,7 @@
   $("workoutGrid").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) applyWorkout(b.dataset.wk); });
   $("sFormat").addEventListener("change", e=>{ cfg.format=e.target.value; activeWorkout=null; renderWorkouts(); syncFormatUI(); save(); if(phase==="idle") reset(); });
   $("sClapper").addEventListener("change", e=>{ cfg.clapperOn=e.target.checked; save(); });
+  $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
   function renderThemes(){
     const grid = $("themeGrid");
     grid.innerHTML = THEME_IDS.map(id=>{
@@ -1830,6 +1844,7 @@
     syncFormatUI();
     renderWorkouts();
     $("sClapper").checked = cfg.clapperOn !== false;
+    $("sFatigue").checked = cfg.fatigueOn !== false;
     [...$("segPace").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.pace));
     [...$("segMoveMix").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.moveMix));
     $("sLevel").value = cfg.level;
