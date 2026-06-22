@@ -81,8 +81,9 @@ rides along in your **.coach** backup.
 ## Sounds
 Coach Fred is **voice-only** — no bell, no clapper. The coach speaks every cue:
 **“Round start”** (with your stance) to open a round, **“Rest”** between rounds,
-and a **“ten seconds”** call with a shout of motivation in the final stretch. Turn
-the ten-second call off under **Setup → More**.
+and a **“ten seconds”** call with a shout of motivation in the final stretch (the
+phrase is picked at random, so it stays fresh). On longer rounds the **fatigue
+shaping** eases the pace through the back half, then digs in for that last push.
 
 ## Install (PWA)
 Coach Fred is an installable Progressive Web App. Open it in a browser and use
