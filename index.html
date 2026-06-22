@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; media-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self'; manifest-src 'self'" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -742,6 +743,9 @@
   const PRESETS_VER = 11;
   const MOVE_VER = 3;
   const isDigit = t => Object.prototype.hasOwnProperty.call(PUNCH, t);
+  // Escape any user-supplied text (combo names/tokens from imported files)
+  // before it goes into innerHTML, to prevent stored/DOM XSS.
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
   const GROUPS = [
     {id:"basics",  name:"Basics"},
@@ -1277,7 +1281,7 @@
   function deliver(combo){
     const tokens = combo.tokens;
     lastTokens = tokens.slice();
-    comboNumbers.innerHTML = tokens.map(t=> isDigit(t) ? `<span>${t}</span>` : `<span class="mv">${orient(t)}</span>`).join("");
+    comboNumbers.innerHTML = tokens.map(t=> isDigit(t) ? `<span>${esc(t)}</span>` : `<span class="mv">${esc(orient(t))}</span>`).join("");
     const names = tokens.map(t=> isDigit(t) ? PUNCH[t] : orient(t)).join(" \u00b7 ");
     comboNames.textContent = combo.name ? `${combo.name.toUpperCase()}  \u2014  ${names}` : names;
     comboNumbers.classList.remove("hit"); void comboNumbers.offsetWidth; comboNumbers.classList.add("hit");
@@ -1606,7 +1610,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v13";
+  const APP_VERSION = "v14";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant voice test — verify audio works without running a whole session.
@@ -1794,7 +1798,7 @@
     return `<span class="lvl l${n}" title="Level ${n}">${LVL_LABEL[n]||"Beg"}</span>`;
   }
   function comboSeqLabel(tokens){
-    return tokens.map(t=> isDigit(t) ? t : `<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:color-mix(in srgb, var(--tape) 13%, transparent);padding:3px 7px;border-radius:7px;">${t}</span>`).join(" ");
+    return tokens.map(t=> isDigit(t) ? esc(t) : `<span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:color-mix(in srgb, var(--tape) 13%, transparent);padding:3px 7px;border-radius:7px;">${esc(t)}</span>`).join(" ");
   }
   const libOpen = {};   // group id -> open; all collapsed by default
   function renderLibrary(){
@@ -1813,7 +1817,7 @@
         row.innerHTML = `
           <button class="chk ${c.enabled?'on':''}" data-id="${c.id}">${c.enabled?'&#10003;':''}</button>
           <div class="seq">${comboSeqLabel(c.tokens)}</div>
-          <div class="meta"><div class="nm">${c.name}</div></div>
+          <div class="meta"><div class="nm">${esc(c.name)}</div></div>
           ${lvlBadge(c.lvl)}
           ${c.group==="custom" ? `<button class="del" data-del="${c.id}">&times;</button>` : ``}
         `;
@@ -1847,7 +1851,7 @@
   function renderStage(){
     const el=$("stage");
     if(!stage.length) el.innerHTML='<span class="ph">Tap punches and movement below to build a multi-phase combo.</span>';
-    else el.innerHTML = stage.map(t=> isDigit(t) ? `<span class="tk">${t}</span>` : `<span class="tkm">${t}</span>`).join("");
+    else el.innerHTML = stage.map(t=> isDigit(t) ? `<span class="tk">${esc(t)}</span>` : `<span class="tkm">${esc(t)}</span>`).join("");
     $("saveCombo").disabled = stage.length===0;
   }
   function buildPunchPad(){
