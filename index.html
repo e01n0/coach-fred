@@ -629,6 +629,7 @@
     {id:"step",  name:"Steps"},
     {id:"pivot", name:"Pivots"},
     {id:"guard", name:"Guard"},
+    {id:"feint", name:"Feints"},
     {id:"custommove", name:"Custom movement"}
   ];
   const MOVE_PRESETS = [
@@ -636,11 +637,47 @@
     ["roll","Roll left"],["roll","Roll right"],
     ["step","Step in"],["step","Step out"],["step","Step back"],["step","Step left"],["step","Step right"],
     ["pivot","Pivot left"],["pivot","Pivot right"],
-    ["guard","Pull back"],["guard","Lean back"],["guard","Duck"],["guard","Weave"],["guard","Parry"],["guard","Shield"],["guard","Block"],["guard","Long guard"],["guard","Catch"],["guard","High guard"]
+    ["guard","Pull back"],["guard","Lean back"],["guard","Duck"],["guard","Weave"],["guard","Parry"],["guard","Shield"],["guard","Block"],["guard","Long guard"],["guard","Catch"],["guard","High guard"],
+    ["feint","Feint jab"],["feint","Feint cross"],["feint","Feint hook"],["feint","Feint level change"],["feint","Feint"]
   ];
-  const MOVE_DEFAULT_ON = new Set(["Slip left","Slip right","Roll left","Roll right","Step in","Step out","Step back","Pivot left","Pivot right","Duck","Weave","Parry","Shield","Block","Pull back"]);
+  const MOVE_DEFAULT_ON = new Set(["Slip left","Slip right","Roll left","Roll right","Step in","Step out","Step back","Pivot left","Pivot right","Duck","Weave","Parry","Shield","Block","Pull back","Feint jab","Feint cross"]);
   const MIX = { off:{inject:0,tail:0}, light:{inject:0.22,tail:0.42}, heavy:{inject:0.42,tail:0.6} };
   function mix(){ return MIX[cfg.moveMix] || MIX.light; }
+
+  /* ---------- per-round shot / movement focus ----------
+     In Custom rounds each round can lean the caller onto one shot or one
+     family of head/footwork movement — "rear uppercut this round, rolls the
+     next" — so the corner builds most of its combos around that emphasis
+     instead of calling from the whole pool evenly. */
+  const SHOT_FOCUS = [
+    {id:"none",  name:"No focus",      kind:"none"},
+    {id:"1",     name:"Jab",           kind:"punch"},
+    {id:"2",     name:"Cross",         kind:"punch"},
+    {id:"3",     name:"Lead hook",     kind:"punch"},
+    {id:"4",     name:"Rear hook",     kind:"punch"},
+    {id:"5",     name:"Lead uppercut", kind:"punch"},
+    {id:"6",     name:"Rear uppercut", kind:"punch"},
+    {id:"body",  name:"Body shots",    kind:"body"},
+    {id:"slip",  name:"Slips",         kind:"move"},
+    {id:"roll",  name:"Rolls",         kind:"move"},
+    {id:"step",  name:"Steps",         kind:"move"},
+    {id:"pivot", name:"Pivots",        kind:"move"},
+    {id:"guard", name:"Guard",         kind:"move"},
+    {id:"feint", name:"Feints",        kind:"move"}
+  ];
+  const SHOT_FOCUS_BY_ID = Object.fromEntries(SHOT_FOCUS.map(f=>[f.id,f]));
+  // Coach-realistic setups that culminate in / feature the focus punch, so the
+  // emphasised shot reads as the payoff of a real combination, not a lone poke.
+  const FOCUS_SETUPS = {
+    "1": [["1"],["1","1"],["1","1","2"],["2","1"],["1","2","1"]],
+    "2": [["1","2"],["2","3","2"],["1","1","2"],["3","2"],["1","2","1","2"]],
+    "3": [["1","2","3"],["2","3"],["1","3"],["1","2","3","2"],["3","2","3"]],
+    "4": [["1","2","3","4"],["3","4"],["2","3","4"],["1","4"],["4","3"]],
+    "5": [["1","5"],["1","2","5"],["5","2"],["1","5","2"],["6","5"]],
+    "6": [["1","6"],["1","2","6"],["6","3"],["6","3","2"],["1","6","3"]],
+    "body": [["1","8"],["1","2","3b"],["7","2"],["2","3b"],["1","6","3b"],["7","8"]]
+  };
+  const isBodyTok = t => /b$/.test(t) || t==="7" || t==="8";
 
   // Shouts that ride the ten-second warning (replaces the old wooden clapper).
   // The coach always calls "ten seconds" then picks one of these at random, so
@@ -703,7 +740,7 @@
     {id:"footwork", label:"Footwork",  sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"footwork",level:"intermediate",pace:"steady"}}
   ];
   const PRESETS_VER = 11;
-  const MOVE_VER = 2;
+  const MOVE_VER = 3;
   const isDigit = t => Object.prototype.hasOwnProperty.call(PUNCH, t);
 
   const GROUPS = [
@@ -1094,6 +1131,7 @@
   let wakeLock = null;
   let delivering = false, deliverTimers = [];
   let currentFormat = "combos", currentSegSecs = 0, tenSecFired = false, pyrIdx = 0, emomDone = false;
+  let currentMoveFocus = "none";
   let lastTokens = null;
 
   /* ---------- elements ---------- */
@@ -1271,6 +1309,15 @@
   function counterFor(name){
     const s = name.toLowerCase();
     const L = /\bleft\b/.test(s), R = /\bright\b/.test(s);
+    // A feint is a fake — it only earns its keep when a real shot lands behind
+    // it, so a feint always draws a counter (never an empty footwork beat).
+    if(s.includes("feint")){
+      if(s.includes("jab"))   return pick([["2"],["1","2"],["2","3"]]);
+      if(s.includes("cross")) return pick([["3"],["3","2"],["1","2"]]);
+      if(s.includes("hook"))  return pick([["2"],["6"],["3","2"]]);
+      if(s.includes("level") || s.includes("low")) return pick([["3"],["5"],["3","2"]]);
+      return pick([["1","2"],["2"],["1","2","3"]]);
+    }
     if(s.includes("slip") || s.includes("roll")){
       if(s.includes("under")) return pick([["3","2"],["5","2"]]);
       if(L) return pick([["3"],["3","2"],["5"]]);   // toward lead side -> lead hook / uppercut
@@ -1344,23 +1391,71 @@
     return freestyleCombo();
   }
   function footworkCall(){ return {tokens: pick(FOOT_DRILLS).slice(), name:""}; }
+  function hasShotFocus(){ return currentMoveFocus && currentMoveFocus!=="none"; }
+  // Names available for a movement-group focus: the ticked moves in that group,
+  // or — if the user has none ticked — the group's presets, so picking a focus
+  // always gives the corner something to call.
+  function movesForFocus(g){
+    let names = enabledMoves().filter(m=>m.group===g).map(m=>m.name);
+    if(!names.length) names = MOVE_PRESETS.filter(m=>m[0]===g).map(m=>m[1]);
+    return names;
+  }
+  // Build a call that leans on the round's shot/movement focus, so most of the
+  // round's combos pay off with the chosen shot or feature the chosen movement.
+  function focusedCall(){
+    const f = SHOT_FOCUS_BY_ID[currentMoveFocus];
+    if(!f || f.kind==="none") return null;
+    if(f.kind==="move"){
+      const names = movesForFocus(f.id); if(!names.length) return null;
+      const name = pick(names);
+      const def = [name.toLowerCase(), ...counterFor(name)];
+      if(Math.random() < 0.6){
+        const setup = pick([["1"],["1","2"],["1","1"],["1","2","3"]]);
+        return {tokens:[...setup, ...def], name:""};
+      }
+      return {tokens:def, name:""};
+    }
+    if(f.kind==="body"){
+      if(Math.random() < 0.4){
+        const {combos} = eligible(currentFocus);
+        const hits = combos.filter(c => c.tokens.some(isBodyTok));
+        if(hits.length) return pickEligible(hits);
+      }
+      return {tokens: pick(FOCUS_SETUPS.body).slice(), name:""};
+    }
+    // punch focus: half the time pull a real combo from the pool that lands the
+    // shot (respects the round's combo focus + level), else synthesise one.
+    if(Math.random() < 0.4){
+      const {combos} = eligible(currentFocus);
+      const hits = combos.filter(c => c.tokens.includes(f.id));
+      if(hits.length) return pickEligible(hits);
+    }
+    return {tokens: pick(FOCUS_SETUPS[f.id]).slice(), name:""};
+  }
   function callCombo(){
     if(currentFormat==="pyramid"){ deliver({tokens: PYRAMID[pyrIdx++ % PYRAMID.length].slice(), name:""}); return; }
     if(currentFormat==="burnout"){ deliver({tokens:["1","2"], name:""}); return; }
     if(currentFormat==="footwork"){ deliver(footworkCall()); return; }
     if(currentFormat==="emom"){
       if(emomDone){ nextComboAt = Date.now()+3600000; return; }
-      emomDone = true; deliver(selectCombo()); return;
+      emomDone = true; deliver((hasShotFocus() && focusedCall()) || selectCombo()); return;
     }
-    const focusWantsMovement = ["all","defence","phase","freestyle"].includes(currentFocus);
-    if(focusWantsMovement && enabledMoves().length){
+    // Shot / movement focus: most of the round's calls lean on the chosen shot
+    // or movement; the rest fall through to normal calling so it still breathes.
+    if(hasShotFocus() && Math.random() < 0.78){ const fc=focusedCall(); if(fc){ deliver(fc); return; } }
+    // Movement is gated by the Movement-mix dial and the ticked moves — NOT by
+    // the combo focus, so head movement still gets drilled on a Power or Basics
+    // round. The injection chance keeps a floor so it fires from round one
+    // (Build mode used to ramp this from zero, so early rounds saw no movement).
+    const moveOn = cfg.moveMix!=="off" && enabledMoves().length;
+    if(moveOn){
       // Pure defensive beats — heavy when the round is about head movement.
       const defBias = (currentFocus==="defence" ? 0.45 : 0) + (cfg.moveMix==="heavy" ? 0.18 : 0);
       if(defBias && Math.random()<defBias){ const d=defensiveBeat(); if(d){ deliver(d); return; } }
       // Reactive: bias the next call off the last one.
       if(Math.random() < 0.4){ const r=reactiveCall(); if(r){ deliver(r); return; } }
     }
-    if(focusWantsMovement && Math.random()<mix().inject*levelFactor()){ const m=movementCall(); if(m){ deliver(m); return; } }
+    if(moveOn && Math.random() < mix().inject*Math.max(0.5, levelFactor())){ const m=movementCall(); if(m){ deliver(m); return; } }
     deliver(selectCombo());
   }
 
@@ -1381,7 +1476,7 @@
     } else {
       const p = cfg.program;
       p.forEach((r,i)=>{
-        seg.push({type:"work", secs:r.work, label:r.label||`Round ${i+1}`, focus:r.focus, format:r.format||"combos"});
+        seg.push({type:"work", secs:r.work, label:r.label||`Round ${i+1}`, focus:r.focus, format:r.format||"combos", moveFocus:r.moveFocus||"none"});
         if(r.rest>0 && i<p.length-1) seg.push({type:"rest", secs:r.rest});
       });
     }
@@ -1404,12 +1499,14 @@
     if(seg.type==="work"){
       workCount++; currentFocus = seg.focus;
       currentFormat = seg.format || "combos"; pyrIdx = 0; emomDone = false;
+      currentMoveFocus = seg.moveFocus || "none";
       lastTokens = null;
       stateLabel.textContent = seg.label;
       idleHint.style.display="none";
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
       const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
-      say("Round start" + (st ? `. ${st}` : "") + fmtSay);
+      const focusSay = hasShotFocus() ? `. ${SHOT_FOCUS_BY_ID[currentMoveFocus].name} focus` : "";
+      say("Round start" + (st ? `. ${st}` : "") + fmtSay + focusSay);
       roundNow.textContent = pad2(workCount); roundTotal.textContent = pad2(totalWork);
     } else if(seg.type==="rest"){
       stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); say("Rest");
@@ -1639,6 +1736,9 @@
         .map(o=>`<option value="${o[0]}" ${o[0]===r.focus?"selected":""}>${o[1]}</option>`).join("");
       const rfmt = r.format||"combos";
       const fmtOpts = FORMATS.map(f=>`<option value="${f[0]}" ${f[0]===rfmt?"selected":""}>${f[1]}</option>`).join("");
+      const rmf = r.moveFocus||"none";
+      const mfOpts = SHOT_FOCUS.map(o=>`<option value="${o.id}" ${o.id===rmf?"selected":""}>${o.name}</option>`).join("");
+      const focusApplies = (rfmt==="combos" || rfmt==="emom");
       card.innerHTML = `
         <div class="prog-top">
           <input class="lbl" value="${(r.label||("Round "+(idx+1))).replace(/"/g,'&quot;')}" data-i="${idx}" data-k="label">
@@ -1658,6 +1758,8 @@
         <select data-i="${idx}" data-k="focus" ${rfmt!=="combos"?"disabled":""}>${focusOpts}</select>
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Format</div>
         <select data-i="${idx}" data-k="format">${fmtOpts}</select>
+        <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Shot focus</div>
+        <select data-i="${idx}" data-k="moveFocus" ${focusApplies?"":"disabled"}>${mfOpts}</select>
       `;
       list.appendChild(card);
     });
@@ -1681,7 +1783,7 @@
   });
   $("addRound").addEventListener("click", ()=>{
     const n=cfg.program.length+1;
-    cfg.program.push({label:"Round "+n, work:180, rest:60, focus:"all", format:"combos"});
+    cfg.program.push({label:"Round "+n, work:180, rest:60, focus:"all", format:"combos", moveFocus:"none"});
     renderProgram(); save(); if(phase==="idle") reset();
   });
 

@@ -59,6 +59,17 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
 
 In **Custom rounds** each round can use a different format.
 
+## Shot focus (custom rounds)
+**Setup → Workout → Custom rounds → Shot focus** leans the corner onto one shot
+or one family of movement for that round — "rear uppercut round 1, rolls round
+2" — so most of the round's combos pay off with the chosen shot or build around
+the chosen movement, instead of calling evenly from the whole pool. Pick from
+the punches (jab through rear uppercut, plus body shots) or a movement family
+(slips, rolls, steps, pivots, guard, feints). The corner announces it at the
+bell ("…rear uppercut focus") and still mixes in enough variety to breathe.
+Applies on the **Combos** and **EMOM** formats; the fixed drill formats
+(pyramid, burnout, footwork) ignore it.
+
 ## How the corner calls
 On the default **Combos** format the caller works like a corner man, not a
 shuffle:
@@ -72,6 +83,15 @@ shuffle:
 - **Defensive-only beats** — pure *slip · roll · reset* calls with no punch, to
   drill head movement. These come up most on the **Defence** focus and with
   **Movement mix → Heavy**.
+- **Feints** — fakes (*feint jab*, *feint cross*, *feint hook*, *feint level
+  change*) sit alongside slips, rolls and footwork in the movement library and
+  always draw the real shot behind them. Tick them under **Setup → Settings →
+  Movement**, dial them in with **Movement mix**, or make a round a feint round
+  with **Shot focus → Feints**.
+
+Movement is gated by the **Movement mix** dial and your ticked moves — not by a
+round's combo focus — so head movement and feints get drilled even on a Power
+or Basics round, from the first round on.
 
 ## Your record
 Coach Fred keeps a tally on your device — rounds, sessions, minutes on the bag
