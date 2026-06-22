@@ -702,8 +702,8 @@
     {id:"burnout",  label:"Burnout",   sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:45,format:"burnout",pace:"relentless"}},
     {id:"footwork", label:"Footwork",  sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"footwork",level:"intermediate",pace:"steady"}}
   ];
-  const PRESETS_VER = 10;
-  const MOVE_VER = 1;
+  const PRESETS_VER = 11;
+  const MOVE_VER = 2;
   const isDigit = t => Object.prototype.hasOwnProperty.call(PUNCH, t);
 
   const GROUPS = [
@@ -1054,8 +1054,10 @@
       c.presetsVer = PRESETS_VER;
     }
     if(c.moveVer !== MOVE_VER){
+      const wasEnabled = {};
+      (c.movement||[]).forEach(m=>{ if(m.group!=="custommove") wasEnabled[m.name] = m.enabled; });
       const customMoves = (c.movement||[]).filter(m=>m.group==="custommove");
-      c.movement = freshMovement().concat(customMoves);
+      c.movement = freshMovement().map(x => (x.name in wasEnabled) ? Object.assign({}, x, {enabled:wasEnabled[x.name]}) : x).concat(customMoves);
       c.moveVer = MOVE_VER;
     }
     return c;
@@ -1507,7 +1509,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v12";
+  const APP_VERSION = "v13";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant voice test — verify audio works without running a whole session.
