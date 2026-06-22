@@ -55,7 +55,7 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
 - **Burnout** — non-stop 1-2 punch-out; speed and volume over power
 - **Footwork** — real called footwork drills (pivots, shuffles, in-and-out,
   circling, L-step, cut-the-angle), which flip left/right on southpaw rounds
-- **EMOM** — every minute on the minute: one combo at the bell, rest the rest
+- **EMOM** — every minute on the minute: one combo at the top, rest the rest
 
 In **Custom rounds** each round can use a different format.
 
@@ -79,9 +79,10 @@ and your current day streak. See it under **Setup → Settings → Your record**
 rides along in your **.coach** backup.
 
 ## Sounds
-A bright, metallic **ring bell** starts and ends every round. In the last ten
-seconds of rest, a wooden **ten-second clapper** rattles — the ringside warning
-that the bell is coming. Toggle the clapper under **Setup → More**.
+Coach Fred is **voice-only** — no bell, no clapper. The coach speaks every cue:
+**“Round start”** (with your stance) to open a round, **“Rest”** between rounds,
+and a **“ten seconds”** call with a shout of motivation in the final stretch. Turn
+the ten-second call off under **Setup → More**.
 
 ## Install (PWA)
 Coach Fred is an installable Progressive Web App. Open it in a browser and use

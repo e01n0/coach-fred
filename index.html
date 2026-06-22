@@ -552,20 +552,19 @@
       </div>
       <div class="field">
         <div class="toggle-row">
-          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">10-second clapper</span>
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Ten-second call</span>
           <label class="switch"><input type="checkbox" id="sClapper" checked><span class="slider"></span></label>
         </div>
-        <div class="note help">A wooden clapper rattles in the last 10 seconds of each round &mdash; the ringside ten-second warning that the round is about to end. The bell itself rings to start and end every round.</div>
+        <div class="note help">With 10 seconds left the coach calls &ldquo;ten seconds&rdquo; and a shout of motivation &mdash; the warning that the round&rsquo;s about to end. Turn it off for silence in the final stretch.</div>
       </div>
       <div class="field">
         <div class="toggle-row">
-          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Sound check</span>
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Voice check</span>
           <span style="display:flex;gap:8px;">
-            <button type="button" class="testbtn" id="testSound">Bell</button>
-            <button type="button" class="testbtn" id="testClap">Clapper</button>
+            <button type="button" class="testbtn" id="testVoice">Test voice</button>
           </span>
         </div>
-        <div class="note help">Tap to hear the bell or clapper right now &mdash; handy for checking your volume and that audio is working. iOS only allows sound after a tap.</div>
+        <div class="note help">Tap to hear the coach right now &mdash; handy for checking your volume and that audio is working. iOS only allows sound after a tap.</div>
       </div>
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen, or install from your browser. Works offline once loaded; your combos and program are saved on this device.</div>
 
@@ -641,14 +640,19 @@
   ];
   const MOVE_PRESETS = [
     ["slip","Slip left"],["slip","Slip right"],
-    ["roll","Roll left"],["roll","Roll right"],["roll","Roll under"],
+    ["roll","Roll left"],["roll","Roll right"],
     ["step","Step in"],["step","Step out"],["step","Step back"],["step","Step left"],["step","Step right"],
     ["pivot","Pivot left"],["pivot","Pivot right"],
     ["guard","Pull back"],["guard","Lean back"],["guard","Duck"],["guard","Weave"],["guard","Parry"],["guard","Shield"],["guard","Block"],["guard","Long guard"],["guard","Catch"],["guard","High guard"]
   ];
-  const MOVE_DEFAULT_ON = new Set(["Slip left","Slip right","Roll left","Roll right","Roll under","Step in","Step out","Step back","Pivot left","Pivot right","Duck","Weave","Parry","Shield","Block","Pull back"]);
+  const MOVE_DEFAULT_ON = new Set(["Slip left","Slip right","Roll left","Roll right","Step in","Step out","Step back","Pivot left","Pivot right","Duck","Weave","Parry","Shield","Block","Pull back"]);
   const MIX = { off:{inject:0,tail:0}, light:{inject:0.22,tail:0.42}, heavy:{inject:0.42,tail:0.6} };
   function mix(){ return MIX[cfg.moveMix] || MIX.light; }
+
+  // Shouts that ride the ten-second warning (replaces the old wooden clapper).
+  // TANK_LINES go on long rounds with an arc, where the pace also spikes.
+  const TEN_LINES  = ["finish strong","stay sharp","hands up, keep working","all the way through","make them count"];
+  const TANK_LINES = ["empty the tank","dig deep","leave nothing in there","last push, all out","find another gear"];
 
   /* ---------- round formats ---------- */
   // Pyramid / ladder: climb the straight punch count 1->6, then back down — a
@@ -673,7 +677,7 @@
     ["pyramid","Pyramid ladder","Climb the punch count 1→6 and back down, over and over."],
     ["burnout","Burnout punch-out","Non-stop 1-2 straight punches — speed and volume over power."],
     ["footwork","Footwork drills","Called footwork: pivots, shuffles, in-and-out, angles."],
-    ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the bell, rest the rest."]
+    ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the top, rest the rest."]
   ];
   const FORMAT_LABEL = Object.fromEntries(FORMATS.map(f=>[f[0],f[1]]));
 
@@ -761,7 +765,7 @@
     ["defence","Parry cross",["parry","2"],1],
     ["defence","Catch cross",["catch","2"],1],
     ["defence","Slip jab",["slip left","1"],1],
-    ["defence","Roll hook",["roll","3"],1],
+    ["defence","Roll hook",["roll left","3"],1],
     ["defence","Pull jab",["pull back","1"],1],
     ["defence","Slip cross",["slip right","2"],2],
     ["defence","Slip hook",["slip left","3"],2],
@@ -772,14 +776,14 @@
     ["defence","Rear block 3-2-3",["block","3","2","3"],2],
     ["defence","Lead slip 3-2-3",["slip left","3","2","3"],2],
     ["defence","Rear slip 2-3-2",["slip right","2","3","2"],2],
-    ["defence","Rear roll 2-3-2",["roll","2","3","2"],2],
+    ["defence","Rear roll 2-3-2",["roll right","2","3","2"],2],
     ["defence","Pull 2-3-2",["pull back","2","3","2"],2],
     ["defence","Lean back 1-2",["lean back","1","2"],2],
     ["defence","Duck 5-2",["duck","5","2"],2],
-    ["defence","Roll under 3-2",["roll under","3","2"],2],
+    ["defence","Lead roll 3-2",["roll left","3","2"],2],
     ["defence","Double slip 3-2",["slip right","slip left","3","2"],3],
     ["defence","Slip slip 2-3-2",["slip left","slip right","2","3","2"],3],
-    ["defence","Parry roll 2-3-2",["parry","roll","2","3","2"],3],
+    ["defence","Parry roll 2-3-2",["parry","roll right","2","3","2"],3],
     // BODY — change levels, head to body
     ["body","Jab high-low",["1","1b"],1],
     ["body","Body jab cross",["1b","2"],1],
@@ -807,8 +811,8 @@
     ["phase","1-2-3 slip",["1","2","3","slip right"],2],
     ["phase","1-2-3 slip 2",["1","2","3","slip right","2"],3],
     // Family: 1-2
-    ["phase","1-2 roll",["1","2","roll"],2],
-    ["phase","1-2 roll 3-2",["1","2","roll","3","2"],3],
+    ["phase","1-2 roll",["1","2","roll left"],2],
+    ["phase","1-2 roll 3-2",["1","2","roll left","3","2"],3],
     // Family: 2-3-2
     ["phase","2-3-2 slip",["2","3","2","slip left"],2],
     ["phase","2-3-2 slip 3",["2","3","2","slip left","3"],3],
@@ -816,8 +820,8 @@
     ["phase","1-1-2 slip",["1","1","2","slip right"],2],
     ["phase","1-1-2 slip 2-3",["1","1","2","slip right","2","3"],3],
     // Family: 1-2-3b (body)
-    ["phase","1-2-3b roll",["1","2","3b","roll"],2],
-    ["phase","1-2-3b roll 3-2",["1","2","3b","roll","3","2"],3],
+    ["phase","1-2-3b roll",["1","2","3b","roll left"],2],
+    ["phase","1-2-3b roll 3-2",["1","2","3b","roll left","3","2"],3],
     // Family: 1-2-3-2 (pivot off)
     ["phase","1-2-3-2 pivot",["1","2","3","2","pivot left"],2],
     ["phase","1-2-3-2 pivot 3",["1","2","3","2","pivot left","3"],3],
@@ -825,34 +829,34 @@
     ["phase","1 parry 1-2",["1","parry","1","2"],2],
     ["phase","1 step back 1-2",["1","step back","1","2"],2],
     ["phase","1-2 slip 2",["1","2","slip right","2"],2],
-    ["phase","1-2 roll 2",["1","2","roll","2"],2],
+    ["phase","1-2 roll 2",["1","2","roll right","2"],2],
     ["phase","1-2 pivot 3",["1","2","pivot left","3"],2],
-    ["phase","2-3 roll 2",["2","3","roll","2"],2],
+    ["phase","2-3 roll 2",["2","3","roll right","2"],2],
     ["phase","2-3b pivot 3",["2","3b","pivot left","3"],3],
     ["phase","1-2 slip 3-2",["1","2","slip left","3","2"],3],
     ["phase","1-2-3 slip 3b",["1","2","3","slip left","3b"],3],
     ["phase","1-2-3 slip 5-2",["1","2","3","slip left","5","2"],3],
-    ["phase","1-2-3 roll 2-3-2",["1","2","3","roll","2","3","2"],3],
-    ["phase","1-2-3 roll 3",["1","2","3","roll","3"],3],
+    ["phase","1-2-3 roll 2-3-2",["1","2","3","roll right","2","3","2"],3],
+    ["phase","1-2-3 roll 3",["1","2","3","roll left","3"],3],
     ["phase","1-2 block 2-3",["1","2","block","2","3"],3],
     ["phase","2-3 pull 1-2",["2","3","pull back","1","2"],3],
     ["phase","Step in 1-1 back 6",["step in","1","1","step back","6"],3],
     ["phase","Slip slip 1-2-3",["1","slip right","2","slip left","3"],3],
     ["phase","1-2-3 pivot 3-2",["1","2","3","pivot left","3","2"],3],
     ["phase","2-3-2 duck 2",["2","3","2","duck","2"],3],
-    ["phase","1-2 slip 2 roll 3",["1","2","slip right","2","roll","3"],3],
+    ["phase","1-2 slip 2 roll 3",["1","2","slip right","2","roll left","3"],3],
     // Punch-led defence: throw first, then slip/roll, then fire back (3-4 punch)
     ["phase","1-2 slip 5",["1","2","slip right","5"],2],
     ["phase","1-2 slip 2-3",["1","2","slip right","2","3"],2],
     ["phase","2-3 slip 2",["2","3","slip left","2"],2],
-    ["phase","1-2-3 roll 2",["1","2","3","roll","2"],2],
-    ["phase","1-2-3-2 roll 2",["1","2","3","2","roll","2"],3],
-    ["phase","1 parry 2 roll 3-2",["1","parry","2","roll","3","2"],3],
+    ["phase","1-2-3 roll 2",["1","2","3","roll right","2"],2],
+    ["phase","1-2-3-2 roll 2",["1","2","3","2","roll right","2"],3],
+    ["phase","1 parry 2 roll 3-2",["1","parry","2","roll left","3","2"],3],
     // Punch then defend then defend (anticipate the return, no immediate counter)
     ["phase","1 slip slip",["1","slip left","slip right"],2],
     ["phase","1-2 slip slip",["1","2","slip left","slip right"],2],
-    ["phase","1-2 slip roll",["1","2","slip right","roll"],2],
-    ["phase","1-2-3 slip roll",["1","2","3","slip left","roll"],3],
+    ["phase","1-2 slip roll",["1","2","slip right","roll left"],2],
+    ["phase","1-2-3 slip roll",["1","2","3","slip left","roll left"],3],
     ["phase","1-2-3-2 slip slip",["1","2","3","2","slip left","slip right"],3],
     ["phase","1-2 pull 2 slip slip",["1","2","pull back","2","slip left","slip right"],3]
   ];
@@ -1081,11 +1085,10 @@
   let workCount = 0, totalWork = 0, currentFocus = "all", currentStance = null;
   let phase = "idle";
   let endAt = 0, pausedRemaining = 0, running = false, tickId = null, nextComboAt = 0;
-  let wakeLock = null, audioCtx = null;
+  let wakeLock = null;
   let delivering = false, deliverTimers = [];
-  let soundUntil = 0;   // ms timestamp: the voice never speaks until any bell/clapper has finished
-  let currentFormat = "combos", currentSegSecs = 0, clapperFired = false, pyrIdx = 0, emomDone = false;
-  let lastTokens = null, tankFired = false;
+  let currentFormat = "combos", currentSegSecs = 0, tenSecFired = false, pyrIdx = 0, emomDone = false;
+  let lastTokens = null;
 
   /* ---------- elements ---------- */
   const $ = id => document.getElementById(id);
@@ -1100,115 +1103,12 @@
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
 
   /* ---------- audio ---------- */
-  // Duck other apps' music while the coach calls and the bell/clapper sound, then
-  // restore it. iOS/Safari (16.4+) honours this via the Audio Session API; Android
-  // and others ignore it and lean on the OS's own automatic ducking. Always on.
+  // Coach Fred is voice-only — every cue is spoken, so there's no bell or
+  // clapper to play. We still nudge the OS to duck other apps' music while the
+  // coach is calling. iOS/Safari (16.4+) honours this via the Audio Session
+  // API; Android and others lean on the OS's own automatic ducking.
   function duckOtherAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type = "transient"; }catch(e){} }
-  function ensureAudio(){ if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } duckOtherAudio(); loadSamples(); return (audioCtx.state==="suspended") ? audioCtx.resume() : Promise.resolve(); }
-
-  // Real recorded sounds (bundled, cached for offline). Decoded once the context
-  // exists; if a file is missing or won't decode we fall back to synthesis.
-  // bell.wav: qubodup "Bell-ring" (CC0). clack.wav: a clave strike (public domain).
-  let bellAB=null, clackAB=null, bellBuf=null, clackBuf=null, decodeStarted=false;
-  fetch("sounds/bell.wav").then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>{bellAB=b;}).catch(()=>{});
-  fetch("sounds/clack.wav").then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>{clackAB=b;}).catch(()=>{});
-  function decodeAB(ab, set){
-    if(!ab) return;
-    try{ const p=audioCtx.decodeAudioData(ab.slice(0), set, ()=>{}); if(p&&p.then) p.then(set,()=>{}); }catch(e){}
-  }
-  function loadSamples(){
-    if(decodeStarted || !audioCtx || !(bellAB&&clackAB)) return;
-    decodeStarted = true;
-    decodeAB(bellAB, b=>bellBuf=b);
-    decodeAB(clackAB, b=>clackBuf=b);
-  }
-  function playSample(buf, start, gain){
-    const s=audioCtx.createBufferSource(); s.buffer=buf;
-    const g=audioCtx.createGain(); g.gain.value=gain;
-    s.connect(g).connect(audioCtx.destination);
-    s.start(start);
-  }
-  let noiseBuf = null;
-  function noise(){
-    if(!noiseBuf){
-      noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate*0.5, audioCtx.sampleRate);
-      const d = noiseBuf.getChannelData(0);
-      for(let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
-    }
-    const s = audioCtx.createBufferSource(); s.buffer = noiseBuf; return s;
-  }
-  // One strike of a bright brass ring-bell: detuned inharmonic partials for the
-  // metallic shimmer, a long clangy ring, and a sharp hammer strike. Everything
-  // runs through a soft limiter so the stacked partials clang without harsh
-  // digital clipping.
-  function ding(start, gain){
-    const out=audioCtx.createGain(); out.gain.value=gain;
-    const comp=audioCtx.createDynamicsCompressor();
-    comp.threshold.value=-10; comp.knee.value=8; comp.ratio.value=6; comp.attack.value=0.002; comp.release.value=0.25;
-    out.connect(comp).connect(audioCtx.destination);
-    const f0 = 760*(1+(Math.random()-.5)*0.01);
-    // ratio, amplitude, decay(s), detune(cents) — detuned pairs beat for shimmer.
-    const partials = [
-      [1.00,1.00,2.6, 0],[2.00,0.72,2.1, 7],[2.41,0.58,1.7,-8],[3.00,0.46,1.4, 6],
-      [4.18,0.36,1.1,-9],[5.43,0.27,0.85,8],[6.79,0.19,0.62,-7],[8.21,0.13,0.46,10]
-    ];
-    partials.forEach(([ratio,amp,dec,det])=>{
-      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
-      o.type="sine"; o.frequency.value=f0*ratio; o.detune.value=det;
-      g.gain.setValueAtTime(0,start);
-      g.gain.linearRampToValueAtTime(amp,start+0.002);
-      g.gain.exponentialRampToValueAtTime(0.0004,start+dec);
-      o.connect(g).connect(out);
-      o.start(start); o.stop(start+dec+0.05);
-    });
-    // sharp metallic hammer strike — bright high-passed noise click
-    const s=noise(), hp=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
-    hp.type="highpass"; hp.frequency.value=2600;
-    g.gain.setValueAtTime(0.9,start);
-    g.gain.exponentialRampToValueAtTime(0.0005,start+0.05);
-    s.connect(hp).connect(g).connect(out);
-    s.start(start); s.stop(start+0.07);
-  }
-  function bell(times=1){
-    if(!audioCtx) ensureAudio();
-    if(!audioCtx) return 0;
-    // A small lead means a context that was only just resumed still plays the
-    // strike instead of dropping it because currentTime is sitting at zero.
-    const t0 = audioCtx.currentTime + 0.06;
-    if(bellBuf){ for(let n=0;n<times;n++) playSample(bellBuf, t0 + n*0.5, 0.95); }
-    else { for(let n=0;n<times;n++) ding(t0 + n*0.46, 0.5); }
-    const dur = bellBuf ? (0.06 + times*0.5) : (0.06 + times*0.46);   // until the last strike lands
-    soundUntil = Math.max(soundUntil, Date.now() + Math.round(dur*1000) + 150);
-    return dur;
-  }
-  // Ring the bell, then speak. say() holds itself until the strike has landed.
-  function bellThenSay(times, text){ bell(times); say(text); }
-  // One wooden "clack" of the ringside ten-second clapper: noise burst + wood resonance.
-  function clack(start, gain){
-    const s=noise(), bp=audioCtx.createBiquadFilter(), g=audioCtx.createGain();
-    bp.type="bandpass"; bp.frequency.value=1900*(1+(Math.random()-.5)*0.06); bp.Q.value=1.1;
-    g.gain.setValueAtTime(gain,start);
-    g.gain.exponentialRampToValueAtTime(0.0005,start+0.045);
-    s.connect(bp).connect(g).connect(audioCtx.destination);
-    s.start(start); s.stop(start+0.06);
-    [820,1280].forEach((f,i)=>{
-      const o=audioCtx.createOscillator(), og=audioCtx.createGain();
-      o.type="triangle"; o.frequency.value=f*(1+(Math.random()-.5)*0.04);
-      og.gain.setValueAtTime(gain*0.4/(i+1),start);
-      og.gain.exponentialRampToValueAtTime(0.0005,start+0.04);
-      o.connect(og).connect(audioCtx.destination);
-      o.start(start); o.stop(start+0.05);
-    });
-  }
-  // The ten-second clapper: rapid wooden clacks warning the round is about to start.
-  function clapper(){
-    if(!audioCtx) ensureAudio();
-    if(!audioCtx) return;
-    const t0 = audioCtx.currentTime; let t = t0 + 0.02;
-    if(clackBuf){ for(let i=0;i<11;i++){ playSample(clackBuf, t, 0.85); t += 0.11 + Math.random()*0.02; } }
-    else { for(let i=0;i<11;i++){ clack(t, 0.62); t += 0.12 + Math.random()*0.02; } }
-    soundUntil = Math.max(soundUntil, Date.now() + Math.round((t - t0)*1000) + 80);
-  }
+  function ensureAudio(){ duckOtherAudio(); return Promise.resolve(); }
 
   /* ---------- speech ---------- */
   function loadVoices(){
@@ -1227,13 +1127,9 @@
     const v = speechSynthesis.getVoices().find(x=>x.name===cfg.voice); if(v) u.voice=v;
     return u;
   }
-  // The voice always follows the sound: if a bell/clapper is still ringing,
-  // hold the line until it has finished rather than talking over it.
   function say(text){
     if(!("speechSynthesis" in window)) return;
-    const wait = soundUntil - Date.now();
-    if(wait > 30) deliverTimers.push(setTimeout(()=>speechSynthesis.speak(mkUtter(text)), wait));
-    else speechSynthesis.speak(mkUtter(text));
+    speechSynthesis.speak(mkUtter(text));
   }
   function primeSpeech(){ if(!("speechSynthesis" in window)) return; const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); }
 
@@ -1498,19 +1394,19 @@
     phase = seg.type;
     app.className = seg.type;
     skipBtn.disabled = false;
-    currentSegSecs = seg.secs; clapperFired = false;
+    currentSegSecs = seg.secs; tenSecFired = false;
     if(seg.type==="work"){
       workCount++; currentFocus = seg.focus;
       currentFormat = seg.format || "combos"; pyrIdx = 0; emomDone = false;
-      tankFired = false; lastTokens = null;
+      lastTokens = null;
       stateLabel.textContent = seg.label;
       idleHint.style.display="none";
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
       const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
-      bellThenSay(1, (st ? `${seg.label}. ${st}` : seg.label) + fmtSay);
+      say("Round start" + (st ? `. ${st}` : "") + fmtSay);
       roundNow.textContent = pad2(workCount); roundTotal.textContent = pad2(totalWork);
     } else if(seg.type==="rest"){
-      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); bellThenSay(2, "Rest");
+      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); say("Rest");
     } else if(seg.type==="prep"){
       stateLabel.textContent="Get ready"; comboNumbers.innerHTML=""; comboNames.textContent=""; idleHint.style.display="none"; updateStanceBadge(null);
     }
@@ -1523,20 +1419,18 @@
     const remaining = Math.max(0, endAt-Date.now());
     const secs = remaining/1000;
     clock.textContent = fmt(Math.ceil(secs));
-    if(phase==="work" && cfg.clapperOn && !clapperFired && currentSegSecs>11 && secs<=10){
-      clapperFired = true;
-      if("speechSynthesis" in window) speechSynthesis.cancel();   // let the clapper ring clean
-      delivering=false; clearDeliver();
-      clapper();
-    }
-    if(phase==="work" && cfg.fatigueOn !== false && !tankFired && currentSegSecs>=45 && secs<=10 && secs>3){
-      tankFired = true;
+    // Ten-second warning: at 12s left (giving the call room to land) the coach
+    // shouts the count plus a line of motivation — this replaces the old wooden
+    // clapper. On long rounds with an arc it digs in and the pace spikes too.
+    if(phase==="work" && cfg.clapperOn && !tenSecFired && currentSegSecs>13 && secs<=12){
+      tenSecFired = true;
       if("speechSynthesis" in window) speechSynthesis.cancel();
       delivering=false; clearDeliver();
-      say("Empty the tank");             // holds until the clapper has finished, then calls
-      nextComboAt = Date.now() + 2800;   // clapper + the call land, then the pace spikes
+      const push = cfg.fatigueOn !== false && currentSegSecs>=45;
+      say("Ten seconds. " + pick(push ? TANK_LINES : TEN_LINES));
+      nextComboAt = Date.now() + (push ? 2600 : 1900);   // let the call land, then push
     }
-    if(phase==="work" && Date.now()>=nextComboAt && Date.now()>=soundUntil && secs>1.5 && !delivering && !(("speechSynthesis" in window) && speechSynthesis.speaking)){
+    if(phase==="work" && Date.now()>=nextComboAt && secs>1.5 && !delivering && !(("speechSynthesis" in window) && speechSynthesis.speaking)){
       callCombo();
     }
     if(remaining<=0){ if(phase==="work") onRoundComplete(); advance(); }
@@ -1560,7 +1454,7 @@
     stateLabel.textContent="Done";
     const streakBit = stats.streak>1 ? `  ·  ${stats.streak}-day streak` : "";
     comboNames.textContent = `That's the session. Nice work.  •  ${totalWork} round${totalWork===1?"":"s"} done${streakBit}`;
-    clock.textContent="00:00"; updateStanceBadge(null); bellThenSay(3, "Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots();
+    clock.textContent="00:00"; updateStanceBadge(null); say("Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots();
   }
 
   function reset(){
@@ -1596,9 +1490,8 @@
   startBtn.addEventListener("click", ()=>{
     const starting = (phase==="idle" || phase==="done");
     if(starting) primeSpeech();   // must fire inside the user gesture so iOS unlocks speech
-    // Wait for the freshly-created AudioContext to actually start before the
-    // first segment, so round one's bell isn't dropped while it's still resuming
-    // — but never hang the session if resume() stalls or never settles.
+    // Duck other audio inside the user gesture before the first segment, so the
+    // round-one call lands clean — but never hang the session if it stalls.
     let went=false;
     const go=()=>{ if(went) return; went=true;
       if(starting){ reset(); segIndex=0; loadSegment(0); run(); }
@@ -1610,12 +1503,11 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v11";
+  const APP_VERSION = "v12";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
-  // Instant bell test — verify audio works without running a whole session.
-  $("testSound").addEventListener("click", ()=>{ ensureAudio().then(()=>bell(1), ()=>bell(1)); });
-  $("testClap").addEventListener("click", ()=>{ ensureAudio().then(()=>clapper(), ()=>clapper()); });
+  // Instant voice test — verify audio works without running a whole session.
+  $("testVoice").addEventListener("click", ()=>{ ensureAudio(); primeSpeech(); say("Coach Fred, ready to work."); });
   skipBtn.addEventListener("click", ()=>{ ensureAudio(); skip(); });
   $("stanceBadge").addEventListener("click", ()=>{
     if(!currentStance) return;
