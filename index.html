@@ -274,6 +274,13 @@
   .chips{display:flex;flex-wrap:wrap;gap:8px;}
   .chipbtn{padding:9px 12px;border:1px solid var(--line);background:var(--canvas-2);color:var(--tape);border-radius:20px;cursor:pointer;font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:13px;}
   .chipbtn:active,.padbtn:active{transform:scale(.95);}
+  /* press + stage feedback */
+  @keyframes padPress{0%{transform:scale(.86);box-shadow:0 0 0 3px var(--tape);}100%{transform:scale(1);box-shadow:0 0 0 0 transparent;}}
+  .padbtn.pressed,.chipbtn.pressed{animation:padPress .26s ease-out;border-color:var(--tape);}
+  @keyframes stageBump{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--tape) 70%,transparent);}55%{box-shadow:0 0 0 3px color-mix(in srgb,var(--tape) 55%,transparent);}100%{box-shadow:0 0 0 0 transparent;}}
+  .stage.bump{animation:stageBump .42s ease-out;border-color:color-mix(in srgb,var(--tape) 55%,var(--line));}
+  @keyframes tokenPop{0%{transform:scale(.4);opacity:0;}60%{transform:scale(1.18);}100%{transform:scale(1);opacity:1;}}
+  .stage .tk.just,.stage .tkm.just{display:inline-block;animation:tokenPop .34s cubic-bezier(.2,.9,.25,1.3);}
   .save-row{display:flex;gap:8px;margin-top:14px;}
   .save-row input{flex:1;padding:13px;border-radius:11px;background:var(--canvas-2);color:var(--tape);border:1px solid var(--line);font-family:inherit;font-size:16px;}
   .save-row button{padding:13px 18px;border-radius:11px;border:none;background:var(--tape);color:var(--canvas);font-weight:700;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;}
@@ -292,14 +299,20 @@
   .stance-badge.southpaw{box-shadow:inset 0 0 0 2px var(--prep);color:var(--prep);}
 
   /* tutorial */
-  .tut{position:fixed;inset:0;z-index:30;background:rgba(11,9,8,.8);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:24px;}
-  .tut.open{display:flex;}
-  .tut-card{background:var(--canvas-2);border:1px solid var(--line);border-radius:18px;max-width:380px;width:100%;padding:24px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:calc(100dvh - 48px);overflow-y:auto;}
+  .tut{position:fixed;inset:0;z-index:30;display:none;}
+  .tut.open{display:block;}
+  .tut.centered{background:rgba(11,9,8,.8);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);}
+  .tut-spot{position:absolute;border-radius:13px;border:2px solid var(--prep);background:transparent;pointer-events:none;display:none;transition:left .28s ease,top .28s ease,width .28s ease,height .28s ease;}
+  .tut.spot .tut-spot{display:block;animation:tutPulse 1.7s ease-in-out infinite;}
+  @keyframes tutPulse{0%,100%{box-shadow:0 0 0 9999px rgba(11,9,8,.82),0 0 0 1px color-mix(in srgb,var(--prep) 75%,transparent);}50%{box-shadow:0 0 0 9999px rgba(11,9,8,.82),0 0 0 7px color-mix(in srgb,var(--prep) 0%,transparent);}}
+  .tut-card{position:fixed;background:var(--canvas-2);border:1px solid var(--line);border-radius:18px;width:min(360px,calc(100vw - 24px));padding:20px 20px 16px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:calc(100dvh - 24px);overflow-y:auto;}
+  .tut.centered .tut-card{left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100vw - 32px));padding:24px 22px 20px;}
   .tut-step{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--steel);}
-  .tut-card h3{font-family:"Anton";font-weight:400;letter-spacing:.04em;text-transform:uppercase;font-size:26px;margin:6px 0 12px;line-height:1;}
-  .tut-body{font-size:16px;line-height:1.5;color:color-mix(in srgb, var(--tape) 85%, transparent);min-height:96px;}
+  .tut-card h3{font-family:"Anton";font-weight:400;letter-spacing:.04em;text-transform:uppercase;font-size:25px;margin:6px 0 11px;line-height:1;}
+  .tut-body{font-size:15.5px;line-height:1.5;color:color-mix(in srgb, var(--tape) 85%, transparent);}
+  .tut.centered .tut-body{min-height:96px;}
   .tut-body b{color:var(--prep);font-weight:700;}
-  .tut-dots{display:flex;gap:6px;justify-content:center;margin:18px 0 16px;}
+  .tut-dots{display:flex;gap:6px;justify-content:center;margin:16px 0 14px;flex-wrap:wrap;}
   .tut-dots .d{width:8px;height:8px;border-radius:50%;background:color-mix(in srgb, var(--tape) 22%, transparent);transition:background .2s;}
   .tut-dots .d.on{background:var(--tape);}
   .tut-actions{display:flex;gap:10px;align-items:center;}
@@ -593,7 +606,8 @@
 
 <!-- TUTORIAL -->
 <div class="tut" id="tut">
-  <div class="tut-card">
+  <div class="tut-spot" id="tutSpot"></div>
+  <div class="tut-card" id="tutCard">
     <div class="tut-step" id="tutStep"></div>
     <h3 id="tutTitle"></h3>
     <div class="tut-body" id="tutBody"></div>
@@ -1634,20 +1648,34 @@
   });
 
   /* ---------- tutorial ---------- */
+  // Interactive guided tour: each step can open the relevant view and point a
+  // spotlight at the real control via `at()`, which returns the element to highlight.
+  function tutCloseSheet(){ sheet.classList.remove("open"); }
+  function tutOpenPane(pane){
+    if(!sheet.classList.contains("open")){
+      renderLibrary(); renderMovement(); renderProgram(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats();
+      sheet.classList.add("open");
+    }
+    [...$("tabs").children].forEach(x=> x.classList.toggle("on", x.dataset.pane===pane));
+    ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p===pane));
+  }
+  let tutStanceDemo = false;
+  function tutShowStance(){ if($("stanceBadge").style.display==="none"){ updateStanceBadge(cfg.startStance==="southpaw"?"Southpaw":"Orthodox"); tutStanceDemo=true; } return $("stanceBadge"); }
+  function tutClearStance(){ if(tutStanceDemo && phase==="idle") updateStanceBadge(null); tutStanceDemo=false; }
   const TUT_STEPS = [
-    {h:"Your corner man", b:"Coach Fred runs your round timer and <b>calls boxing combos out loud</b> while you work. Lace up, hands up, and throw what you hear."},
-    {h:"Run the round", b:"<b>Start round</b> kicks things off &mdash; the same button pauses and resumes. <b>Skip</b> jumps to the next round or rest. <b>Reset</b> takes you back to the top."},
-    {h:"Read the calls", b:"Combos flash on screen and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between."},
-    {h:"Switch stance", b:"The badge under the round count shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you."},
-    {h:"Make it yours", b:"Tap the <b>gear</b> for setup. <b>Workout</b>: rounds, length, level and how the corner calls &mdash; pace, call style and how much movement and body work get woven in. <b>Combos</b>: pick your pool or build your own. <b>Settings</b>: voice, speed and theme."},
-    {h:"Pick a workout", b:"<b>Workout &rarr; Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Then <b>Round format</b> changes what the corner calls: <b>Pyramid</b> ladders, a <b>Burnout</b> punch-out, or <b>Footwork</b> drills."},
-    {h:"Pick your fighter", b:"Down in <b>Settings</b> &rarr; <b>Theme</b>, reskin the whole app. Loads of looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Your corner, your colours."},
+    {h:"Your corner man", b:"Coach Fred runs your round timer and <b>calls boxing combos out loud</b> while you work. Lace up, hands up &mdash; hit <b>Next</b> and I&rsquo;ll walk you round the gym."},
+    {h:"Run the round", b:"These are your controls. <b>Start round</b> kicks things off &mdash; the same button pauses and resumes. <b>Skip</b> jumps to the next round or rest. <b>Reset</b> takes you back to the top.", at:()=>{ tutCloseSheet(); return document.querySelector("footer"); }},
+    {h:"Read the calls", b:"Combos flash up here and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between.", at:()=>{ tutCloseSheet(); return document.querySelector(".combo"); }},
+    {h:"Switch stance", b:"This badge shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you.", at:()=> tutShowStance() },
+    {h:"Make it yours", b:"This is your setup &mdash; three tabs run the show. <b>Workout</b>: rounds, length, level and how the corner calls. <b>Combos</b>: pick your pool or build your own. <b>Settings</b>: voice, speed and theme.", at:()=>{ tutOpenPane("workout"); return $("tabs"); }},
+    {h:"Pick a workout", b:"<b>Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Tweak the rest below to taste.", at:()=>{ tutOpenPane("workout"); return $("workoutGrid"); }},
+    {h:"Pick your fighter", b:"In <b>Settings &rarr; Theme</b>, reskin the whole app. Loads of looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Your corner, your colours.", at:()=>{ tutOpenPane("more"); return $("themeGrid"); }},
     {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Some phones show an <b>Install</b> banner you can tap straight away."},
     {h:"Turn the sound on", b:"Flip your phone off silent and turn it up. On iPhone the coach only speaks <b>after you tap Start</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
-  let tutIdx = 0;
+  let tutIdx = 0, tutTarget = null, tutTimer = null;
   const tut = $("tut");
-  function renderTut(){
+  function renderTutContent(){
     const s = TUT_STEPS[tutIdx];
     $("tutStep").textContent = `Step ${tutIdx+1} of ${TUT_STEPS.length}`;
     $("tutTitle").textContent = s.h;
@@ -1656,13 +1684,53 @@
     $("tutBack").style.visibility = tutIdx===0 ? "hidden" : "visible";
     $("tutNext").textContent = tutIdx===TUT_STEPS.length-1 ? "Got it" : "Next";
   }
-  function openTut(){ tutIdx=0; renderTut(); tut.classList.add("open"); }
-  function closeTut(){ tut.classList.remove("open"); try{ store.set("coachfred.tutSeen","1"); }catch(e){} }
+  function tutVisible(el){ if(!el || !document.body.contains(el)) return false; const r=el.getBoundingClientRect(); return r.width>0 && r.height>0; }
+  function positionTour(target){
+    const card=$("tutCard"), spot=$("tutSpot");
+    if(!tutVisible(target)){
+      tut.classList.add("centered"); tut.classList.remove("spot");
+      card.style.left=""; card.style.top="";
+      return;
+    }
+    tut.classList.remove("centered"); tut.classList.add("spot");
+    const r=target.getBoundingClientRect(), pad=8, gap=12, vw=innerWidth, vh=innerHeight, m=8;
+    // clamp the highlight to the viewport so the frame never runs off-screen on tall/wide targets
+    const sl=Math.max(m, r.left-pad), st=Math.max(m, r.top-pad);
+    const sr=Math.min(vw-m, r.right+pad), sb=Math.min(vh-m, r.bottom+pad);
+    spot.style.left=sl+"px"; spot.style.top=st+"px";
+    spot.style.width=Math.max(0,sr-sl)+"px"; spot.style.height=Math.max(0,sb-st)+"px";
+    const cw=card.offsetWidth, chh=card.offsetHeight;
+    let top = sb+gap;
+    if(top+chh > vh-12) top = st-gap-chh;              // not enough room below -> place above
+    top = Math.max(12, Math.min(top, vh-chh-12));
+    let left = (sl+sr)/2 - cw/2;
+    left = Math.max(12, Math.min(left, vw-cw-12));
+    card.style.left=left+"px"; card.style.top=top+"px";
+  }
+  function showStep(){
+    tutClearStance();
+    renderTutContent();
+    const s = TUT_STEPS[tutIdx];
+    const target = s.at ? s.at() : null;
+    tutTarget = target;
+    if(tutTimer){ clearTimeout(tutTimer); tutTimer=null; }
+    const place = ()=>{ if(tutTarget){ try{ tutTarget.scrollIntoView({block:"center"}); }catch(e){} } positionTour(tutTarget); };
+    requestAnimationFrame(()=> requestAnimationFrame(place));
+    tutTimer = setTimeout(place, 380);   // settle after sheet / pane transitions
+  }
+  function openTut(){ tutIdx=0; tut.classList.add("open"); showStep(); }
+  function closeTut(){
+    tut.classList.remove("open","spot","centered");
+    tutClearStance(); sheet.classList.remove("open"); tutTarget=null;
+    if(tutTimer){ clearTimeout(tutTimer); tutTimer=null; }
+    try{ store.set("coachfred.tutSeen","1"); }catch(e){}
+  }
   $("openTutorial").addEventListener("click", openTut);
   $("tutSkip").addEventListener("click", closeTut);
-  $("tutBack").addEventListener("click", ()=>{ if(tutIdx>0){ tutIdx--; renderTut(); } });
-  $("tutNext").addEventListener("click", ()=>{ if(tutIdx<TUT_STEPS.length-1){ tutIdx++; renderTut(); } else { closeTut(); } });
+  $("tutBack").addEventListener("click", ()=>{ if(tutIdx>0){ tutIdx--; showStep(); } });
+  $("tutNext").addEventListener("click", ()=>{ if(tutIdx<TUT_STEPS.length-1){ tutIdx++; showStep(); } else { closeTut(); } });
   tut.addEventListener("click", e=>{ if(e.target===tut) closeTut(); });
+  window.addEventListener("resize", ()=>{ if(tut.classList.contains("open")) positionTour(tutTarget); });
 
   /* ---------- workout pane wiring ---------- */
   function syncModeUI(){
@@ -1848,12 +1916,18 @@
   /* ---------- combo builder ---------- */
   const SHORT = {"1":"jab","2":"cross","3":"l.hook","4":"r.hook","5":"l.upper","6":"r.upper","1b":"jab body","2b":"cross body","3b":"l.hook body","4b":"r.hook body"};
   let stage = [];
-  function renderStage(){
+  function renderStage(justAdd){
     const el=$("stage");
     if(!stage.length) el.innerHTML='<span class="ph">Tap punches and movement below to build a multi-phase combo.</span>';
-    else el.innerHTML = stage.map(t=> isDigit(t) ? `<span class="tk">${esc(t)}</span>` : `<span class="tkm">${esc(t)}</span>`).join("");
+    else el.innerHTML = stage.map((t,i)=>{
+      const j = justAdd && i===stage.length-1 ? " just" : "";
+      return isDigit(t) ? `<span class="tk${j}">${esc(t)}</span>` : `<span class="tkm${j}">${esc(t)}</span>`;
+    }).join("");
     $("saveCombo").disabled = stage.length===0;
+    el.classList.remove("bump");
+    if(justAdd){ void el.offsetWidth; el.classList.add("bump"); }
   }
+  function flashBtn(b){ b.classList.remove("pressed"); void b.offsetWidth; b.classList.add("pressed"); }
   function buildPunchPad(){
     $("punchPad").innerHTML = ["1","2","3","4","5","6","1b","2b","3b","4b"].map(n=>`<button class="padbtn" data-p="${n}"><span class="n">${n}</span><span class="l">${SHORT[n]}</span></button>`).join("");
   }
@@ -1862,8 +1936,8 @@
     if(!mv.length){ pad.innerHTML='<span class="note" style="margin:0;">Tick some movement calls above to use them as building blocks here.</span>'; return; }
     pad.innerHTML = mv.map(m=>`<button class="chipbtn" data-m="${m.name.toLowerCase()}">${m.name}</button>`).join("");
   }
-  $("punchPad").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; stage.push(b.dataset.p); renderStage(); });
-  $("movePad").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; stage.push(b.dataset.m); renderStage(); });
+  $("punchPad").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; flashBtn(b); stage.push(b.dataset.p); renderStage(true); });
+  $("movePad").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; flashBtn(b); stage.push(b.dataset.m); renderStage(true); });
   $("stageBack").addEventListener("click", ()=>{ stage.pop(); renderStage(); });
   $("stageClear").addEventListener("click", ()=>{ stage=[]; renderStage(); });
   $("saveCombo").addEventListener("click", ()=>{
