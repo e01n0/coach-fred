@@ -1659,19 +1659,31 @@
     [...$("tabs").children].forEach(x=> x.classList.toggle("on", x.dataset.pane===pane));
     ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p===pane));
   }
+  // open the <details> accordion an element lives in, so its contents can be highlighted
+  function tutOpenAcc(el){ const d=el && el.closest && el.closest("details"); if(d && !d.open) d.open=true; return el; }
+  // combos pane: open the first combo group so real, tickable combos are on show
+  function tutPickCombos(){
+    tutOpenPane("combos");
+    const first=$("library").querySelector("details.acc");
+    if(first){ first.open=true; if(first.dataset.grp) libOpen[first.dataset.grp]=true; }
+    return first || $("library");
+  }
   let tutStanceDemo = false;
-  function tutShowStance(){ if($("stanceBadge").style.display==="none"){ updateStanceBadge(cfg.startStance==="southpaw"?"Southpaw":"Orthodox"); tutStanceDemo=true; } return $("stanceBadge"); }
+  function tutShowStance(){ tutCloseSheet(); if($("stanceBadge").style.display==="none"){ updateStanceBadge(cfg.startStance==="southpaw"?"Southpaw":"Orthodox"); tutStanceDemo=true; } return $("stanceBadge"); }
   function tutClearStance(){ if(tutStanceDemo && phase==="idle") updateStanceBadge(null); tutStanceDemo=false; }
   const TUT_STEPS = [
     {h:"Your corner man", b:"Coach Fred runs your round timer and <b>calls boxing combos out loud</b> while you work. Lace up, hands up &mdash; hit <b>Next</b> and I&rsquo;ll walk you round the gym."},
     {h:"Run the round", b:"These are your controls. <b>Start round</b> kicks things off &mdash; the same button pauses and resumes. <b>Skip</b> jumps to the next round or rest. <b>Reset</b> takes you back to the top.", at:()=>{ tutCloseSheet(); return document.querySelector("footer"); }},
     {h:"Read the calls", b:"Combos flash up here and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between.", at:()=>{ tutCloseSheet(); return document.querySelector(".combo"); }},
     {h:"Switch stance", b:"This badge shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you.", at:()=> tutShowStance() },
-    {h:"Make it yours", b:"This is your setup &mdash; three tabs run the show. <b>Workout</b>: rounds, length, level and how the corner calls. <b>Combos</b>: pick your pool or build your own. <b>Settings</b>: voice, speed and theme.", at:()=>{ tutOpenPane("workout"); return $("tabs"); }},
-    {h:"Pick a workout", b:"<b>Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Tweak the rest below to taste.", at:()=>{ tutOpenPane("workout"); return $("workoutGrid"); }},
-    {h:"Pick your fighter", b:"In <b>Settings &rarr; Theme</b>, reskin the whole app. Loads of looks to fight in &mdash; Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Your corner, your colours.", at:()=>{ tutOpenPane("more"); return $("themeGrid"); }},
-    {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Some phones show an <b>Install</b> banner you can tap straight away."},
-    {h:"Turn the sound on", b:"Flip your phone off silent and turn it up. On iPhone the coach only speaks <b>after you tap Start</b>. Replay this tour any time with the <b>?</b> up top."}
+    {h:"Set up your session", b:"Everything else lives behind the <b>gear</b>. Tap it for workouts, your combo pool, the builder, voice and themes &mdash; I&rsquo;ll open it up next.", at:()=>{ tutCloseSheet(); return $("openSettings"); }},
+    {h:"Three tabs", b:"Setup splits into three. <b>Workout</b>: rounds, length, level and how the corner calls. <b>Combos</b>: pick your pool or build your own. <b>Settings</b>: voice, speed and theme.", at:()=>{ tutOpenPane("workout"); return $("tabs"); }},
+    {h:"Pick a workout", b:"<b>Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Set <b>Level</b>, rounds and timing below, and open <b>Coach calls</b> to shape pace, movement and body work.", at:()=>{ tutOpenPane("workout"); return $("workoutGrid"); }},
+    {h:"Pick your combos", b:"Over in <b>Combos</b>, tick the combos you want in the pool &mdash; the caller pulls from the ticked ones at random. They&rsquo;re grouped by style, with a level badge on each. Tap a group to open it.", at:()=> tutPickCombos() },
+    {h:"Build your own", b:"Open <b>Build a combo</b> and tap <b>Punches</b> and <b>Movement</b> &mdash; each one stacks into the box at the top so you can see the combo take shape. Name it, hit <b>Save</b>, and it joins your pool.", at:()=>{ tutOpenPane("combos"); return tutOpenAcc($("stage")).closest(".builder"); }},
+    {h:"Pick your fighter", b:"In <b>Settings &rarr; Theme</b>, reskin the whole app. Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Tap one and the whole corner changes.", at:()=>{ tutOpenPane("more"); return tutOpenAcc($("themeGrid")); }},
+    {h:"Turn the sound on", b:"The coach speaks out loud, so flip your phone off silent and turn it up. Set <b>Voice speed</b> and pick a <b>Coach voice</b> here, then hit <b>Test voice</b> to check it. On iPhone the coach only speaks <b>after you tap Start</b>.", at:()=>{ tutOpenPane("more"); return $("testVoice").closest(".field"); }},
+    {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
   let tutIdx = 0, tutTarget = null, tutTimer = null;
   const tut = $("tut");
