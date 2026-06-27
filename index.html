@@ -597,7 +597,7 @@
       <div class="field">
         <div class="field-label"><span>Coach voice</span></div>
         <select id="sVoice"></select>
-        <div class="note help">★ marks the most natural-sounding voices &mdash; pick one of those. <b>iPhone:</b> for a far less robotic corner, download an <i>Enhanced</i> or <i>Premium</i> voice in Settings &rarr; Accessibility &rarr; Spoken Content &rarr; Voices, then choose it here. <b>Android/Chrome:</b> the &ldquo;Google&rdquo; voices sound best. If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
+        <div class="note help">★ marks the most natural-sounding voices &mdash; pick one of those. <b>iPhone:</b> for a far less robotic corner, download an <i>Enhanced</i> or <i>Premium</i> voice in Settings &rarr; Accessibility &rarr; Spoken Content &rarr; Voices, then choose it here. Downloaded a voice (e.g. <i>Jamie</i>) that isn&rsquo;t listed? iOS hides some voices from web apps &mdash; set it as your phone&rsquo;s voice in Settings &rarr; Accessibility &rarr; Spoken Content &rarr; Voices, then pick <b>System default</b> above. <b>Android/Chrome:</b> the &ldquo;Google&rdquo; voices sound best. If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
       </div>
       <div class="field">
         <div class="toggle-row">
@@ -1268,15 +1268,22 @@
     if(!("speechSynthesis" in window)) return;
     let voices = speechSynthesis.getVoices().filter(v=>v.lang && v.lang.startsWith("en"));
     const sel = $("sVoice"); sel.innerHTML="";
-    if(!voices.length){ sel.innerHTML="<option>System default</option>"; return; }
+    // "System default" leaves the utterance voice unset, so iOS falls back to the
+    // voice picked in Settings → Spoken Content. It's the only way to reach voices
+    // Apple doesn't expose to web apps by name (Siri / some Enhanced voices).
+    const sysOpt = document.createElement("option");
+    sysOpt.value = ""; sysOpt.textContent = "System default (your phone's voice)";
+    sel.appendChild(sysOpt);
     voices = voices.slice().sort((a,b)=> scoreVoice(b)-scoreVoice(a) || a.name.localeCompare(b.name));
     voices.forEach(v=>{
       const o=document.createElement("option"); o.value=v.name;
       const star = scoreVoice(v) >= 4 ? "★ " : "";            // ★ = the natural-sounding ones
       o.textContent=`${star}${v.name} (${v.lang})`; sel.appendChild(o);
     });
-    const want = voices.find(v=>v.name===cfg.voice) || voices[0];  // keep the user's pick, else best-ranked
-    sel.value = want.name; cfg.voice = want.name;
+    let want;
+    if(cfg.voice === "") want = "";                           // explicit system default
+    else { const m = voices.find(v=>v.name===cfg.voice); want = m ? m.name : (voices[0] ? voices[0].name : ""); }
+    sel.value = want; cfg.voice = want;                       // keep the user's pick, else best-ranked
   }
   if("speechSynthesis" in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
   // Tone presets shape the same voice per call type — a firmer bell, a calmer
