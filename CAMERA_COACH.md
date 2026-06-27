@@ -35,6 +35,7 @@ the offline single-file core.
 | Punch *thrown* detection | extension hysteresis (reach + elbow straightening), **gated to a ~90° side view** | ✅ |
 | **Contact — "did you land it"** | **optical-flow motion spike in a marked bag ROI** | ✅ gym-proof, no audio |
 | Punch *type* label (jab/cross/hook/uppercut) | geometry heuristic over wrist trajectory | 🧪 placeholder |
+| Spoken coaching cues | Form check speaks short calls per shot — `GUARD DOWN`→"hands up", `HEAD PAST KNEE`→"reaching", etc.; Web Speech API, reuses the app's voice/rate, throttled, header 🔊 mute | ✅ |
 
 Mic fusion for contact was **rejected**: a real gym has 20 other bags, music and
 noise — you can never isolate your own bag's thud. Contact is detected

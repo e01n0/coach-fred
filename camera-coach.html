@@ -109,10 +109,12 @@
   .note{flex-basis:100%;font-size:11px;color:var(--steel);text-align:center;padding-top:2px;line-height:1.4;}
   a{color:var(--prep);}
 
-  /* header help button */
-  #helpBtn{width:30px;height:30px;min-width:0;flex:0 0 auto;padding:0;border-radius:50%;
+  /* header round buttons */
+  #helpBtn,#voiceBtn{width:30px;height:30px;min-width:0;flex:0 0 auto;padding:0;border-radius:50%;
     border:1.5px solid var(--steel);background:transparent;color:var(--tape);
     font-weight:800;font-size:15px;line-height:1;letter-spacing:0;}
+  #voiceBtn{font-size:14px;}
+  #voiceBtn.off{opacity:.45;}
 
   /* tutorial overlay */
   #cc-tut{position:fixed;inset:0;z-index:20;display:none;background:rgba(8,7,6,.6);}
@@ -143,6 +145,7 @@
     <div class="brand">Coach <b>Fred</b></div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div class="tag">Bag Coach · side-on</div>
+      <button id="voiceBtn" title="Voice cues on/off">🔊</button>
       <button id="helpBtn" title="How it works">?</button>
     </div>
   </header>
@@ -266,6 +269,7 @@ $('enableBtn').addEventListener('click', boot);
 
 async function boot(){
   $('enableBtn').style.display='none'; spin.style.display='block';
+  primeSpeech();   // unlock speech inside the user gesture (iOS won't speak otherwise)
   setStage('Starting…','Asking for camera access…'); showBar(false);
   try{
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -506,6 +510,40 @@ function detectPunch(lm){
   }
 }
 
+// ---------- spoken cues ----------
+// Short, corner-style calls on each graded shot ("hands up", "reaching"). Reuses
+// the voice + rate the user already picked in the main app (same-origin config).
+const speechOK='speechSynthesis' in window;
+let voiceOn=true, voiceCfg={voice:null, rate:1.25};
+try{ voiceOn = localStorage.getItem('coachfred.cc.voice')!=='0'; }catch(e){}
+try{ const c=JSON.parse(localStorage.getItem('coachfred.v2')||'null');
+     if(c){ voiceCfg.voice=c.voice||null; voiceCfg.rate=c.rate||1.25; } }catch(e){}
+if(speechOK){ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }
+
+function primeSpeech(){ if(!speechOK) return; const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }
+function speak(text){
+  if(!speechOK || !voiceOn) return;
+  if(speechSynthesis.speaking || speechSynthesis.pending) return;   // never let cues back up behind the action
+  const u=new SpeechSynthesisUtterance(text);
+  u.rate=voiceCfg.rate||1.25; u.pitch=1; u.volume=1;
+  const v=speechSynthesis.getVoices().find(x=>x.name===voiceCfg.voice); if(v) u.voice=v;
+  speechSynthesis.speak(u);
+}
+// One call per shot, by priority (defense first, then the named overreach cue).
+const CUE_ORDER=[['GUARD DOWN','hands up'],['HEAD PAST KNEE','reaching'],['OVERREACHED','too far'],['OFF BALANCE','balance']];
+let lastCueAt=-1e9, lastCueText='';
+function announceFaults(flags){
+  if(!flags.length) return;
+  let text=null;
+  for(const [flag,phrase] of CUE_ORDER){ if(flags.includes(flag)){ text=phrase; break; } }
+  if(!text) return;
+  const now=performance.now();
+  if(now-lastCueAt<900) return;                          // don't machine-gun across fast combos
+  if(text===lastCueText && now-lastCueAt<2500) return;   // don't nag the identical cue
+  lastCueAt=now; lastCueText=text;
+  speak(text);
+}
+
 // ---------- form check: grade each thrown punch ----------
 let form={reps:0, clean:0, landed:0};
 function evaluatePunch(lm, hand, reach){
@@ -549,6 +587,8 @@ function evaluatePunch(lm, hand, reach){
     if(hipCx<anL-pad || hipCx>anR+pad) flags.push('OFF BALANCE');
   }
 
+  announceFaults(flags);   // speak the cue now — doesn't wait on the bag-contact verdict
+
   const ptype=classifyPunch(hand);
   const punchT=performance.now();
   form.reps++;
@@ -578,7 +618,7 @@ function setMode(m){
   rcV.textContent = form_? form.clean : punches;
   orientEl.style.display='block';   // side-on badge always shown here
   footNote.textContent = form_
-    ? 'Form check — prop the phone to your SIDE (~90°), full body in frame, guard up. Throw single shots; each is graded for guard, overreach and balance.'
+    ? 'Form check — prop the phone to your SIDE (~90°), full body in frame, guard up. Throw single shots; each is graded for guard, overreach and balance, and the faults are called out aloud (“hands up”, “reaching”). 🔊 mutes.'
     : 'Watch mode — prop the phone to your SIDE (~90°). Live skeleton, and each punch tagged with its type as you throw.';
   clearPrompt();
 }
@@ -629,6 +669,7 @@ const TUT=[
   {t:"Are you square?", target:'orient', b:"This badge reads <b>SIDE-ON ✓</b> when you’re positioned right. If it says <b>TURN SIDE-ON</b>, punches won’t count — rotate 90°."},
   {t:"Mark your bag", target:'stage', b:"Tap where your bag is — a <b>blue box</b> drops there. The app watches inside it and flashes <b>green</b> when the bag jerks from a landed shot. That’s how it knows you connected — no microphone needed."},
   {t:"Your readouts", target:'hud', b:"<b>Guard</b> (is the non-punching hand up?) and your punch / clean <b>count</b>."},
+  {t:"Coach calls it out", target:'voiceBtn', b:"In <b>Form check</b>, faults are spoken as you throw — <b>“hands up”</b> when your guard drops, <b>“reaching”</b> when your head lunges past your knee — so you can keep your eyes on the bag. Tap <b>🔊</b> to mute."},
   {t:"It’s a beta", b:"Rough edges expected — detection is tuned by eye, not on your body. If counts look off, it’s the thresholds, not your boxing. Tap <b>?</b> any time to replay this."}
 ];
 let tutIdx=0;
@@ -662,6 +703,20 @@ tutBack.addEventListener('click',()=>{ if(tutIdx>0){ tutIdx--; renderTut(); } })
 $('cc-tutSkip').addEventListener('click', closeTut);
 $('helpBtn').addEventListener('click',()=>openTut(0));
 addEventListener('resize',()=>{ if(tutEl.style.display==='block') renderTut(); });
+
+// voice-cue mute toggle
+const voiceBtn=$('voiceBtn');
+function renderVoiceBtn(){ voiceBtn.textContent=voiceOn?'🔊':'🔇'; voiceBtn.classList.toggle('off',!voiceOn);
+  voiceBtn.title=voiceOn?'Voice cues on':'Voice cues off'; }
+voiceBtn.addEventListener('click',()=>{
+  voiceOn=!voiceOn;
+  try{ localStorage.setItem('coachfred.cc.voice', voiceOn?'1':'0'); }catch(e){}
+  renderVoiceBtn();
+  if(voiceOn){ primeSpeech(); lastCueAt=-1e9; speak('voice on'); }
+  else if(speechOK){ speechSynthesis.cancel(); }
+});
+if(!speechOK){ voiceBtn.style.display='none'; }   // browser can't speak — hide the control
+renderVoiceBtn();
 
 setMode('watch');
 </script>
