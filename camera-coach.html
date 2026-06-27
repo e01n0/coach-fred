@@ -62,11 +62,6 @@
   .chip .k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--steel);}
   .chip .v{font-family:"Chakra Petch",ui-monospace,monospace;font-size:22px;font-weight:700;line-height:1.1;margin-top:2px;}
   .chip .v.good{color:var(--ok);} .chip .v.warn{color:var(--bad);}
-  #leanbar{position:absolute;left:10%;right:10%;bottom:14px;height:6px;border-radius:6px;
-    background:rgba(255,255,255,.12);z-index:6;pointer-events:none;}
-  #leandot{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;
-    background:var(--prep);transform:translateX(-50%);left:50%;box-shadow:0 0 12px rgba(232,178,76,.8);}
-  #leantick{position:absolute;top:-3px;left:50%;width:2px;height:12px;background:rgba(255,255,255,.4);transform:translateX(-50%);}
   #bagbox{position:absolute;border:2px dashed var(--rest);border-radius:8px;z-index:5;
     pointer-events:none;display:none;box-shadow:0 0 0 9999px rgba(0,0,0,0);transition:border-color .1s;}
   #bagbox.hit{border-color:var(--ok);border-style:solid;}
@@ -160,14 +155,12 @@
 
     <div id="hud">
       <div class="chip"><div class="k">Guard</div><div class="v" id="guardV">—</div></div>
-      <div class="chip"><div class="k">Lean</div><div class="v" id="leanV">—</div></div>
       <div class="chip"><div class="k" id="rcLabel">Punches</div><div class="v" id="rcV">0</div></div>
     </div>
 
     <div id="bagbox"></div>
     <div id="tag"></div>
 
-    <div id="leanbar"><div id="leantick"></div><div id="leandot"></div></div>
     <div id="orient"></div>
     <div id="fps">-- fps</div>
 
@@ -212,11 +205,7 @@
       <button data-mode="watch" class="on">Watch</button>
       <button data-mode="form">Form check</button>
     </div>
-    <div class="row">
-      <button id="calBtn" disabled>Calibrate</button>
-      <button id="flipBtn" disabled>Flip L/R</button>
-    </div>
-    <div class="note" id="footNote">Stand centered, guard up, and tap Calibrate to set your neutral pose.</div>
+    <div class="note" id="footNote">Prop the phone side-on (~90°), tap your bag to mark it, then throw single shots.</div>
   </footer>
 </div>
 
@@ -228,13 +217,11 @@ import {
 const $ = id => document.getElementById(id);
 const cam=$('cam'), draw=$('draw'), ctx=draw.getContext('2d');
 const veil=$('veil'), veilTitle=$('veilTitle'), veilMsg=$('veilMsg'), spin=$('spin');
-const guardV=$('guardV'), leanV=$('leanV'), rcV=$('rcV'), rcLabel=$('rcLabel');
-const leandot=$('leandot'), promptBig=$('promptBig'), promptSub=$('promptSub'), flash=$('flash');
+const guardV=$('guardV'), rcV=$('rcV'), rcLabel=$('rcLabel');
+const promptBig=$('promptBig'), promptSub=$('promptSub'), flash=$('flash');
 const footNote=$('footNote');
 
 let landmarker=null, running=false, mode='watch';
-let neutral=null;        // calibrated baseline {headOffset, wristY}
-let lrFlip=1;            // direction mapping toggle
 let lastVideoTime=-1;
 
 // BlazePose landmark indices
@@ -306,7 +293,6 @@ async function boot(){
     landmarker = await createLandmarker(vision, buf);
 
     veil.classList.add('hidden');
-    [$('calBtn'),$('flipBtn')].forEach(b=>b.disabled=false);
     running=true;
     requestAnimationFrame(loop);
     try{ if(!localStorage.getItem('coachfred.cc.tutSeen')) openTut(0); }catch(e){}
@@ -330,11 +316,6 @@ function describeError(e){
 
 // ---------- helpers ----------
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-function headOffsetOf(lm){
-  const shCx=(lm[L_SH].x+lm[R_SH].x)/2;
-  const shW=Math.abs(lm[L_SH].x-lm[R_SH].x)||0.2;
-  return (lm[NOSE].x-shCx)/shW;          // shoulder-width-normalized head sway
-}
 function guardScore(lm){
   // gloves up = wrists near head height. y grows downward.
   const headY=lm[NOSE].y, shY=(lm[L_SH].y+lm[R_SH].y)/2;
@@ -436,7 +417,6 @@ function loop(){
       const lm=res.landmarks[0];
       drawSkeleton(lm);
       readGuard(lm);
-      readLean(lm);
       detectPunch(lm);
     }
     // fps readout
@@ -457,19 +437,6 @@ function readGuard(lm){
   const g=guardScore(lm);
   guardV.textContent = g.good?'UP':'DROP';
   guardV.className = 'v '+(g.good?'good':'warn');
-}
-
-function readLean(lm){
-  let off=headOffsetOf(lm);
-  if(neutral) off-=neutral.headOffset;
-  off*=lrFlip;
-  const dir = off> .18 ? 'LEFT' : off< -.18 ? 'RIGHT' : '·';
-  leanV.textContent=dir;
-  leanV.className='v'+(dir==='·'?'':' good');
-  // position dot: clamp to bar
-  const pct=Math.max(0,Math.min(100, 50 - off*120));
-  leandot.style.left=pct+'%';
-  return off;
 }
 
 // Punch detection. A punch is a full RETRACT -> EXTEND swing of the arm, not a
@@ -609,20 +576,6 @@ function flashColor(c){ flash.style.background=c; flash.style.opacity=1;
   setTimeout(()=>flash.style.opacity=0,180); }
 
 // ---------- controls ----------
-$('calBtn').addEventListener('click',()=>{
-  // sample current pose as neutral
-  const res = landmarker && cam.videoWidth ? landmarker.detectForVideo(cam, performance.now()) : null;
-  if(res&&res.landmarks&&res.landmarks[0]){
-    neutral={ headOffset: headOffsetOf(res.landmarks[0]) };
-    footNote.textContent='Neutral set. Slip left/right — the LEAN dot should swing.';
-    flashColor('rgba(232,178,76,.35)');
-  } else {
-    footNote.textContent='No body detected — step back so your head and shoulders are in frame, then Calibrate.';
-  }
-});
-$('flipBtn').addEventListener('click',()=>{ lrFlip*=-1;
-  footNote.textContent='Left/right mapping flipped. Lean left and check the LEAN readout matches.'; });
-
 // tap the stage to mark where the bag is (for contact detection)
 stage.addEventListener('click', e=>{
   if(!running || !veil.classList.contains('hidden')) return;
@@ -657,8 +610,7 @@ const TUT=[
   {t:"Pick a mode", target:'modeSeg', b:"<b>Watch</b> tags each punch live as you throw. <b>Form check</b> grades every shot for guard, overreach and balance."},
   {t:"Are you square?", target:'orient', b:"This badge reads <b>SIDE-ON ✓</b> when you’re positioned right. If it says <b>TURN SIDE-ON</b>, punches won’t count — rotate 90°."},
   {t:"Mark your bag", target:'stage', b:"Tap where your bag is — a <b>blue box</b> drops there. The app watches inside it and flashes <b>green</b> when the bag jerks from a landed shot. That’s how it knows you connected — no microphone needed."},
-  {t:"Calibrate", target:'calBtn', b:"Stand in your neutral guard and tap once. It zeroes your head position so the <b>Lean</b> readout reads true."},
-  {t:"Your readouts", target:'hud', b:"<b>Guard</b> (hands up?), <b>Lean</b> (head sway), and your punch / clean <b>count</b>."},
+  {t:"Your readouts", target:'hud', b:"<b>Guard</b> (is the non-punching hand up?) and your punch / clean <b>count</b>."},
   {t:"It’s a beta", b:"Rough edges expected — detection is tuned by eye, not on your body. If counts look off, it’s the thresholds, not your boxing. Tap <b>?</b> any time to replay this."}
 ];
 let tutIdx=0;
