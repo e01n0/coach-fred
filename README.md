@@ -98,6 +98,12 @@ Coach Fred keeps a tally on your device — rounds, sessions, minutes on the bag
 and your current day streak. See it under **Setup → Settings → Your record**; it
 rides along in your **.coach** backup.
 
+When you finish a session a **summary card** sums up the work — rounds, minutes
+on the bag, total sessions and your streak. Every completed session is also kept
+in a **Session log** (**Setup → Settings → Session log**), newest first, so the
+streak counter becomes a real training journal. The log lives on your device and
+travels in the **.coach** backup.
+
 ## Sounds
 Coach Fred is **voice-only** — no bell, no clapper. The coach speaks every cue:
 **“Round start”** (with your stance) to open a round, **“Rest”** between rounds,
