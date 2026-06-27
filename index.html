@@ -289,6 +289,8 @@
   .backup-row{display:flex;gap:8px;margin-top:4px;}
   .backup-row button{flex:1;padding:13px;border-radius:11px;border:1px solid var(--line);background:var(--canvas-2);color:var(--tape);font-family:inherit;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:14px;cursor:pointer;}
   .backup-row button:active{transform:scale(.97);}
+  .exp-launch{flex:1;padding:13px;border-radius:11px;border:1px solid var(--prep);background:var(--prep);color:var(--canvas);font-family:inherit;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:14px;text-align:center;text-decoration:none;}
+  .exp-launch:active{transform:scale(.97);}
   .backup-status{font-size:13px;line-height:1.4;margin-top:11px;min-height:1.2em;}
   .backup-status.ok{color:var(--rest);}
   .backup-status.err{color:var(--work);}
@@ -593,6 +595,17 @@
           </div>
           <input type="file" id="restoreFile" accept=".coach,application/json,.json" hidden>
           <div class="backup-status" id="backupStatus"></div>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary><span class="acc-t">Experimental</span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;"><b>Camera Coach (beta)</b> &mdash; prop the phone facing you at the bag and it watches your form: guard up, head movement, balance, punch type, and whether you actually <b>landed</b> the shot. Everything runs <b>on your device</b> &mdash; the video never leaves the phone and nothing is recorded.</div>
+          <div class="backup-row">
+            <a id="cameraCoachBtn" class="exp-launch" href="./camera-coach.html">Open Camera Coach</a>
+          </div>
+          <div class="note">Needs a one-time model download (~5&nbsp;MB) and a camera permission, so it wants a connection the first time. Rough edges expected &mdash; it&rsquo;s a preview. <a href="./CAMERA_COACH.md" target="_blank" rel="noopener noreferrer">What&rsquo;s coming &amp; how it works</a>.</div>
         </div>
       </details>
     </div>
@@ -1624,7 +1637,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v14";
+  const APP_VERSION = "v15";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant voice test — verify audio works without running a whole session.
