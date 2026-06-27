@@ -112,13 +112,43 @@
   .row{display:flex;gap:8px;width:100%;}
   .note{flex-basis:100%;font-size:11px;color:var(--steel);text-align:center;padding-top:2px;line-height:1.4;}
   a{color:var(--prep);}
+
+  /* header help button */
+  #helpBtn{width:30px;height:30px;min-width:0;flex:0 0 auto;padding:0;border-radius:50%;
+    border:1.5px solid var(--steel);background:transparent;color:var(--tape);
+    font-weight:800;font-size:15px;line-height:1;letter-spacing:0;}
+
+  /* tutorial overlay */
+  #cc-tut{position:fixed;inset:0;z-index:20;display:none;background:rgba(8,7,6,.6);}
+  #cc-tutSpot{position:fixed;border:2.5px solid var(--prep);border-radius:12px;
+    box-shadow:0 0 0 3px rgba(232,178,76,.25),0 0 24px rgba(232,178,76,.4);
+    pointer-events:none;transition:all .2s ease;display:none;}
+  #cc-tutCard{position:fixed;left:50%;transform:translateX(-50%);width:min(92%,420px);
+    background:var(--canvas-2);border:1.5px solid var(--line);border-radius:14px;
+    padding:16px 16px 12px;box-shadow:0 12px 40px rgba(0,0,0,.6);}
+  #cc-tutTitle{font-family:"Anton","Barlow Semi Condensed",sans-serif;font-size:22px;
+    letter-spacing:.02em;margin-bottom:6px;}
+  #cc-tutBody{font-size:14px;line-height:1.5;color:var(--tape);opacity:.92;}
+  #cc-tutBody b{color:var(--prep);}
+  #cc-tutDiagram{display:none;justify-content:center;margin-bottom:10px;}
+  #cc-tutDiagram svg{max-width:100%;height:auto;}
+  #cc-tutNav{display:flex;align-items:center;gap:8px;margin-top:14px;}
+  #cc-tutNav button{flex:0 0 auto;min-width:0;padding:9px 16px;font-size:12px;}
+  #cc-tutNav .ghost{background:transparent;border-color:var(--line);color:var(--steel);}
+  #cc-tutBack{margin-left:auto;}
+  #cc-tutDots{display:flex;gap:5px;}
+  #cc-tutDots i{width:6px;height:6px;border-radius:50%;background:var(--line);display:inline-block;}
+  #cc-tutDots i.on{background:var(--prep);}
 </style>
 </head>
 <body>
 <div id="app">
   <header>
     <div class="brand">Coach <b>Fred</b></div>
-    <div class="tag">Camera Coach · prototype</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="tag">Camera Coach · beta</div>
+      <button id="helpBtn" title="How it works">?</button>
+    </div>
   </header>
 
   <div id="stage">
@@ -152,9 +182,26 @@
       <p id="veilMsg">A proof-of-concept: on-device pose tracking checks your guard,
         catches your slips, and runs a reaction drill that scores how fast you move.
         Nothing is recorded or uploaded — the video never leaves your phone.
-        Prop the phone facing you at the bag, then tap <b>Enable camera</b>.</p>
+        Prop the phone <b>side-on</b> (~90°) to you at the bag, then tap <b>Enable camera</b>.
+        A quick walkthrough opens the first time.</p>
       <div id="prog"><div id="progTrack"><div id="progFill"></div></div><div id="progLabel"></div></div>
       <button id="enableBtn" class="primary" style="flex:0 0 auto;padding:14px 28px;">Enable camera</button>
+    </div>
+  </div>
+
+  <!-- interactive walkthrough -->
+  <div id="cc-tut">
+    <div id="cc-tutSpot"></div>
+    <div id="cc-tutCard">
+      <div id="cc-tutDiagram"></div>
+      <div id="cc-tutTitle"></div>
+      <div id="cc-tutBody"></div>
+      <div id="cc-tutNav">
+        <button id="cc-tutSkip" class="ghost">Skip</button>
+        <span id="cc-tutDots"></span>
+        <button id="cc-tutBack" class="ghost">Back</button>
+        <button id="cc-tutNext" class="primary">Next</button>
+      </div>
     </div>
   </div>
 
@@ -262,6 +309,7 @@ async function boot(){
     [$('calBtn'),$('flipBtn'),$('startDrill')].forEach(b=>b.disabled=false);
     running=true;
     requestAnimationFrame(loop);
+    try{ if(!localStorage.getItem('coachfred.cc.tutSeen')) openTut(0); }catch(e){}
   }catch(e){
     spin.style.display='none'; showBar(false);
     setStage('Camera unavailable', null);
@@ -630,6 +678,68 @@ stage.addEventListener('click', e=>{
   markBag((e.clientX-r.left)/r.width, (e.clientY-r.top)/r.height);
   footNote.textContent='Bag marked. Throw shots into it — the box flashes green on contact, and CLEAN now requires you actually landed it.';
 });
+
+// ---------- interactive walkthrough ----------
+const tutEl=$('cc-tut'), tutSpot=$('cc-tutSpot'), tutCard=$('cc-tutCard'),
+      tutTitle=$('cc-tutTitle'), tutBody=$('cc-tutBody'), tutDiagram=$('cc-tutDiagram'),
+      tutDots=$('cc-tutDots'), tutBack=$('cc-tutBack'), tutNext=$('cc-tutNext');
+const PLACEMENT_SVG = `<svg viewBox="0 0 340 130" width="340" fill="none">
+  <rect x="18" y="38" width="32" height="60" rx="6" style="stroke:var(--prep);stroke-width:2.5"/>
+  <circle cx="34" cy="92" r="2" style="fill:var(--prep)"/>
+  <text x="34" y="116" text-anchor="middle" style="fill:var(--steel);font:700 10px sans-serif">PHONE</text>
+  <line x1="52" y1="68" x2="150" y2="68" style="stroke:var(--steel);stroke-width:1.5;stroke-dasharray:4 4"/>
+  <path d="M150 78 L150 68 L160 68" style="stroke:var(--prep);stroke-width:1.5"/>
+  <text x="166" y="64" style="fill:var(--prep);font:700 11px monospace">90°</text>
+  <circle cx="190" cy="48" r="9" style="stroke:var(--tape);stroke-width:2.5"/>
+  <line x1="190" y1="57" x2="190" y2="92" style="stroke:var(--tape);stroke-width:2.5"/>
+  <line x1="190" y1="92" x2="180" y2="112" style="stroke:var(--tape);stroke-width:2.5"/>
+  <line x1="190" y1="92" x2="202" y2="112" style="stroke:var(--tape);stroke-width:2.5"/>
+  <line x1="190" y1="66" x2="234" y2="60" style="stroke:var(--prep);stroke-width:2.5"/>
+  <line x1="190" y1="66" x2="196" y2="50" style="stroke:var(--tape);stroke-width:2.5"/>
+  <rect x="250" y="34" width="22" height="70" rx="10" style="stroke:var(--steel);stroke-width:2.5"/>
+  <line x1="261" y1="20" x2="261" y2="34" style="stroke:var(--steel);stroke-width:1.5"/>
+</svg>`;
+const TUT=[
+  {t:"Camera Coach", b:"Your phone watches you on the bag and checks your work — <b>guard, balance, the punch you threw,</b> and whether you <b>landed</b> it. It all runs on your device; nothing is recorded or sent anywhere."},
+  {t:"Where to stand", b:"Punches are read from a <b>side view</b> — prop the phone about <b>90°</b> to you, whole body in frame. (The Reaction slip drill is the exception: it wants a <b>front</b> view.)", diagram:PLACEMENT_SVG},
+  {t:"Pick a mode", target:'modeSeg', b:"<b>Watch</b> tags each punch live. <b>Form check</b> grades every shot. <b>Reaction</b> runs a slip drill, front-on."},
+  {t:"Are you square?", target:'orient', b:"This badge reads <b>SIDE-ON ✓</b> when you’re positioned right. If it says <b>TURN SIDE-ON</b>, punches won’t count — rotate 90°."},
+  {t:"Mark your bag", target:'stage', b:"Tap where your bag is — a <b>blue box</b> drops there. The app watches inside it and flashes <b>green</b> when the bag jerks from a landed shot. That’s how it knows you connected — no microphone needed."},
+  {t:"Calibrate", target:'calBtn', b:"Stand in your neutral guard and tap once. It zeroes your head position so <b>slips read correctly</b> in the Reaction drill."},
+  {t:"Your readouts", target:'hud', b:"<b>Guard</b> (hands up?), <b>Lean</b> (head sway), and your punch / clean <b>count</b>."},
+  {t:"It’s a beta", b:"Rough edges expected — detection is tuned by eye, not on your body. If counts look off, it’s the thresholds, not your boxing. Tap <b>?</b> any time to replay this."}
+];
+let tutIdx=0;
+function openTut(i){ tutIdx=i||0; tutEl.style.display='block'; renderTut(); }
+function closeTut(){ tutEl.style.display='none'; try{localStorage.setItem('coachfred.cc.tutSeen','1');}catch(e){} }
+function placeCard(where){
+  tutCard.style.top=tutCard.style.bottom='auto';
+  if(where==='center'){ tutCard.style.top='50%'; tutCard.style.transform='translate(-50%,-50%)'; return; }
+  if(where==='top'){ tutCard.style.top='calc(env(safe-area-inset-top) + 60px)'; }
+  else { tutCard.style.bottom='calc(env(safe-area-inset-bottom) + 150px)'; }
+  tutCard.style.transform='translateX(-50%)';
+}
+function renderTut(){
+  const s=TUT[tutIdx];
+  tutTitle.textContent=s.t; tutBody.innerHTML=s.b;
+  if(s.diagram){ tutDiagram.innerHTML=s.diagram; tutDiagram.style.display='flex'; }
+  else { tutDiagram.innerHTML=''; tutDiagram.style.display='none'; }
+  tutDots.innerHTML=TUT.map((_,i)=>'<i class="'+(i===tutIdx?'on':'')+'"></i>').join('');
+  tutBack.style.visibility = tutIdx===0?'hidden':'visible';
+  tutNext.textContent = tutIdx===TUT.length-1?'Done':'Next';
+  const el = s.target && $(s.target), r = el && el.getBoundingClientRect();
+  if(el && r && r.width>2 && r.height>2){
+    const pad=8; tutSpot.style.display='block';
+    tutSpot.style.left=(r.left-pad)+'px'; tutSpot.style.top=(r.top-pad)+'px';
+    tutSpot.style.width=(r.width+pad*2)+'px'; tutSpot.style.height=(r.height+pad*2)+'px';
+    placeCard(r.top > innerHeight*0.5 ? 'top' : 'bottom');   // card opposite the target
+  } else { tutSpot.style.display='none'; placeCard('center'); }
+}
+tutNext.addEventListener('click',()=>{ if(tutIdx>=TUT.length-1) closeTut(); else { tutIdx++; renderTut(); } });
+tutBack.addEventListener('click',()=>{ if(tutIdx>0){ tutIdx--; renderTut(); } });
+$('cc-tutSkip').addEventListener('click', closeTut);
+$('helpBtn').addEventListener('click',()=>openTut(0));
+addEventListener('resize',()=>{ if(tutEl.style.display==='block') renderTut(); });
 
 setMode('watch');
 </script>
