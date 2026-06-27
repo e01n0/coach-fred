@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#161311">
+<title>Coach Fred — Camera Coach (prototype)</title>
+<style>
+  :root{
+    --canvas:#161311; --canvas-2:#211b18;
+    --work:#e23b2e; --rest:#15808c; --prep:#e8b24c;
+    --tape:#f4efe6; --steel:#8a827a; --line:#332b26;
+    --ok:#3fb56b; --bad:#e23b2e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{background:var(--canvas);color:var(--tape);
+    font-family:"Barlow Semi Condensed",system-ui,sans-serif;overflow:hidden;
+    user-select:none;-webkit-user-select:none;}
+  #app{height:100dvh;display:flex;flex-direction:column;
+    padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 2px 8px;flex:0 0 auto;}
+  .brand{font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:14px;}
+  .brand b{color:var(--prep);}
+  .tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--steel);}
+
+  /* camera stage */
+  #stage{position:relative;flex:1 1 auto;border:1.5px solid var(--line);border-radius:14px;
+    overflow:hidden;background:#000;min-height:0;}
+  #mirror{position:absolute;inset:0;transform:scaleX(-1);} /* selfie mirror */
+  video,canvas#draw{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  canvas#draw{pointer-events:none;}
+
+  /* big center prompt for the reaction drill */
+  #prompt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;text-align:center;pointer-events:none;z-index:5;}
+  #promptBig{font-family:"Anton","Barlow Semi Condensed",sans-serif;font-weight:900;
+    font-size:min(18vw,120px);line-height:.9;letter-spacing:.02em;
+    text-shadow:0 4px 30px rgba(0,0,0,.7);opacity:0;transition:opacity .08s;}
+  #promptSub{margin-top:10px;font-size:16px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--tape);text-shadow:0 2px 12px rgba(0,0,0,.8);opacity:0;transition:opacity .15s;}
+  #flash{position:absolute;inset:0;z-index:4;opacity:0;transition:opacity .25s;pointer-events:none;}
+
+  /* HUD readouts */
+  #hud{position:absolute;left:10px;right:10px;top:10px;display:flex;gap:8px;z-index:6;
+    pointer-events:none;}
+  .chip{flex:1;background:rgba(22,19,17,.72);border:1px solid var(--line);border-radius:10px;
+    padding:8px 10px;backdrop-filter:blur(4px);}
+  .chip .k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--steel);}
+  .chip .v{font-family:"Chakra Petch",ui-monospace,monospace;font-size:22px;font-weight:700;line-height:1.1;margin-top:2px;}
+  .chip .v.good{color:var(--ok);} .chip .v.warn{color:var(--bad);}
+  #leanbar{position:absolute;left:10%;right:10%;bottom:14px;height:6px;border-radius:6px;
+    background:rgba(255,255,255,.12);z-index:6;pointer-events:none;}
+  #leandot{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;
+    background:var(--prep);transform:translateX(-50%);left:50%;box-shadow:0 0 12px rgba(232,178,76,.8);}
+  #leantick{position:absolute;top:-3px;left:50%;width:2px;height:12px;background:rgba(255,255,255,.4);transform:translateX(-50%);}
+
+  /* loading / error veil */
+  #veil{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;
+    background:radial-gradient(120% 80% at 50% 30%,#2a2420,#0c0a09);}
+  #veil h1{font-family:"Anton","Barlow Semi Condensed",sans-serif;font-size:28px;letter-spacing:.02em;}
+  #veil p{max-width:420px;color:var(--steel);font-size:14px;line-height:1.5;}
+  #veil.hidden{display:none;}
+  .spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--prep);
+    border-radius:50%;animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* controls */
+  footer{flex:0 0 auto;display:flex;gap:8px;padding:10px 2px 4px;flex-wrap:wrap;}
+  button{font-family:inherit;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    font-size:13px;border-radius:10px;border:1.5px solid var(--line);background:var(--canvas-2);
+    color:var(--tape);padding:13px 14px;flex:1;min-width:96px;cursor:pointer;transition:.12s;}
+  button:active{transform:translateY(1px);}
+  button.primary{background:var(--prep);color:var(--canvas);border-color:var(--prep);}
+  button.live{background:var(--work);color:#fff;border-color:var(--work);}
+  button:disabled{opacity:.4;}
+  .seg{display:flex;flex:2;gap:0;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;min-width:200px;}
+  .seg button{flex:1;border:0;border-radius:0;background:transparent;}
+  .seg button.on{background:var(--rest);color:#fff;}
+  .row{display:flex;gap:8px;width:100%;}
+  .note{flex-basis:100%;font-size:11px;color:var(--steel);text-align:center;padding-top:2px;line-height:1.4;}
+  a{color:var(--prep);}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">Coach <b>Fred</b></div>
+    <div class="tag">Camera Coach · prototype</div>
+  </header>
+
+  <div id="stage">
+    <div id="mirror">
+      <video id="cam" playsinline muted autoplay></video>
+      <canvas id="draw"></canvas>
+    </div>
+
+    <div id="hud">
+      <div class="chip"><div class="k">Guard</div><div class="v" id="guardV">—</div></div>
+      <div class="chip"><div class="k">Lean</div><div class="v" id="leanV">—</div></div>
+      <div class="chip"><div class="k" id="rcLabel">Punches</div><div class="v" id="rcV">0</div></div>
+    </div>
+
+    <div id="leanbar"><div id="leantick"></div><div id="leandot"></div></div>
+
+    <div id="prompt">
+      <div id="promptBig">SLIP</div>
+      <div id="promptSub"></div>
+    </div>
+    <div id="flash"></div>
+
+    <div id="veil">
+      <div class="spin" id="spin" style="display:none"></div>
+      <h1 id="veilTitle">Camera Coach</h1>
+      <p id="veilMsg">A proof-of-concept: on-device pose tracking checks your guard,
+        catches your slips, and runs a reaction drill that scores how fast you move.
+        Nothing is recorded or uploaded — the video never leaves your phone.
+        Prop the phone facing you at the bag, then tap <b>Enable camera</b>.</p>
+      <button id="enableBtn" class="primary" style="flex:0 0 auto;padding:14px 28px;">Enable camera</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="seg" id="modeSeg">
+      <button data-mode="watch" class="on">Watch</button>
+      <button data-mode="form">Form check</button>
+      <button data-mode="reaction">Reaction</button>
+    </div>
+    <button id="calBtn" disabled>Calibrate</button>
+    <div class="row">
+      <button id="startDrill" class="primary" disabled style="display:none">Start drill</button>
+      <button id="flipBtn" disabled>Flip L/R</button>
+    </div>
+    <div class="note" id="footNote">Stand centered, guard up, and tap Calibrate to set your neutral pose.</div>
+  </footer>
+</div>
+
+<script type="module">
+import {
+  PoseLandmarker, FilesetResolver, DrawingUtils
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs";
+
+const $ = id => document.getElementById(id);
+const cam=$('cam'), draw=$('draw'), ctx=draw.getContext('2d');
+const veil=$('veil'), veilTitle=$('veilTitle'), veilMsg=$('veilMsg'), spin=$('spin');
+const guardV=$('guardV'), leanV=$('leanV'), rcV=$('rcV'), rcLabel=$('rcLabel');
+const leandot=$('leandot'), promptBig=$('promptBig'), promptSub=$('promptSub'), flash=$('flash');
+const footNote=$('footNote');
+
+let landmarker=null, running=false, mode='watch';
+let neutral=null;        // calibrated baseline {headOffset, wristY}
+let lrFlip=1;            // direction mapping toggle
+let lastVideoTime=-1;
+
+// BlazePose landmark indices
+const NOSE=0, L_SH=11, R_SH=12, L_EL=13, R_EL=14, L_WR=15, R_WR=16,
+      L_HIP=23, R_HIP=24, L_AN=27, R_AN=28;
+
+// ---------- camera + model boot ----------
+$('enableBtn').addEventListener('click', boot);
+
+async function boot(){
+  spin.style.display='block'; $('enableBtn').style.display='none';
+  veilTitle.textContent='Starting…'; veilMsg.textContent='Requesting camera and loading the pose model.';
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:'user', width:{ideal:1280}, height:{ideal:720} }, audio:false
+    });
+    cam.srcObject=stream;
+    await cam.play();
+    veilMsg.textContent='Loading the pose model (a few MB, first time only)…';
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm");
+    landmarker = await PoseLandmarker.createFromOptions(vision,{
+      baseOptions:{
+        modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+        delegate:"GPU"
+      },
+      runningMode:"VIDEO", numPoses:1
+    });
+    veil.classList.add('hidden');
+    [$('calBtn'),$('flipBtn'),$('startDrill')].forEach(b=>b.disabled=false);
+    running=true;
+    requestAnimationFrame(loop);
+  }catch(e){
+    spin.style.display='none';
+    veilTitle.textContent='Camera unavailable';
+    veilMsg.innerHTML = describeError(e) +
+      '<br><br>This is exactly the iOS/permissions edge we wanted to surface before building it into the app.';
+    $('enableBtn').textContent='Try again'; $('enableBtn').style.display='';
+  }
+}
+function describeError(e){
+  const n=(e&&e.name)||'';
+  if(n==='NotAllowedError') return 'Camera permission was denied. Allow camera access in your browser settings and try again. On iOS, Safari must be served over HTTPS and the silent switch does not matter for video.';
+  if(n==='NotFoundError') return 'No camera was found on this device.';
+  if(n==='NotReadableError') return 'The camera is in use by another app. Close it and retry.';
+  if(location.protocol!=='https:' && location.hostname!=='localhost')
+    return 'Camera access needs HTTPS (or localhost). Serve this page over https and reload.';
+  return 'Could not start the camera or model: '+(e&&e.message||e);
+}
+
+// ---------- helpers ----------
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function headOffsetOf(lm){
+  const shCx=(lm[L_SH].x+lm[R_SH].x)/2;
+  const shW=Math.abs(lm[L_SH].x-lm[R_SH].x)||0.2;
+  return (lm[NOSE].x-shCx)/shW;          // shoulder-width-normalized head sway
+}
+function guardScore(lm){
+  // gloves up = wrists near head height. y grows downward.
+  const headY=lm[NOSE].y, shY=(lm[L_SH].y+lm[R_SH].y)/2;
+  const span=Math.abs(shY-headY)||0.1;
+  const up=w=> (shY-lm[w].y)/span;        // >~ -0.2 means at/above shoulder toward head
+  const l=up(L_WR), r=up(R_WR);
+  const good = (l>-0.3)&&(r>-0.3);
+  return {good, l, r};
+}
+
+// ---------- main loop ----------
+let punches=0, lastWrist={l:null,r:null}, refractory=0;
+function loop(){
+  if(!running) return;
+  if(cam.currentTime!==lastVideoTime && cam.videoWidth){
+    lastVideoTime=cam.currentTime;
+    if(draw.width!==cam.videoWidth){ draw.width=cam.videoWidth; draw.height=cam.videoHeight; }
+    const res=landmarker.detectForVideo(cam, performance.now());
+    ctx.clearRect(0,0,draw.width,draw.height);
+    if(res.landmarks&&res.landmarks[0]){
+      const lm=res.landmarks[0];
+      drawSkeleton(lm);
+      readGuard(lm);
+      const off=readLean(lm);
+      detectPunch(lm);
+      if(mode==='reaction') drillTick(off);
+    }
+  }
+  requestAnimationFrame(loop);
+}
+
+const du=()=> (drawSkeleton._du ||= new DrawingUtils(ctx));
+function drawSkeleton(lm){
+  const d=du();
+  d.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, {color:'rgba(244,239,230,.55)', lineWidth:3});
+  d.drawLandmarks(lm, {radius:3, color:'#e8b24c', fillColor:'#e8b24c'});
+}
+
+function readGuard(lm){
+  const g=guardScore(lm);
+  guardV.textContent = g.good?'UP':'DROP';
+  guardV.className = 'v '+(g.good?'good':'warn');
+}
+
+function readLean(lm){
+  let off=headOffsetOf(lm);
+  if(neutral) off-=neutral.headOffset;
+  off*=lrFlip;
+  const dir = off> .18 ? 'LEFT' : off< -.18 ? 'RIGHT' : '·';
+  leanV.textContent=dir;
+  leanV.className='v'+(dir==='·'?'':' good');
+  // position dot: clamp to bar
+  const pct=Math.max(0,Math.min(100, 50 - off*120));
+  leandot.style.left=pct+'%';
+  return off;
+}
+
+function detectPunch(lm){
+  if(refractory>0) refractory--;
+  for(const [k,wr,sh] of [['l',L_WR,L_SH],['r',R_WR,R_SH]]){
+    const reach=dist(lm[wr],lm[sh]);     // arm extension proxy
+    const prev=lastWrist[k];
+    lastWrist[k]=reach;
+    if(prev!=null && reach-prev>0.07 && refractory===0){
+      refractory=8;
+      if(mode==='watch'){ punches++; rcV.textContent=punches; }
+      else if(mode==='form'){ evaluatePunch(lm, k, reach); }
+    }
+  }
+}
+
+// ---------- form check: grade each thrown punch ----------
+let form={reps:0, clean:0};
+function evaluatePunch(lm, hand, reach){
+  const flags=[];
+  const shW=Math.abs(lm[L_SH].x-lm[R_SH].x)||0.2;
+
+  // 1) GUARD — was the OTHER hand kept up?
+  const other = hand==='l' ? R_WR : L_WR;
+  const shY=(lm[L_SH].y+lm[R_SH].y)/2, headY=lm[NOSE].y, span=Math.abs(shY-headY)||0.1;
+  if((shY-lm[other].y)/span < -0.3) flags.push('GUARD DOWN');
+
+  // 2) REACH — overextension. z = depth toward camera (negative); reach also widens dist.
+  const wr = hand==='l' ? L_WR : R_WR;
+  const extend = reach/shW;                       // lateral/vertical extension
+  const depth  = lm[wr].z!=null ? -lm[wr].z : 0;  // toward-camera reach (noisy from front)
+  if(extend>2.0 || depth>0.55) flags.push('OVERREACHED');
+
+  // 3) BALANCE — center of mass (hips) over base of support (ankles)
+  if((lm[L_AN].visibility??1)>0.5 && (lm[R_AN].visibility??1)>0.5){
+    const hipCx=(lm[L_HIP].x+lm[R_HIP].x)/2;
+    const anL=Math.min(lm[L_AN].x,lm[R_AN].x), anR=Math.max(lm[L_AN].x,lm[R_AN].x);
+    const baseW=(anR-anL)||0.15, pad=baseW*0.25;
+    if(hipCx<anL-pad || hipCx>anR+pad) flags.push('OFF BALANCE');
+  }
+
+  form.reps++;
+  if(flags.length===0){ form.clean++; rcV.textContent=form.clean;
+    flashColor('rgba(63,181,107,.4)'); showPrompt('CLEAN','');
+  }else{
+    rcV.textContent=form.clean;
+    flashColor('rgba(226,59,46,.45)'); showPrompt(flags[0], flags.slice(1).join(' · '));
+  }
+  promptBig.style.color = flags.length? '#e23b2e':'#3fb56b';
+  setTimeout(clearPrompt, 650);
+}
+
+// ---------- reaction drill ----------
+let drill={on:false, state:'idle', target:null, t0:0, next:0, reps:0, best:Infinity, sum:0};
+function setMode(m){
+  mode=m;
+  [...$('modeSeg').children].forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
+  const reaction = m==='reaction', form_=m==='form';
+  $('startDrill').style.display = reaction?'':'none';
+  rcLabel.textContent = reaction?'Reps' : form_?'Clean' : 'Punches';
+  rcV.textContent = reaction? drill.reps : form_? form.clean : punches;
+  footNote.textContent = reaction
+    ? 'Hands up, eyes on the phone. When SLIP LEFT / RIGHT flashes, slip that way — it scores your reaction time.'
+    : form_
+    ? 'Stand back so head-to-feet is in frame, guard up. Throw single shots — each one is graded: guard kept, overreach, balance.'
+    : 'Watch mode: live guard check, head-sway meter, and a rough punch count. Calibrate to zero your neutral.';
+  if(!reaction){ drill.on=false; clearPrompt(); }
+}
+$('modeSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) setMode(b.dataset.mode); });
+
+$('startDrill').addEventListener('click',()=>{
+  if(!neutral){ footNote.textContent='Calibrate first so the drill knows your neutral head position.'; return; }
+  drill={on:true,state:'wait',target:null,t0:0,next:performance.now()+1200,reps:0,best:Infinity,sum:0};
+  rcV.textContent='0';
+  $('startDrill').textContent='Running…';
+});
+
+function drillTick(off){
+  if(!drill.on) return;
+  const now=performance.now();
+  if(drill.state==='wait'){
+    if(now>=drill.next){
+      drill.target = (drill.reps % 2 === 0) ? 'LEFT' : 'RIGHT'; // deterministic alternation for a clean demo
+      // jitter so it isn't gameable:
+      if((Math.floor(now)%2)===0) drill.target = drill.target==='LEFT'?'RIGHT':'LEFT';
+      drill.t0=now; drill.state='go';
+      showPrompt('SLIP '+drill.target, '');
+    }
+  } else if(drill.state==='go'){
+    const moved = Math.abs(off)>.22;
+    if(moved){
+      const correct = (off>0?'LEFT':'RIGHT')===drill.target;
+      const rt=Math.round(now-drill.t0);
+      if(correct){
+        drill.reps++; drill.sum+=rt; drill.best=Math.min(drill.best,rt);
+        rcV.textContent=drill.reps;
+        flashColor('rgba(63,181,107,.45)');
+        showPrompt(rt+' ms', 'best '+drill.best+' · avg '+Math.round(drill.sum/drill.reps));
+      }else{
+        flashColor('rgba(226,59,46,.5)');
+        showPrompt('WRONG WAY','');
+      }
+      drill.state='cool'; drill.next=now+700;
+    } else if(now-drill.t0>1500){
+      flashColor('rgba(226,59,46,.4)'); showPrompt('TOO SLOW','');
+      drill.state='cool'; drill.next=now+700;
+    }
+  } else if(drill.state==='cool'){
+    if(now>=drill.next){
+      clearPrompt(); drill.state='wait'; drill.next=now+700+((Math.floor(now)%1400));
+    }
+  }
+}
+function showPrompt(big,sub){
+  promptBig.textContent=big; promptSub.textContent=sub;
+  promptBig.style.color = big.startsWith('SLIP')?'#e8b24c':'#f4efe6';
+  promptBig.style.opacity=1; promptSub.style.opacity= sub?1:0;
+}
+function clearPrompt(){ promptBig.style.opacity=0; promptSub.style.opacity=0; }
+function flashColor(c){ flash.style.background=c; flash.style.opacity=1;
+  setTimeout(()=>flash.style.opacity=0,180); }
+
+// ---------- controls ----------
+$('calBtn').addEventListener('click',()=>{
+  // sample current pose as neutral
+  const res = landmarker && cam.videoWidth ? landmarker.detectForVideo(cam, performance.now()) : null;
+  if(res&&res.landmarks&&res.landmarks[0]){
+    neutral={ headOffset: headOffsetOf(res.landmarks[0]) };
+    footNote.textContent='Neutral set. '+(mode==='reaction'?'Tap Start drill.':'Slip left/right — the dot should swing.');
+    flashColor('rgba(232,178,76,.35)');
+  } else {
+    footNote.textContent='No body detected — step back so your head and shoulders are in frame, then Calibrate.';
+  }
+});
+$('flipBtn').addEventListener('click',()=>{ lrFlip*=-1;
+  footNote.textContent='Left/right mapping flipped. Lean left and check the LEAN readout matches.'; });
+
+setMode('watch');
+</script>
+</body>
+</html>
