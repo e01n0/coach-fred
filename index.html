@@ -1642,6 +1642,20 @@
   console.log("Coach Fred " + APP_VERSION);
   // Instant voice test — verify audio works without running a whole session.
   $("testVoice").addEventListener("click", ()=>{ ensureAudio(); primeSpeech(); say("Coach Fred, ready to work."); });
+
+  // Camera Coach (beta): gate the launch behind a clear heads-up about the
+  // camera permission and the one-time model download.
+  $("cameraCoachBtn").addEventListener("click", e=>{
+    const ok = confirm(
+      "Camera Coach (beta)\n\n"+
+      "This opens the camera and watches your form on the bag. It needs:\n\n"+
+      "• Camera access — you'll be asked for permission\n"+
+      "• A one-time pose-model download (~5 MB) — needs a connection the first time\n\n"+
+      "Everything runs on this device. The video is never recorded or uploaded.\n\n"+
+      "Open Camera Coach now?"
+    );
+    if(!ok) e.preventDefault();
+  });
   skipBtn.addEventListener("click", ()=>{ ensureAudio(); skip(); });
   $("stanceBadge").addEventListener("click", ()=>{
     if(!currentStance) return;
