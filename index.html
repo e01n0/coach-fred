@@ -1076,6 +1076,8 @@
     for(const k in t.vars){ r.style.setProperty("--"+k, t.vars[k]); }
     const mc = document.querySelector('meta[name="theme-color"]');
     if(mc) mc.setAttribute("content", t.vars.canvas);
+    // persist resolved palette so same-origin pages (Camera Coach) can inherit it
+    try{ store.set("coachfred.themeVars", JSON.stringify(t.vars)); }catch(e){}
   }
 
   /* ---------- state ---------- */
