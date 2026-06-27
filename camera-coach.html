@@ -106,8 +106,9 @@
   button.primary{background:var(--prep);color:var(--canvas);border-color:var(--prep);}
   button.live{background:var(--work);color:#fff;border-color:var(--work);}
   button:disabled{opacity:.4;}
-  .seg{display:flex;flex:2;gap:0;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;min-width:200px;}
-  .seg button{flex:1;border:0;border-radius:0;background:transparent;}
+  .seg{display:flex;flex:1 0 100%;gap:0;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;}
+  .seg button{flex:1;border:0;border-radius:0;background:transparent;white-space:nowrap;
+    padding:12px 4px;font-size:12px;letter-spacing:.03em;}
   .seg button.on{background:var(--rest);color:#fff;}
   .row{display:flex;gap:8px;width:100%;}
   .note{flex-basis:100%;font-size:11px;color:var(--steel);text-align:center;padding-top:2px;line-height:1.4;}
@@ -211,9 +212,9 @@
       <button data-mode="form">Form check</button>
       <button data-mode="reaction">Reaction</button>
     </div>
-    <button id="calBtn" disabled>Calibrate</button>
     <div class="row">
       <button id="startDrill" class="primary" disabled style="display:none">Start drill</button>
+      <button id="calBtn" disabled>Calibrate</button>
       <button id="flipBtn" disabled>Flip L/R</button>
     </div>
     <div class="note" id="footNote">Stand centered, guard up, and tap Calibrate to set your neutral pose.</div>
