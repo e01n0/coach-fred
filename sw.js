@@ -1,6 +1,6 @@
 /* Coach Fred service worker — offline app shell.
    Bump CACHE when shipping changes so clients pick them up. */
-const CACHE = "coachfred-v15";
+const CACHE = "coachfred-v16";
 const ASSETS = [
   "./",
   "./index.html",

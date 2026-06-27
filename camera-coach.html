@@ -172,7 +172,7 @@
 <script type="module">
 import {
   PoseLandmarker, FilesetResolver, DrawingUtils
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs";
+} from "./vendor/tasks-vision/vision_bundle.mjs";   // self-hosted → works offline
 
 const $ = id => document.getElementById(id);
 const cam=$('cam'), draw=$('draw'), ctx=draw.getContext('2d');
@@ -191,8 +191,10 @@ const NOSE=0, L_SH=11, R_SH=12, L_EL=13, R_EL=14, L_WR=15, R_WR=16,
       L_HIP=23, R_HIP=24, L_AN=27, R_AN=28;
 
 // ---------- camera + model boot ----------
-const WASM_URL  = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm";
-const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
+// All assets are self-hosted under ./vendor so the coach runs fully offline
+// after the first load (the service worker caches them on first use).
+const WASM_URL  = "./vendor/tasks-vision/wasm";
+const MODEL_URL = "./vendor/models/pose_landmarker_lite.task";
 const prog=$('prog'), progFill=$('progFill'), progLabel=$('progLabel');
 
 function setStage(title,msg){ veilTitle.textContent=title; if(msg!=null) veilMsg.textContent=msg; }
@@ -241,7 +243,7 @@ async function boot(){
     // 2) the model — the big one; real byte progress
     setStage('Downloading coach model…','First time only — it’s cached on your device after this.');
     showBar(true,false); spin.style.display='none';
-    const ASSUMED=3.2*1048576;   // lite f16 ≈ 3 MB, used when Content-Length is hidden
+    const ASSUMED=5777746;   // exact vendored model size; same-origin also sends Content-Length
     const buf = await fetchModelWithProgress(MODEL_URL,(frac,recv)=>{
       if(frac!=null){ setBar(frac); progLabel.textContent=Math.round(frac*100)+'%'; }
       else { setBar(Math.min(recv/ASSUMED,0.97)); progLabel.textContent=(recv/1048576).toFixed(1)+' MB'; }

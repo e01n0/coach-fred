@@ -132,8 +132,12 @@ grade accordingly.
   auto-detector if desired.
 - `evaluatePunch()` — combines guard/reach/balance + contact + type into a verdict;
   where combo-caller verification will hook in.
-- Model + WASM are loaded from jsDelivr / Google MediaPipe storage — for full
-  offline support, self-host and precache them in `sw.js`.
+- Model + runtime are **self-hosted** under `./vendor` (MediaPipe tasks-vision
+  **0.10.35** + `pose_landmarker_lite.task`, ~17 MB total) so the coach runs
+  **fully offline after the first load** — the service worker runtime-caches them
+  on first use (not precached on install, to avoid burdening non-camera users).
+  Only the SIMD wasm variant is vendored; pre-2017 no-SIMD devices would need the
+  `nosimd` files added.
 
 ## iOS / permissions
 HTTPS required. Installed (home-screen) PWAs have historically been flaky with
