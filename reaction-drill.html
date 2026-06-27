@@ -286,7 +286,7 @@ async function boot(){
     [$('calBtn'),$('flipBtn'),$('startDrill')].forEach(b=>b.disabled=false);
     running=true;
     requestAnimationFrame(loop);
-    try{ if(!localStorage.getItem('coachfred.rx.tutSeen')) openTut(0); }catch(e){}
+    try{ if(!localStorage.getItem('coachfred.cc.tutSeen')) openTut(0); }catch(e){}
   }catch(e){
     spin.style.display='none'; showBar(false);
     setStage('Camera unavailable', null);
@@ -469,7 +469,7 @@ const TUT=[
 ];
 let tutIdx=0;
 function openTut(i){ tutIdx=i||0; tutEl.style.display='block'; renderTut(); }
-function closeTut(){ tutEl.style.display='none'; try{localStorage.setItem('coachfred.rx.tutSeen','1');}catch(e){} }
+function closeTut(){ tutEl.style.display='none'; try{localStorage.setItem('coachfred.cc.tutSeen','1');}catch(e){} }
 function placeCard(where){
   tutCard.style.top=tutCard.style.bottom='auto';
   if(where==='center'){ tutCard.style.top='50%'; tutCard.style.transform='translate(-50%,-50%)'; return; }
