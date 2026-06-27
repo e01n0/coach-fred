@@ -226,7 +226,7 @@ let lastVideoTime=-1;
 
 // BlazePose landmark indices
 const NOSE=0, L_SH=11, R_SH=12, L_EL=13, R_EL=14, L_WR=15, R_WR=16,
-      L_HIP=23, R_HIP=24, L_AN=27, R_AN=28;
+      L_HIP=23, R_HIP=24, L_KN=25, R_KN=26, L_AN=27, R_AN=28;
 
 // ---------- camera + model boot ----------
 // All assets are self-hosted under ./vendor so the coach runs fully offline
@@ -517,11 +517,29 @@ function evaluatePunch(lm, hand, reach){
   const shY=(lm[L_SH].y+lm[R_SH].y)/2, headY=lm[NOSE].y, span=Math.abs(shY-headY)||0.1;
   if((shY-lm[other].y)/span < -0.3) flags.push('GUARD DOWN');
 
-  // 2) REACH — overextension. z = depth toward camera (negative); reach also widens dist.
+  // 2) REACH — overextension of the punching arm. Side-on, the forward axis is
+  // the image x, so reach (wrist↔shoulder span) reads arm extension cleanly; we
+  // drop the old toward-camera z term, which is meaningless from the side.
   const wr = hand==='l' ? L_WR : R_WR;
-  const extend = reach/shW;                       // lateral/vertical extension
-  const depth  = lm[wr].z!=null ? -lm[wr].z : 0;  // toward-camera reach (noisy from front)
-  if(extend>2.0 || depth>0.55) flags.push('OVERREACHED');
+  const extend = reach/shW;                       // wrist↔shoulder span, shoulder-width-normalized
+  if(extend>2.0) flags.push('OVERREACHED');
+
+  // 2b) HEAD OVER KNEE — the overcommit / forward-balance cue a corner actually
+  // calls. As you lunge a punch your head drifts forward past your lead knee
+  // (weight onto the toes). Side-on this is a pure 2D read on the image x-axis —
+  // no noisy depth. The punch reaches toward the bag, so its wrist gives the
+  // forward direction; the lead knee is the one further forward along it.
+  const shCx=(lm[L_SH].x+lm[R_SH].x)/2;
+  const fwd=Math.sign(lm[wr].x-shCx)||1;
+  const kneeVis=k=>vis(lm,k)>0.5;
+  if(vis(lm,NOSE)>0.5 && (kneeVis(L_KN)||kneeVis(R_KN)) && vis(lm,L_HIP)>0.5 && vis(lm,R_HIP)>0.5){
+    const kxs=[]; if(kneeVis(L_KN)) kxs.push(lm[L_KN].x); if(kneeVis(R_KN)) kxs.push(lm[R_KN].x);
+    const leadKneeX = fwd>0 ? Math.max(...kxs) : Math.min(...kxs);
+    const hipCx=(lm[L_HIP].x+lm[R_HIP].x)/2, hipCy=(lm[L_HIP].y+lm[R_HIP].y)/2;
+    const torso=Math.hypot(shCx-hipCx, shY-hipCy)||0.2;   // stable body scale, side-on
+    const past=(lm[NOSE].x-leadKneeX)*fwd/torso;          // >0 ⇒ head is forward of the knee
+    if(past>0.35) flags.push('HEAD PAST KNEE');           // tuned by eye; ~a head past the knee
+  }
 
   // 3) BALANCE — center of mass (hips) over base of support (ankles)
   if((lm[L_AN].visibility??1)>0.5 && (lm[R_AN].visibility??1)>0.5){

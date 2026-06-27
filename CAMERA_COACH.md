@@ -30,7 +30,8 @@ the offline single-file core.
 | Head-sway / slip detection | nose offset vs shoulder centre, calibrated neutral | ✅ |
 | Reaction drill (scored) | random SLIP L/R prompt, reaction-time scoring | ✅ |
 | Balance check | hip centre-of-mass over the ankle base | ✅ |
-| Overreach check | arm-extension ratio + wrist depth (z) | ✅ (z noisy front-on) |
+| Overreach check | arm-extension ratio (wrist↔shoulder span / shoulder width) | ✅ |
+| Head-over-knee check | nose vs lead-knee on the image x-axis, normalised by torso length — flags `HEAD PAST KNEE` when the head lunges forward past the front knee | ✅ side-on, pure 2D (no depth) |
 | Punch *thrown* detection | extension hysteresis (reach + elbow straightening), **gated to a ~90° side view** | ✅ |
 | **Contact — "did you land it"** | **optical-flow motion spike in a marked bag ROI** | ✅ gym-proof, no audio |
 | Punch *type* label (jab/cross/hook/uppercut) | geometry heuristic over wrist trajectory | 🧪 placeholder |
@@ -72,11 +73,14 @@ ONNX Runtime Web / TF.js — but mind the **one-heavy-model ceiling** (see Perf)
 
 ### 3. 🔨 Depth for true reach/forward-balance (optional, later)
 A front camera sees lateral/vertical well but **forward lunge is depth (z)** and
-monocular z is noisy. For serious reach/balance drills, add a monocular depth
-model (Depth Anything / MiDaS via Transformers.js or ONNX Web). **Heavy
-(~5–15 fps)** — toggle on per-drill only, never alongside another heavy net.
-Cheaper alternative: instruct the user to **place the phone to their side** for
-reach/footwork drills (see Camera placement).
+monocular z is noisy. The cheaper, already-shipped answer is the **side-on view**:
+with the phone at ~90° the forward axis becomes the image **x**, so forward lunge
+is read in 2D with no depth model — that's exactly what the **head-over-knee**
+check (`HEAD PAST KNEE` in `evaluatePunch()`) does, flagging the head drifting
+past the lead knee. A monocular depth model (Depth Anything / MiDaS via
+Transformers.js or ONNX Web) would only be worth it for a **front-on** reach/balance
+drill, and it's **heavy (~5–15 fps)** — toggle on per-drill only, never alongside
+another heavy net.
 
 ### 4. 🔨 Combo verification in the caller
 Once punch-type recognition lands, close the loop with the existing combo caller:
