@@ -72,6 +72,9 @@
   #bagbox.hit{border-color:var(--ok);border-style:solid;}
   #fps{position:absolute;right:10px;bottom:14px;z-index:6;font-family:"Chakra Petch",ui-monospace,monospace;
     font-size:11px;color:var(--steel);pointer-events:none;}
+  #orient{position:absolute;left:10px;bottom:12px;z-index:6;display:none;pointer-events:none;
+    font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:12px;
+    padding:3px 8px;border-radius:7px;background:rgba(22,19,17,.7);border:1px solid var(--line);}
   #tag{position:absolute;z-index:6;pointer-events:none;transform:translate(-50%,-150%);
     background:rgba(232,178,76,.92);color:var(--canvas);font-weight:800;letter-spacing:.06em;
     font-size:13px;padding:3px 8px;border-radius:7px;white-space:nowrap;opacity:0;
@@ -134,6 +137,7 @@
     <div id="tag"></div>
 
     <div id="leanbar"><div id="leantick"></div><div id="leandot"></div></div>
+    <div id="orient"></div>
     <div id="fps">-- fps</div>
 
     <div id="prompt">
@@ -370,7 +374,7 @@ function tagPunch(label, wr){
 }
 
 // ---------- main loop ----------
-let punches=0, lastWrist={l:null,r:null}, refractory=0;
+let punches=0, refractory=0;
 let fpsT=performance.now(), fpsN=0;
 function loop(){
   if(!running) return;
@@ -421,23 +425,69 @@ function readLean(lm){
   return off;
 }
 
+// Punch detection. A punch is a full RETRACT -> EXTEND swing of the arm, not a
+// single-frame jump (which pose jitter trips while you stand still). We track an
+// "extension" score per arm and only count on a clean rising edge through a high
+// threshold, requiring it to drop back below a low threshold before the next one
+// (hysteresis). Low-confidence joints are ignored, and the score is smoothed.
+const EXT_HI=1.65, EXT_LO=1.20;        // extension thresholds (retracted ~0.9-1.1)
+let punchState={l:'ready',r:'ready'}, extEMA={l:0,r:0};
+function angleAt(b,a,c){               // joint angle at b, in degrees
+  const v1x=a.x-b.x,v1y=a.y-b.y,v2x=c.x-b.x,v2y=c.y-b.y;
+  const d=(v1x*v2x+v1y*v2y)/((Math.hypot(v1x,v1y)*Math.hypot(v2x,v2y))||1e-6);
+  return Math.acos(Math.min(1,Math.max(-1,d)))*180/Math.PI;
+}
+function extensionScore(lm,wr,sh,el){
+  // reach (good for hooks/lateral) blended with elbow straightness (good for
+  // straights toward the camera, where 2D reach foreshortens to nothing).
+  const shW=dist(lm[L_SH],lm[R_SH])||0.2;
+  const reachR=dist(lm[wr],lm[sh])/shW;
+  const straight=angleAt(lm[el],lm[sh],lm[wr])/100;   // 180deg -> 1.8
+  return Math.max(reachR, straight);
+}
+function vis(lm,i){ return (lm[i].visibility==null)?1:lm[i].visibility; }
+
+// Punches are only trustworthy from a ~90° side view: front-on, a straight punch
+// points at the lens and foreshortens to nothing. Side-on, the shoulders line up
+// in x (one behind the other) so the shoulder span is small vs torso height.
+const orientEl=$('orient');
+function sideOn(lm){
+  if(vis(lm,L_HIP)<0.3 || vis(lm,R_HIP)<0.3) return null;   // not enough body in frame
+  const shCx=(lm[L_SH].x+lm[R_SH].x)/2, shCy=(lm[L_SH].y+lm[R_SH].y)/2;
+  const hipCx=(lm[L_HIP].x+lm[R_HIP].x)/2, hipCy=(lm[L_HIP].y+lm[R_HIP].y)/2;
+  const torso=Math.hypot(shCx-hipCx,shCy-hipCy)||0.2;
+  return Math.abs(lm[L_SH].x-lm[R_SH].x)/torso < 0.5;        // small spread => side-on
+}
+
 function detectPunch(lm){
   if(refractory>0) refractory--;
-  for(const [k,wr,sh] of [['l',L_WR,L_SH],['r',R_WR,R_SH]]){
-    const reach=dist(lm[wr],lm[sh]);     // arm extension proxy
-    const prev=lastWrist[k];
-    lastWrist[k]=reach;
+  // gate the whole detector on a side view, and tell the user where to stand
+  const punchMode = (mode==='watch'||mode==='form');
+  const side = punchMode ? sideOn(lm) : true;
+  if(punchMode){
+    orientEl.style.display='block';
+    if(side===true){ orientEl.textContent='SIDE-ON ✓'; orientEl.style.color='#3fb56b'; }
+    else if(side===false){ orientEl.textContent='TURN SIDE-ON'; orientEl.style.color='var(--prep)'; }
+    else { orientEl.textContent='STEP BACK'; orientEl.style.color='var(--steel)'; }
+  }
+  for(const [k,wr,sh,el] of [['l',L_WR,L_SH,L_EL],['r',R_WR,R_SH,R_EL]]){
     // keep a short trajectory window for the punch typer
-    const h=wristHist[k]; h.push({x:lm[wr].x,y:lm[wr].y,z:lm[wr].z,reach});
+    const h=wristHist[k]; h.push({x:lm[wr].x,y:lm[wr].y,z:lm[wr].z,reach:dist(lm[wr],lm[sh])});
     if(h.length>9) h.shift();
-    if(prev!=null && reach-prev>0.07 && refractory===0){
-      refractory=8;
+    if(side!==true){ punchState[k]='ready'; continue; }     // only count side-on
+    // ignore arms we can't see well — invisible joints jitter and phantom-fire
+    if(vis(lm,wr)<0.5 || vis(lm,sh)<0.5 || vis(lm,el)<0.5) continue;
+    const ext=extensionScore(lm,wr,sh,el);
+    extEMA[k] = extEMA[k] ? extEMA[k]*0.5+ext*0.5 : ext;   // smooth single-frame jitter
+    const e=extEMA[k];
+    if(punchState[k]==='ready' && e>EXT_HI && refractory===0){
+      punchState[k]='out'; refractory=5;                  // counted; wait for retract
       if(mode==='watch'){
         punches++; rcV.textContent=punches;
-        const wr = k==='l'?L_WR:R_WR;
-        tagPunch(classifyPunch(k), lm[wr]);   // live-tag the punch on screen
-      }
-      else if(mode==='form'){ evaluatePunch(lm, k, reach); }
+        tagPunch(classifyPunch(k), lm[wr]);
+      } else if(mode==='form'){ evaluatePunch(lm, k, dist(lm[wr],lm[sh])); }
+    } else if(punchState[k]==='out' && e<EXT_LO){
+      punchState[k]='ready';                              // arm came back; ready again
     }
   }
 }
@@ -496,11 +546,12 @@ function setMode(m){
   $('startDrill').style.display = reaction?'':'none';
   rcLabel.textContent = reaction?'Reps' : form_?'Clean' : 'Punches';
   rcV.textContent = reaction? drill.reps : form_? form.clean : punches;
+  orientEl.style.display = reaction?'none':'block';   // side-on badge only for punch modes
   footNote.textContent = reaction
-    ? 'Hands up, eyes on the phone. When SLIP LEFT / RIGHT flashes, slip that way — it scores your reaction time.'
+    ? 'Reaction needs a FRONT view — prop the phone facing you. When SLIP LEFT / RIGHT flashes, slip that way; it scores your reaction time.'
     : form_
-    ? 'Stand back so head-to-feet is in frame, guard up. Throw single shots — each one is graded: guard kept, overreach, balance.'
-    : 'Watch mode: live pose skeleton, guard check, head-sway meter, and each punch tagged with its type as you throw. Calibrate to zero your neutral.';
+    ? 'Punches need a SIDE (~90°) view — prop the phone to your side, full body in frame, guard up. Throw single shots; each is graded for guard, overreach and balance.'
+    : 'Watch mode — prop the phone to your SIDE (~90°). Live skeleton, and each punch tagged with its type as you throw. Front-on, punches aren’t counted.';
   if(!reaction){ drill.on=false; clearPrompt(); }
 }
 $('modeSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) setMode(b.dataset.mode); });

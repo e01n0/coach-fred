@@ -22,7 +22,7 @@ pose model over the network and would bloat the offline single-file core.
 | Reaction drill (scored) | random SLIP L/R prompt, reaction-time scoring | ✅ |
 | Balance check | hip centre-of-mass over the ankle base | ✅ |
 | Overreach check | arm-extension ratio + wrist depth (z) | ✅ (z noisy front-on) |
-| Punch *thrown* detection | wrist-to-shoulder extension spike | ✅ |
+| Punch *thrown* detection | extension hysteresis (reach + elbow straightening), **gated to a ~90° side view** | ✅ |
 | **Contact — "did you land it"** | **optical-flow motion spike in a marked bag ROI** | ✅ gym-proof, no audio |
 | Punch *type* label (jab/cross/hook/uppercut) | geometry heuristic over wrist trajectory | 🧪 placeholder |
 
@@ -121,7 +121,11 @@ Feeds the planned **session history / summary card** with per-combo accuracy.
   balance / punch extension**; weaker on guard.
 
 Productised version should tell the user where to prop the phone per drill and
-grade accordingly.
+grade accordingly. **This is now enforced:** punch detection (Watch + Form check)
+only counts when a ~90° side view is detected (shoulder span small vs torso
+height), with an on-screen SIDE-ON / TURN SIDE-ON badge; Reaction stays front-on.
+Detection itself is a retract→extend hysteresis (not a single-frame delta) with
+joint-visibility gating, so a still guard no longer phantom-fires punches.
 
 ---
 
