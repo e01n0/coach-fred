@@ -634,9 +634,14 @@
       <details class="acc">
         <summary><span class="acc-t">Experimental</span></summary>
         <div class="acc-body">
-          <div class="note" style="margin-top:0;"><b>Camera Coach (beta)</b> &mdash; prop the phone facing you at the bag and it watches your form: guard up, head movement, balance, punch type, and whether you actually <b>landed</b> the shot. Everything runs <b>on your device</b> &mdash; the video never leaves the phone and nothing is recorded.</div>
+          <div class="note" style="margin-top:0;"><b>Camera Coach (beta)</b> &mdash; on-device pose tracking that watches you train. The video never leaves your phone and nothing is recorded. It comes in two drills, each wanting the phone in a different spot:</div>
+          <div class="note" style="margin-top:8px;"><b>Bag Coach</b> &mdash; prop the phone <b>side-on</b> (~90&deg;) to you at the bag. Watches your form: guard up, balance, punch type, and whether you actually <b>landed</b> the shot.</div>
           <div class="backup-row">
-            <a id="cameraCoachBtn" class="exp-launch" href="./camera-coach.html">Open Camera Coach</a>
+            <a id="cameraCoachBtn" class="exp-launch" href="./camera-coach.html">Open Bag Coach</a>
+          </div>
+          <div class="note" style="margin-top:8px;"><b>Reaction</b> &mdash; prop the phone <b>front-on</b> (facing you). Flashes SLIP LEFT / RIGHT at random and scores how fast you slip the right way.</div>
+          <div class="backup-row">
+            <a id="reactionDrillBtn" class="exp-launch" href="./reaction-drill.html">Open Reaction Drill</a>
           </div>
           <div class="note">First run downloads the pose model + runtime (~17&nbsp;MB, one time) and asks for camera permission, so it needs a connection once &mdash; after that it works <b>offline</b>. Rough edges expected &mdash; it&rsquo;s a preview. <a href="./CAMERA_COACH.md" target="_blank" rel="noopener noreferrer">What&rsquo;s coming &amp; how it works</a>.</div>
         </div>
@@ -1714,19 +1719,23 @@
   // Instant voice test — verify audio works without running a whole session.
   $("testVoice").addEventListener("click", ()=>{ ensureAudio(); primeSpeech(); say("Coach Fred, ready to work."); });
 
-  // Camera Coach (beta): gate the launch behind a clear heads-up about the
+  // Camera Coach (beta): gate each launch behind a clear heads-up about the
   // camera permission and the one-time model download.
-  $("cameraCoachBtn").addEventListener("click", e=>{
-    const ok = confirm(
-      "Camera Coach (beta)\n\n"+
-      "This opens the camera and watches your form on the bag. It needs:\n\n"+
-      "• Camera access — you'll be asked for permission\n"+
-      "• A one-time pose model + runtime download (~17 MB) — needs a connection the first time, then works offline\n\n"+
-      "Everything runs on this device. The video is never recorded or uploaded.\n\n"+
-      "Open Camera Coach now?"
-    );
-    if(!ok) e.preventDefault();
-  });
+  function gateCameraLaunch(name){
+    return e=>{
+      const ok = confirm(
+        name+" (beta)\n\n"+
+        "This opens the camera and watches you train. It needs:\n\n"+
+        "• Camera access — you'll be asked for permission\n"+
+        "• A one-time pose model + runtime download (~17 MB) — needs a connection the first time, then works offline\n\n"+
+        "Everything runs on this device. The video is never recorded or uploaded.\n\n"+
+        "Open "+name+" now?"
+      );
+      if(!ok) e.preventDefault();
+    };
+  }
+  $("cameraCoachBtn").addEventListener("click", gateCameraLaunch("Bag Coach"));
+  $("reactionDrillBtn").addEventListener("click", gateCameraLaunch("Reaction Drill"));
   skipBtn.addEventListener("click", ()=>{ ensureAudio(); skip(); });
   $("stanceBadge").addEventListener("click", ()=>{
     if(!currentStance) return;

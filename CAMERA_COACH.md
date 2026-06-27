@@ -4,9 +4,18 @@ Experimental visual coaching for Coach Fred: the phone camera watches you on the
 bag and checks your guard, head movement, balance, punch type, and whether you
 **landed** the shot — all **on-device**, no video ever leaves the phone.
 
-Lives in **`camera-coach.html`** (standalone, launched from the main app under
-**Setup → More → Experimental**). Kept separate on purpose: it pulls a ~5 MB
-pose model over the network and would bloat the offline single-file core.
+Split across **two standalone pages** because the two drills need the phone in
+**different places**, and mixing them in one screen confused people:
+
+- **`camera-coach.html`** — **Bag Coach**, phone **side-on (~90°)**: Watch + Form
+  check (guard, balance, punch type, contact).
+- **`reaction-drill.html`** — **Reaction**, phone **front-on**: the SLIP L/R
+  reaction drill.
+
+Both are launched from the main app under **Setup → More → Experimental** and
+share the same self-hosted pose runtime under `./vendor`. Kept separate from the
+core on purpose: they pull a ~5 MB pose model over the network and would bloat
+the offline single-file core.
 
 > **Status legend:** ✅ working now · 🧪 placeholder/heuristic · 🔨 needs building · 🎓 needs a trained model
 
@@ -120,12 +129,14 @@ Feeds the planned **session history / summary card** with per-combo accuracy.
 - **Phone to your side (90°):** great for **reach / overextension / forward
   balance / punch extension**; weaker on guard.
 
-Productised version should tell the user where to prop the phone per drill and
-grade accordingly. **This is now enforced:** punch detection (Watch + Form check)
-only counts when a ~90° side view is detected (shoulder span small vs torso
-height), with an on-screen SIDE-ON / TURN SIDE-ON badge; Reaction stays front-on.
-Detection itself is a retract→extend hysteresis (not a single-frame delta) with
-joint-visibility gating, so a still guard no longer phantom-fires punches.
+**This split is now baked into the UI:** the two placements are **separate
+pages**, so the user never has to discover mid-session that a mode wants a
+different camera angle. Bag Coach (`camera-coach.html`) is side-on only — punch
+detection only counts when a ~90° side view is detected (shoulder span small vs
+torso height), with an on-screen SIDE-ON / TURN SIDE-ON badge. Reaction
+(`reaction-drill.html`) is front-on only. Detection itself is a retract→extend
+hysteresis (not a single-frame delta) with joint-visibility gating, so a still
+guard no longer phantom-fires punches.
 
 ---
 

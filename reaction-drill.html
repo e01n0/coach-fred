@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#161311">
-<title>Coach Fred — Bag Coach (prototype)</title>
+<title>Coach Fred — Reaction Drill (prototype)</title>
 <script>
   // Inherit the fighter theme chosen in the main app (same-origin localStorage).
   // Runs before paint so there's no default-palette flash.
@@ -67,18 +67,8 @@
   #leandot{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;
     background:var(--prep);transform:translateX(-50%);left:50%;box-shadow:0 0 12px rgba(232,178,76,.8);}
   #leantick{position:absolute;top:-3px;left:50%;width:2px;height:12px;background:rgba(255,255,255,.4);transform:translateX(-50%);}
-  #bagbox{position:absolute;border:2px dashed var(--rest);border-radius:8px;z-index:5;
-    pointer-events:none;display:none;box-shadow:0 0 0 9999px rgba(0,0,0,0);transition:border-color .1s;}
-  #bagbox.hit{border-color:var(--ok);border-style:solid;}
   #fps{position:absolute;right:10px;bottom:14px;z-index:6;font-family:"Chakra Petch",ui-monospace,monospace;
     font-size:11px;color:var(--steel);pointer-events:none;}
-  #orient{position:absolute;left:10px;bottom:12px;z-index:6;display:none;pointer-events:none;
-    font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:12px;
-    padding:3px 8px;border-radius:7px;background:rgba(22,19,17,.7);border:1px solid var(--line);}
-  #tag{position:absolute;z-index:6;pointer-events:none;transform:translate(-50%,-150%);
-    background:rgba(232,178,76,.92);color:var(--canvas);font-weight:800;letter-spacing:.06em;
-    font-size:13px;padding:3px 8px;border-radius:7px;white-space:nowrap;opacity:0;
-    transition:opacity .12s;text-transform:uppercase;}
 
   /* loading / error veil */
   #veil{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;
@@ -106,10 +96,6 @@
   button.primary{background:var(--prep);color:var(--canvas);border-color:var(--prep);}
   button.live{background:var(--work);color:#fff;border-color:var(--work);}
   button:disabled{opacity:.4;}
-  .seg{display:flex;flex:1 0 100%;gap:0;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;}
-  .seg button{flex:1;border:0;border-radius:0;background:transparent;white-space:nowrap;
-    padding:12px 4px;font-size:12px;letter-spacing:.03em;}
-  .seg button.on{background:var(--rest);color:#fff;}
   .row{display:flex;gap:8px;width:100%;}
   .note{flex-basis:100%;font-size:11px;color:var(--steel);text-align:center;padding-top:2px;line-height:1.4;}
   a{color:var(--prep);}
@@ -147,7 +133,7 @@
   <header>
     <div class="brand">Coach <b>Fred</b></div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <div class="tag">Bag Coach · side-on</div>
+      <div class="tag">Reaction · front-on</div>
       <button id="helpBtn" title="How it works">?</button>
     </div>
   </header>
@@ -161,14 +147,10 @@
     <div id="hud">
       <div class="chip"><div class="k">Guard</div><div class="v" id="guardV">—</div></div>
       <div class="chip"><div class="k">Lean</div><div class="v" id="leanV">—</div></div>
-      <div class="chip"><div class="k" id="rcLabel">Punches</div><div class="v" id="rcV">0</div></div>
+      <div class="chip"><div class="k">Reps</div><div class="v" id="rcV">0</div></div>
     </div>
 
-    <div id="bagbox"></div>
-    <div id="tag"></div>
-
     <div id="leanbar"><div id="leantick"></div><div id="leandot"></div></div>
-    <div id="orient"></div>
     <div id="fps">-- fps</div>
 
     <div id="prompt">
@@ -179,13 +161,12 @@
 
     <div id="veil">
       <div class="spin" id="spin" style="display:none"></div>
-      <h1 id="veilTitle">Bag Coach</h1>
-      <p id="veilMsg">A proof-of-concept: on-device pose tracking checks your guard,
-        balance and punch type, and whether you actually <b>landed</b> the shot.
+      <h1 id="veilTitle">Reaction Drill</h1>
+      <p id="veilMsg">A proof-of-concept slip drill: on-device pose tracking flashes
+        <b>SLIP LEFT / RIGHT</b> at random and scores how fast you move the right way.
         Nothing is recorded or uploaded — the video never leaves your phone.
-        Prop the phone <b>side-on</b> (~90°) to you at the bag, then tap <b>Enable camera</b>.
-        A quick walkthrough opens the first time.
-        (For the front-on slip drill, use <b>Reaction</b> back in the menu.)</p>
+        Prop the phone <b>front-on</b> (facing you), then tap <b>Enable camera</b>.
+        A quick walkthrough opens the first time.</p>
       <div id="prog"><div id="progTrack"><div id="progFill"></div></div><div id="progLabel"></div></div>
       <button id="enableBtn" class="primary" style="flex:0 0 auto;padding:14px 28px;">Enable camera</button>
     </div>
@@ -208,15 +189,12 @@
   </div>
 
   <footer>
-    <div class="seg" id="modeSeg">
-      <button data-mode="watch" class="on">Watch</button>
-      <button data-mode="form">Form check</button>
-    </div>
     <div class="row">
+      <button id="startDrill" class="primary" disabled>Start drill</button>
       <button id="calBtn" disabled>Calibrate</button>
       <button id="flipBtn" disabled>Flip L/R</button>
     </div>
-    <div class="note" id="footNote">Stand centered, guard up, and tap Calibrate to set your neutral pose.</div>
+    <div class="note" id="footNote">Front-on drill — prop the phone facing you, stand centered, guard up, and tap Calibrate to set your neutral pose.</div>
   </footer>
 </div>
 
@@ -228,21 +206,20 @@ import {
 const $ = id => document.getElementById(id);
 const cam=$('cam'), draw=$('draw'), ctx=draw.getContext('2d');
 const veil=$('veil'), veilTitle=$('veilTitle'), veilMsg=$('veilMsg'), spin=$('spin');
-const guardV=$('guardV'), leanV=$('leanV'), rcV=$('rcV'), rcLabel=$('rcLabel');
+const guardV=$('guardV'), leanV=$('leanV'), rcV=$('rcV');
 const leandot=$('leandot'), promptBig=$('promptBig'), promptSub=$('promptSub'), flash=$('flash');
 const footNote=$('footNote');
 
-let landmarker=null, running=false, mode='watch';
-let neutral=null;        // calibrated baseline {headOffset, wristY}
+let landmarker=null, running=false;
+let neutral=null;        // calibrated baseline {headOffset}
 let lrFlip=1;            // direction mapping toggle
 let lastVideoTime=-1;
 
 // BlazePose landmark indices
-const NOSE=0, L_SH=11, R_SH=12, L_EL=13, R_EL=14, L_WR=15, R_WR=16,
-      L_HIP=23, R_HIP=24, L_AN=27, R_AN=28;
+const NOSE=0, L_SH=11, R_SH=12, L_WR=15, R_WR=16;
 
 // ---------- camera + model boot ----------
-// All assets are self-hosted under ./vendor so the coach runs fully offline
+// All assets are self-hosted under ./vendor so the drill runs fully offline
 // after the first load (the service worker caches them on first use).
 const WASM_URL  = "./vendor/tasks-vision/wasm";
 const MODEL_URL = "./vendor/models/pose_landmarker_lite.task";
@@ -283,7 +260,7 @@ async function boot(){
   try{
     const stream = await navigator.mediaDevices.getUserMedia({
       video:{ facingMode:'user', width:{ideal:1280}, height:{ideal:720},
-              frameRate:{ideal:60} }, audio:false   // fast hands need the frames
+              frameRate:{ideal:60} }, audio:false   // fast slips need the frames
     });
     cam.srcObject=stream; await cam.play();
 
@@ -302,14 +279,14 @@ async function boot(){
     setBar(1); progLabel.textContent='Ready';
 
     // 3) warm up
-    setStage('Warming up…','Starting the camera coach.'); showBar(true,true); spin.style.display='block';
+    setStage('Warming up…','Starting the reaction drill.'); showBar(true,true); spin.style.display='block';
     landmarker = await createLandmarker(vision, buf);
 
     veil.classList.add('hidden');
-    [$('calBtn'),$('flipBtn')].forEach(b=>b.disabled=false);
+    [$('calBtn'),$('flipBtn'),$('startDrill')].forEach(b=>b.disabled=false);
     running=true;
     requestAnimationFrame(loop);
-    try{ if(!localStorage.getItem('coachfred.cc.tutSeen')) openTut(0); }catch(e){}
+    try{ if(!localStorage.getItem('coachfred.rx.tutSeen')) openTut(0); }catch(e){}
   }catch(e){
     spin.style.display='none'; showBar(false);
     setStage('Camera unavailable', null);
@@ -345,84 +322,7 @@ function guardScore(lm){
   return {good, l, r};
 }
 
-// ---------- bag-motion contact detector (no audio, no ML) ----------
-// A landed punch jerks the bag. We watch motion energy inside a user-marked
-// bag region; a sharp spike == impact. The bag is huge and slow vs the glove,
-// so it stays trackable at 30fps even when fast hands motion-blur.
-const off=document.createElement('canvas'), octx=off.getContext('2d',{willReadFrequently:true});
-const bag={ armed:false, roi:null, prev:null, w:0, h:0, base:0.0001, energy:0, lastSpike:-1e9 };
-const stage=$('stage'), bagbox=$('bagbox');
-function markBag(nx,ny){                     // normalized display coords of the tap
-  bag.roi={ x:Math.max(0,nx-0.14), y:Math.max(0,ny-0.20), w:0.28, h:0.40 };
-  bag.armed=true; bag.prev=null;
-  bagbox.style.display='block';
-  bagbox.style.left=(bag.roi.x*100)+'%'; bagbox.style.top=(bag.roi.y*100)+'%';
-  bagbox.style.width=(bag.roi.w*100)+'%'; bagbox.style.height=(bag.roi.h*100)+'%';
-}
-function coverCrop(sw,sh,dw,dh){             // object-fit:cover source rect
-  const s=Math.max(dw/sw,dh/sh), cw=dw/s, ch=dh/s;
-  return {sx:(sw-cw)/2, sy:(sh-ch)/2, sw:cw, sh:ch};
-}
-function analyzeBag(){
-  if(!bag.armed || !cam.videoWidth) return;
-  const dw=160, dh=Math.round(160*stage.clientHeight/stage.clientWidth);
-  if(off.width!==dw||off.height!==dh){ off.width=dw; off.height=dh; bag.prev=null; }
-  // draw mirrored + cover-cropped so the offscreen matches what the user sees/taps
-  const c=coverCrop(cam.videoWidth,cam.videoHeight,dw,dh);
-  octx.save(); octx.translate(dw,0); octx.scale(-1,1);
-  octx.drawImage(cam, c.sx,c.sy,c.sw,c.sh, 0,0,dw,dh); octx.restore();
-  const px=octx.getImageData(0,0,dw,dh).data;
-  const r=bag.roi, x0=(r.x*dw)|0, y0=(r.y*dh)|0, x1=((r.x+r.w)*dw)|0, y1=((r.y+r.h)*dh)|0;
-  let sum=0, n=0;
-  if(bag.prev){
-    for(let y=y0;y<y1;y++) for(let x=x0;x<x1;x++){
-      const i=(y*dw+x)*4, g=(px[i]+px[i+1]+px[i+2])/3, pg=bag.prev[y*dw+x];
-      sum+=Math.abs(g-pg); n++;
-    }
-  }
-  // store grayscale for next diff
-  const gray=new Float32Array(dw*dh);
-  for(let i=0,j=0;i<px.length;i+=4,j++) gray[j]=(px[i]+px[i+1]+px[i+2])/3;
-  bag.prev=gray;
-  if(!n) return;
-  const e=sum/n; bag.energy=e;
-  // spike = energy well above a slow baseline; baseline tracks the calm bag
-  if(e > Math.max(6, bag.base*2.4)){
-    bag.lastSpike=performance.now(); bagbox.classList.add('hit');
-    setTimeout(()=>bagbox.classList.remove('hit'),140);
-  }
-  bag.base = bag.base*0.9 + e*0.1;
-}
-
-// ---------- heuristic punch typer  (PLACEHOLDER for a BoxingVI-trained model) ----------
-// Rough geometry-only guess so the type label is live in the demo. Replace
-// classifyPunch() with a small temporal net over the keypoint window trained on
-// BoxingVI (arXiv:2511.16524) — same 6 classes Coach Fred already calls.
-const wristHist={l:[],r:[]};
-function classifyPunch(hand){
-  const h=wristHist[hand]; if(h.length<5) return 'PUNCH';
-  const w=h[h.length-1], w0=h[0];
-  const up=w0.y-w.y, lateral=Math.abs(w.x-w0.x), forward=Math.max(w.reach-w0.reach,(w0.z??0)-(w.z??0));
-  let t = up>0.06 && up>=forward ? 'UPPERCUT' : (lateral>forward && lateral>0.05) ? 'HOOK' : 'STRAIGHT';
-  return t+' ('+hand.toUpperCase()+')';
-}
-
-// live on-screen tag at the glove (DOM, not the mirrored canvas which flips text)
-const tagEl=$('tag');
-function tagPunch(label, wr){
-  const vw=cam.videoWidth, vh=cam.videoHeight; if(!vw) return;
-  const c=coverCrop(vw,vh,stage.clientWidth,stage.clientHeight);
-  let dx=(wr.x*vw-c.sx)/c.sw, dy=(wr.y*vh-c.sy)/c.sh;
-  dx=Math.min(1,Math.max(0,dx)); dy=Math.min(1,Math.max(0,dy));
-  tagEl.textContent=label;
-  tagEl.style.left=((1-dx)*100)+'%';   // (1-dx): the display is mirrored
-  tagEl.style.top=(dy*100)+'%';
-  tagEl.style.opacity='1';
-  clearTimeout(tagPunch._t); tagPunch._t=setTimeout(()=>tagEl.style.opacity='0',520);
-}
-
 // ---------- main loop ----------
-let punches=0, refractory=0;
 let fpsT=performance.now(), fpsN=0;
 function loop(){
   if(!running) return;
@@ -431,13 +331,12 @@ function loop(){
     if(draw.width!==cam.videoWidth){ draw.width=cam.videoWidth; draw.height=cam.videoHeight; }
     const res=landmarker.detectForVideo(cam, performance.now());
     ctx.clearRect(0,0,draw.width,draw.height);
-    analyzeBag();                       // bag motion runs whether or not a body is seen
     if(res.landmarks&&res.landmarks[0]){
       const lm=res.landmarks[0];
       drawSkeleton(lm);
       readGuard(lm);
-      readLean(lm);
-      detectPunch(lm);
+      const ld=readLean(lm);
+      drillTick(ld);
     }
     // fps readout
     fpsN++; const tn=performance.now();
@@ -472,133 +371,52 @@ function readLean(lm){
   return off;
 }
 
-// Punch detection. A punch is a full RETRACT -> EXTEND swing of the arm, not a
-// single-frame jump (which pose jitter trips while you stand still). We track an
-// "extension" score per arm and only count on a clean rising edge through a high
-// threshold, requiring it to drop back below a low threshold before the next one
-// (hysteresis). Low-confidence joints are ignored, and the score is smoothed.
-const EXT_HI=1.65, EXT_LO=1.20;        // extension thresholds (retracted ~0.9-1.1)
-let punchState={l:'ready',r:'ready'}, extEMA={l:0,r:0};
-function angleAt(b,a,c){               // joint angle at b, in degrees
-  const v1x=a.x-b.x,v1y=a.y-b.y,v2x=c.x-b.x,v2y=c.y-b.y;
-  const d=(v1x*v2x+v1y*v2y)/((Math.hypot(v1x,v1y)*Math.hypot(v2x,v2y))||1e-6);
-  return Math.acos(Math.min(1,Math.max(-1,d)))*180/Math.PI;
-}
-function extensionScore(lm,wr,sh,el){
-  // reach (good for hooks/lateral) blended with elbow straightness (good for
-  // straights toward the camera, where 2D reach foreshortens to nothing).
-  const shW=dist(lm[L_SH],lm[R_SH])||0.2;
-  const reachR=dist(lm[wr],lm[sh])/shW;
-  const straight=angleAt(lm[el],lm[sh],lm[wr])/100;   // 180deg -> 1.8
-  return Math.max(reachR, straight);
-}
-function vis(lm,i){ return (lm[i].visibility==null)?1:lm[i].visibility; }
+// ---------- reaction drill ----------
+let drill={on:false, state:'idle', target:null, t0:0, next:0, reps:0, best:Infinity, sum:0};
 
-// Punches are only trustworthy from a ~90° side view: front-on, a straight punch
-// points at the lens and foreshortens to nothing. Side-on, the shoulders line up
-// in x (one behind the other) so the shoulder span is small vs torso height.
-const orientEl=$('orient');
-function sideOn(lm){
-  if(vis(lm,L_HIP)<0.3 || vis(lm,R_HIP)<0.3) return null;   // not enough body in frame
-  const shCx=(lm[L_SH].x+lm[R_SH].x)/2, shCy=(lm[L_SH].y+lm[R_SH].y)/2;
-  const hipCx=(lm[L_HIP].x+lm[R_HIP].x)/2, hipCy=(lm[L_HIP].y+lm[R_HIP].y)/2;
-  const torso=Math.hypot(shCx-hipCx,shCy-hipCy)||0.2;
-  return Math.abs(lm[L_SH].x-lm[R_SH].x)/torso < 0.5;        // small spread => side-on
-}
+$('startDrill').addEventListener('click',()=>{
+  if(!neutral){ footNote.textContent='Calibrate first so the drill knows your neutral head position.'; return; }
+  drill={on:true,state:'wait',target:null,t0:0,next:performance.now()+1200,reps:0,best:Infinity,sum:0};
+  rcV.textContent='0';
+  $('startDrill').textContent='Running…';
+});
 
-function detectPunch(lm){
-  if(refractory>0) refractory--;
-  // gate the whole detector on a side view, and tell the user where to stand
-  const punchMode = (mode==='watch'||mode==='form');
-  const side = punchMode ? sideOn(lm) : true;
-  if(punchMode){
-    orientEl.style.display='block';
-    if(side===true){ orientEl.textContent='SIDE-ON ✓'; orientEl.style.color='#3fb56b'; }
-    else if(side===false){ orientEl.textContent='TURN SIDE-ON'; orientEl.style.color='var(--prep)'; }
-    else { orientEl.textContent='STEP BACK'; orientEl.style.color='var(--steel)'; }
-  }
-  for(const [k,wr,sh,el] of [['l',L_WR,L_SH,L_EL],['r',R_WR,R_SH,R_EL]]){
-    // keep a short trajectory window for the punch typer
-    const h=wristHist[k]; h.push({x:lm[wr].x,y:lm[wr].y,z:lm[wr].z,reach:dist(lm[wr],lm[sh])});
-    if(h.length>9) h.shift();
-    if(side!==true){ punchState[k]='ready'; continue; }     // only count side-on
-    // ignore arms we can't see well — invisible joints jitter and phantom-fire
-    if(vis(lm,wr)<0.5 || vis(lm,sh)<0.5 || vis(lm,el)<0.5) continue;
-    const ext=extensionScore(lm,wr,sh,el);
-    extEMA[k] = extEMA[k] ? extEMA[k]*0.5+ext*0.5 : ext;   // smooth single-frame jitter
-    const e=extEMA[k];
-    if(punchState[k]==='ready' && e>EXT_HI && refractory===0){
-      punchState[k]='out'; refractory=5;                  // counted; wait for retract
-      if(mode==='watch'){
-        punches++; rcV.textContent=punches;
-        tagPunch(classifyPunch(k), lm[wr]);
-      } else if(mode==='form'){ evaluatePunch(lm, k, dist(lm[wr],lm[sh])); }
-    } else if(punchState[k]==='out' && e<EXT_LO){
-      punchState[k]='ready';                              // arm came back; ready again
+function drillTick(off){
+  if(!drill.on) return;
+  const now=performance.now();
+  if(drill.state==='wait'){
+    if(now>=drill.next){
+      drill.target = (drill.reps % 2 === 0) ? 'LEFT' : 'RIGHT'; // deterministic alternation for a clean demo
+      // jitter so it isn't gameable:
+      if((Math.floor(now)%2)===0) drill.target = drill.target==='LEFT'?'RIGHT':'LEFT';
+      drill.t0=now; drill.state='go';
+      showPrompt('SLIP '+drill.target, '');
+    }
+  } else if(drill.state==='go'){
+    const moved = Math.abs(off)>.22;
+    if(moved){
+      const correct = (off>0?'LEFT':'RIGHT')===drill.target;
+      const rt=Math.round(now-drill.t0);
+      if(correct){
+        drill.reps++; drill.sum+=rt; drill.best=Math.min(drill.best,rt);
+        rcV.textContent=drill.reps;
+        flashColor('rgba(63,181,107,.45)');
+        showPrompt(rt+' ms', 'best '+drill.best+' · avg '+Math.round(drill.sum/drill.reps));
+      }else{
+        flashColor('rgba(226,59,46,.5)');
+        showPrompt('WRONG WAY','');
+      }
+      drill.state='cool'; drill.next=now+700;
+    } else if(now-drill.t0>1500){
+      flashColor('rgba(226,59,46,.4)'); showPrompt('TOO SLOW','');
+      drill.state='cool'; drill.next=now+700;
+    }
+  } else if(drill.state==='cool'){
+    if(now>=drill.next){
+      clearPrompt(); drill.state='wait'; drill.next=now+700+((Math.floor(now)%1400));
     }
   }
 }
-
-// ---------- form check: grade each thrown punch ----------
-let form={reps:0, clean:0, landed:0};
-function evaluatePunch(lm, hand, reach){
-  const flags=[];
-  const shW=Math.abs(lm[L_SH].x-lm[R_SH].x)||0.2;
-
-  // 1) GUARD — was the OTHER hand kept up?
-  const other = hand==='l' ? R_WR : L_WR;
-  const shY=(lm[L_SH].y+lm[R_SH].y)/2, headY=lm[NOSE].y, span=Math.abs(shY-headY)||0.1;
-  if((shY-lm[other].y)/span < -0.3) flags.push('GUARD DOWN');
-
-  // 2) REACH — overextension. z = depth toward camera (negative); reach also widens dist.
-  const wr = hand==='l' ? L_WR : R_WR;
-  const extend = reach/shW;                       // lateral/vertical extension
-  const depth  = lm[wr].z!=null ? -lm[wr].z : 0;  // toward-camera reach (noisy from front)
-  if(extend>2.0 || depth>0.55) flags.push('OVERREACHED');
-
-  // 3) BALANCE — center of mass (hips) over base of support (ankles)
-  if((lm[L_AN].visibility??1)>0.5 && (lm[R_AN].visibility??1)>0.5){
-    const hipCx=(lm[L_HIP].x+lm[R_HIP].x)/2;
-    const anL=Math.min(lm[L_AN].x,lm[R_AN].x), anR=Math.max(lm[L_AN].x,lm[R_AN].x);
-    const baseW=(anR-anL)||0.15, pad=baseW*0.25;
-    if(hipCx<anL-pad || hipCx>anR+pad) flags.push('OFF BALANCE');
-  }
-
-  const ptype=classifyPunch(hand);
-  const punchT=performance.now();
-  form.reps++;
-  // wait a beat for the bag to react, then judge contact + render the verdict
-  setTimeout(()=>{
-    const landed = bag.armed && bag.lastSpike>punchT-120 && bag.lastSpike<punchT+170;
-    if(landed) form.landed++;
-    const ok = flags.length===0;
-    if(ok && (landed || !bag.armed)) form.clean++;
-    rcV.textContent=form.clean;
-    let big, color;
-    if(bag.armed && !landed){ big=ptype+' · SHORT'; color='#e8b24c'; flashColor('rgba(232,178,76,.4)'); }
-    else if(ok){ big=ptype+(bag.armed?' ✓':''); color='#3fb56b'; flashColor('rgba(63,181,107,.4)'); }
-    else { big=flags[0]; color='#e23b2e'; flashColor('rgba(226,59,46,.45)'); }
-    showPrompt(big, ok? (bag.armed&&landed?'landed clean':'') : flags.slice(1).concat(ptype).join(' · '));
-    promptBig.style.color=color;
-    setTimeout(clearPrompt, 620);
-  }, 180);
-}
-
-// ---------- mode switch (Watch / Form check — both side-on) ----------
-function setMode(m){
-  mode=m;
-  [...$('modeSeg').children].forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
-  const form_=m==='form';
-  rcLabel.textContent = form_?'Clean' : 'Punches';
-  rcV.textContent = form_? form.clean : punches;
-  orientEl.style.display='block';   // side-on badge always shown here
-  footNote.textContent = form_
-    ? 'Form check — prop the phone to your SIDE (~90°), full body in frame, guard up. Throw single shots; each is graded for guard, overreach and balance.'
-    : 'Watch mode — prop the phone to your SIDE (~90°). Live skeleton, and each punch tagged with its type as you throw.';
-  clearPrompt();
-}
-$('modeSeg').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) setMode(b.dataset.mode); });
-
 function showPrompt(big,sub){
   promptBig.textContent=big; promptSub.textContent=sub;
   promptBig.style.color = big.startsWith('SLIP')?'#e8b24c':'#f4efe6';
@@ -614,7 +432,7 @@ $('calBtn').addEventListener('click',()=>{
   const res = landmarker && cam.videoWidth ? landmarker.detectForVideo(cam, performance.now()) : null;
   if(res&&res.landmarks&&res.landmarks[0]){
     neutral={ headOffset: headOffsetOf(res.landmarks[0]) };
-    footNote.textContent='Neutral set. Slip left/right — the LEAN dot should swing.';
+    footNote.textContent='Neutral set. Tap Start drill — when SLIP LEFT / RIGHT flashes, slip that way.';
     flashColor('rgba(232,178,76,.35)');
   } else {
     footNote.textContent='No body detected — step back so your head and shoulders are in frame, then Calibrate.';
@@ -623,47 +441,35 @@ $('calBtn').addEventListener('click',()=>{
 $('flipBtn').addEventListener('click',()=>{ lrFlip*=-1;
   footNote.textContent='Left/right mapping flipped. Lean left and check the LEAN readout matches.'; });
 
-// tap the stage to mark where the bag is (for contact detection)
-stage.addEventListener('click', e=>{
-  if(!running || !veil.classList.contains('hidden')) return;
-  const r=stage.getBoundingClientRect();
-  markBag((e.clientX-r.left)/r.width, (e.clientY-r.top)/r.height);
-  footNote.textContent='Bag marked. Throw shots into it — the box flashes green on contact, and CLEAN now requires you actually landed it.';
-});
-
 // ---------- interactive walkthrough ----------
 const tutEl=$('cc-tut'), tutSpot=$('cc-tutSpot'), tutCard=$('cc-tutCard'),
       tutTitle=$('cc-tutTitle'), tutBody=$('cc-tutBody'), tutDiagram=$('cc-tutDiagram'),
       tutDots=$('cc-tutDots'), tutBack=$('cc-tutBack'), tutNext=$('cc-tutNext');
 const PLACEMENT_SVG = `<svg viewBox="0 0 340 130" width="340" fill="none">
-  <rect x="18" y="38" width="32" height="60" rx="6" style="stroke:var(--prep);stroke-width:2.5"/>
-  <circle cx="34" cy="92" r="2" style="fill:var(--prep)"/>
-  <text x="34" y="116" text-anchor="middle" style="fill:var(--steel);font:700 10px sans-serif">PHONE</text>
-  <line x1="52" y1="68" x2="150" y2="68" style="stroke:var(--steel);stroke-width:1.5;stroke-dasharray:4 4"/>
-  <path d="M150 78 L150 68 L160 68" style="stroke:var(--prep);stroke-width:1.5"/>
-  <text x="166" y="64" style="fill:var(--prep);font:700 11px monospace">90°</text>
+  <rect x="36" y="40" width="26" height="56" rx="6" style="stroke:var(--prep);stroke-width:2.5"/>
+  <circle cx="49" cy="90" r="2" style="fill:var(--prep)"/>
+  <text x="49" y="116" text-anchor="middle" style="fill:var(--steel);font:700 10px sans-serif">PHONE</text>
+  <line x1="62" y1="68" x2="150" y2="68" style="stroke:var(--steel);stroke-width:1.5;stroke-dasharray:4 4"/>
+  <path d="M150 62 L150 74 M150 68 L142 68" style="stroke:var(--prep);stroke-width:1.5"/>
   <circle cx="190" cy="48" r="9" style="stroke:var(--tape);stroke-width:2.5"/>
   <line x1="190" y1="57" x2="190" y2="92" style="stroke:var(--tape);stroke-width:2.5"/>
   <line x1="190" y1="92" x2="180" y2="112" style="stroke:var(--tape);stroke-width:2.5"/>
-  <line x1="190" y1="92" x2="202" y2="112" style="stroke:var(--tape);stroke-width:2.5"/>
-  <line x1="190" y1="66" x2="234" y2="60" style="stroke:var(--prep);stroke-width:2.5"/>
-  <line x1="190" y1="66" x2="196" y2="50" style="stroke:var(--tape);stroke-width:2.5"/>
-  <rect x="250" y="34" width="22" height="70" rx="10" style="stroke:var(--steel);stroke-width:2.5"/>
-  <line x1="261" y1="20" x2="261" y2="34" style="stroke:var(--steel);stroke-width:1.5"/>
+  <line x1="190" y1="92" x2="200" y2="112" style="stroke:var(--tape);stroke-width:2.5"/>
+  <line x1="190" y1="66" x2="174" y2="54" style="stroke:var(--tape);stroke-width:2.5"/>
+  <line x1="190" y1="66" x2="206" y2="54" style="stroke:var(--tape);stroke-width:2.5"/>
+  <text x="248" y="72" style="fill:var(--prep);font:700 11px monospace">FRONT</text>
 </svg>`;
 const TUT=[
-  {t:"Bag Coach", b:"Your phone watches you on the bag and checks your work — <b>guard, balance, the punch you threw,</b> and whether you <b>landed</b> it. It all runs on your device; nothing is recorded or sent anywhere."},
-  {t:"Where to stand", b:"Punches are read from a <b>side view</b> — prop the phone about <b>90°</b> to you, whole body in frame. (For the front-on slip drill, use <b>Reaction</b> back in the menu.)", diagram:PLACEMENT_SVG},
-  {t:"Pick a mode", target:'modeSeg', b:"<b>Watch</b> tags each punch live as you throw. <b>Form check</b> grades every shot for guard, overreach and balance."},
-  {t:"Are you square?", target:'orient', b:"This badge reads <b>SIDE-ON ✓</b> when you’re positioned right. If it says <b>TURN SIDE-ON</b>, punches won’t count — rotate 90°."},
-  {t:"Mark your bag", target:'stage', b:"Tap where your bag is — a <b>blue box</b> drops there. The app watches inside it and flashes <b>green</b> when the bag jerks from a landed shot. That’s how it knows you connected — no microphone needed."},
-  {t:"Calibrate", target:'calBtn', b:"Stand in your neutral guard and tap once. It zeroes your head position so the <b>Lean</b> readout reads true."},
-  {t:"Your readouts", target:'hud', b:"<b>Guard</b> (hands up?), <b>Lean</b> (head sway), and your punch / clean <b>count</b>."},
-  {t:"It’s a beta", b:"Rough edges expected — detection is tuned by eye, not on your body. If counts look off, it’s the thresholds, not your boxing. Tap <b>?</b> any time to replay this."}
+  {t:"Reaction Drill", b:"A slip drill that scores your reflexes. The phone flashes <b>SLIP LEFT</b> or <b>SLIP RIGHT</b> at random and times how fast you move the right way. It all runs on your device; nothing is recorded or sent anywhere."},
+  {t:"Where to stand", b:"This drill reads your head sway, so it wants a <b>front</b> view — prop the phone about an arm's length away, <b>facing you</b>, head and shoulders in frame.", diagram:PLACEMENT_SVG},
+  {t:"Calibrate", target:'calBtn', b:"Stand in your neutral guard and tap once. It zeroes your head position so <b>slips read correctly</b> — left is left, right is right."},
+  {t:"Your readouts", target:'hud', b:"<b>Guard</b> (hands up?), <b>Lean</b> (which way your head is), and your <b>rep</b> count. The bar at the bottom tracks your head sway live."},
+  {t:"Run it", target:'startDrill', b:"Tap <b>Start drill</b>. On each <b>SLIP</b> prompt, move that way fast — it shows your reaction time, best and average. If left/right read backwards, hit <b>Flip L/R</b>."},
+  {t:"It’s a beta", b:"Rough edges expected — detection is tuned by eye, not on your body. If slips don’t register, try a bigger movement or re-calibrate. Tap <b>?</b> any time to replay this."}
 ];
 let tutIdx=0;
 function openTut(i){ tutIdx=i||0; tutEl.style.display='block'; renderTut(); }
-function closeTut(){ tutEl.style.display='none'; try{localStorage.setItem('coachfred.cc.tutSeen','1');}catch(e){} }
+function closeTut(){ tutEl.style.display='none'; try{localStorage.setItem('coachfred.rx.tutSeen','1');}catch(e){} }
 function placeCard(where){
   tutCard.style.top=tutCard.style.bottom='auto';
   if(where==='center'){ tutCard.style.top='50%'; tutCard.style.transform='translate(-50%,-50%)'; return; }
@@ -692,8 +498,6 @@ tutBack.addEventListener('click',()=>{ if(tutIdx>0){ tutIdx--; renderTut(); } })
 $('cc-tutSkip').addEventListener('click', closeTut);
 $('helpBtn').addEventListener('click',()=>openTut(0));
 addEventListener('resize',()=>{ if(tutEl.style.display==='block') renderTut(); });
-
-setMode('watch');
 </script>
 </body>
 </html>
