@@ -110,6 +110,70 @@ Feeds the planned **session history / summary card** with per-combo accuracy.
 > check terms before any commercial use. Sizes are modest (hundreds–~7k); fine
 > for a *pose-based* classifier precisely because its input is low-dimensional.
 
+The datasets above are for the **punch-type classifier**. The *movement
+heuristics* (guard, balance, overreach, head-over-knee) are a different problem —
+prior art and data for those is in the section below.
+
+---
+
+## Prior art & validation for the movement heuristics
+
+Our form checks (`evaluatePunch()`) are hand-written kinematic rules: angles and
+distances between joints, thresholded. That's a recognised approach with real
+precedent — and a body of *correct-vs-incorrect* datasets we can borrow to tune
+and validate thresholds. **Caveat up front:** every dataset below is
+squats/lunges/rehab/diving, mostly front-on or multi-camera 3D — none has
+"head past the knee on a heavy-bag cross." They're for **methodology and
+validation**, not drop-in boxing training data (same conclusion as the punch-type
+plan: pretrain/borrow elsewhere, fine-tune on self-recorded clips).
+
+### The heuristic approach has precedent
+- **Pose Trainer** (Chen & Yang, arXiv:2006.11718) — the canonical reference:
+  evaluates the *vector geometry* of the pose with angle/distance thresholds over
+  correct/incorrect videos. This is exactly our method (+ DTW vs a template rep).
+- **3D Pose Based Feedback for Physical Exercises** (Zhao & Kiciroglu, ACCV 2022)
+  + the **EC3D** dataset — *interpretable per-joint* corrections ("which part is
+  wrong"), 11 instruction labels over squat/lunge/plank. The model-based path if
+  we ever want "move your head back" instead of a binary `HEAD PAST KNEE` flag.
+- **PosePilot** (arXiv:2505.19186) and **Learnable Physics for Real-Time Exercise
+  Form Recommendations** (arXiv:2310.07221) — recent edge-AI takes on the same.
+- Our **balance check (CoM over the ankle base)** is a textbook biomechanics rule,
+  not bespoke — markerless rigs are validated for centre-of-mass / centre-of-
+  pressure / sway prediction. Head-over-knee is the boxing cousin of the
+  **knee-over-toe** squat rule (same joint-projection family).
+
+### Datasets with correct-vs-incorrect labels (for tuning/validation)
+- **EC3D** — squat/lunge/plank, correct + incorrect, 11 instruction labels, 4-cam
+  3D. Closest to "fault + fix"; the knee rules rhyme with head-over-knee.
+- **UI-PRMD** — 10 rehab exercises × 10 correct + 10 incorrect reps (Vicon +
+  Kinect). Clean pairs for threshold-tuning methodology.
+- **KIMORE** — rehab, RGB-D + skeleton, with *continuous clinical quality scores*.
+- **IntelliRehabDS**, **REHAB24-6** — more correct-vs-incorrect skeleton data.
+- **Fitness-AQA** (ECCV 2022) — real *in-the-gym* squat/row/press from social
+  video, fine-grained error labels, wide range of camera angles (closest to our
+  messy bag setup). **InfiniteRep / InfiniteForm** — *synthetic*, varied
+  angles/lighting, **free for commercial use** (most others are research-only).
+  **MM-Fit** — 10 home exercises, front-facing RGB-D.
+- For graded *scores* rather than pass/fail — Action Quality Assessment sets:
+  **FineDiving, MTL-AQA, FIS-V/MIT-Skate, FineGym** (skeleton-based AQA regresses
+  an expert score from keypoints).
+
+### Cheapest high-value next step (mirrors UI-PRMD / EC3D methodology)
+1. Self-record ~20–30 **deliberately clean** shots and ~20–30 **deliberately
+   overreaching / guard-down** shots, side-on.
+2. Tune the `0.35`-torso (head-over-knee) and `2.0`-extend thresholds to best
+   separate the two; report sensitivity/specificity — turning "tuned by eye" into
+   "tuned on data."
+3. Keep the rule-based flags (legit per Pose Trainer); only graduate to a learned
+   model (EC3D / Fitness-AQA style contrastive on correct-vs-incorrect) if the
+   thresholds prove too brittle.
+
+> Sources: Pose Trainer (arXiv:2006.11718) · EC3D / 3D Pose Feedback
+> (arXiv:2208.03257) · PosePilot (arXiv:2505.19186) · Learnable Physics
+> (arXiv:2310.07221) · Fitness-AQA (ECCV 2022) · InfiniteRep · UI-PRMD · KIMORE ·
+> IntelliRehabDS · REHAB24-6 · MM-Fit · skeleton AQA (FineDiving / MTL-AQA /
+> FIS-V / FineGym). Verified June 2026.
+
 ---
 
 ## Performance — "will it work on video at speed?"
