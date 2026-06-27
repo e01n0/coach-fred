@@ -597,7 +597,7 @@
       <div class="field">
         <div class="field-label"><span>Coach voice</span></div>
         <select id="sVoice"></select>
-        <div class="note help">If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
+        <div class="note help">★ marks the most natural-sounding voices &mdash; pick one of those. <b>iPhone:</b> for a far less robotic corner, download an <i>Enhanced</i> or <i>Premium</i> voice in Settings &rarr; Accessibility &rarr; Spoken Content &rarr; Voices, then choose it here. <b>Android/Chrome:</b> the &ldquo;Google&rdquo; voices sound best. If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
       </div>
       <div class="field">
         <div class="toggle-row">
@@ -1245,25 +1245,64 @@
   function ensureAudio(){ duckOtherAudio(); return Promise.resolve(); }
 
   /* ---------- speech ---------- */
+  // The browser hands back its voices in a near-random order and the first one
+  // is usually the most robotic (a legacy/novelty default). Rank them so the
+  // genuinely natural voices — Siri/neural/enhanced — float to the top and
+  // become the default, and tag the good ones so the user can spot them.
+  const VOICE_GOOD = ["siri","neural","natural","premium","enhanced","multilingual"];
+  const VOICE_OK   = ["google","samantha","alex","aria","jenny","guy","sonia","ryan",
+                      "libby","arthur","serena","matilda","moira","tessa","karen","daniel",
+                      "kate","oliver","nathan"];
+  const VOICE_BAD  = ["albert","bad news","bahh","bells","boing","bubbles","cellos",
+                      "good news","jester","organ","superstar","trinoids","whisper","wobble",
+                      "zarvox","fred","junior","deranged","hysterical","grandma","grandpa"];
+  function scoreVoice(v){
+    const n = (v.name||"").toLowerCase(); let s = 0;
+    if(VOICE_BAD.some(b=>n.includes(b))) s -= 20;
+    if(VOICE_GOOD.some(b=>n.includes(b))) s += 8;
+    else if(VOICE_OK.some(b=>n.includes(b))) s += 4;
+    if(v.lang==="en-GB") s += 2; else if(v.lang==="en-US") s += 1;   // British corner by default
+    return s;
+  }
   function loadVoices(){
     if(!("speechSynthesis" in window)) return;
-    const voices = speechSynthesis.getVoices().filter(v=>v.lang && v.lang.startsWith("en"));
+    let voices = speechSynthesis.getVoices().filter(v=>v.lang && v.lang.startsWith("en"));
     const sel = $("sVoice"); sel.innerHTML="";
     if(!voices.length){ sel.innerHTML="<option>System default</option>"; return; }
-    voices.forEach(v=>{ const o=document.createElement("option"); o.value=v.name; o.textContent=`${v.name} (${v.lang})`; sel.appendChild(o); });
-    const want = voices.find(v=>v.name===cfg.voice) || voices.find(v=>v.lang==="en-GB") || voices[0];
+    voices = voices.slice().sort((a,b)=> scoreVoice(b)-scoreVoice(a) || a.name.localeCompare(b.name));
+    voices.forEach(v=>{
+      const o=document.createElement("option"); o.value=v.name;
+      const star = scoreVoice(v) >= 4 ? "★ " : "";            // ★ = the natural-sounding ones
+      o.textContent=`${star}${v.name} (${v.lang})`; sel.appendChild(o);
+    });
+    const want = voices.find(v=>v.name===cfg.voice) || voices[0];  // keep the user's pick, else best-ranked
     sel.value = want.name; cfg.voice = want.name;
   }
   if("speechSynthesis" in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
-  function mkUtter(text){
+  // Tone presets shape the same voice per call type — a firmer bell, a calmer
+  // rest, an urgent final-ten — plus a touch of pitch jitter on combos so the
+  // working rhythm reads like a person, not a flat readout.
+  const TONES = {
+    combo:  { rate:1.0,  pitch:1.0,  vol:1.0, jit:0.05 },
+    firm:   { rate:0.96, pitch:0.9,  vol:1.0 },
+    calm:   { rate:0.9,  pitch:0.96, vol:0.85 },
+    urgent: { rate:1.12, pitch:1.12, vol:1.0 },
+    warm:   { rate:0.95, pitch:1.02, vol:1.0 }
+  };
+  function mkUtter(text, tone){
+    const t = TONES[tone] || TONES.combo;
+    const base = cfg.rate || 1.25;
+    const jit = t.jit ? (Math.random()*2-1)*t.jit : 0;
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = cfg.rate || 1.25; u.pitch = 1; u.volume = 1;
+    u.rate = Math.max(0.5, Math.min(2, base*t.rate));
+    u.pitch = Math.max(0, Math.min(2, t.pitch + jit));
+    u.volume = t.vol;
     const v = speechSynthesis.getVoices().find(x=>x.name===cfg.voice); if(v) u.voice=v;
     return u;
   }
-  function say(text){
+  function say(text, tone){
     if(!("speechSynthesis" in window)) return;
-    speechSynthesis.speak(mkUtter(text));
+    speechSynthesis.speak(mkUtter(text, tone));
   }
   function primeSpeech(){ if(!("speechSynthesis" in window)) return; const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); }
 
@@ -1596,10 +1635,10 @@
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
       const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
       const focusSay = hasShotFocus() ? `. ${SHOT_FOCUS_BY_ID[currentMoveFocus].name} focus` : "";
-      say("Round start" + (st ? `. ${st}` : "") + fmtSay + focusSay);
+      say("Round start" + (st ? `. ${st}` : "") + fmtSay + focusSay, "firm");
       roundNow.textContent = pad2(workCount); roundTotal.textContent = pad2(totalWork);
     } else if(seg.type==="rest"){
-      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); say("Rest");
+      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); say("Rest", "calm");
     } else if(seg.type==="prep"){
       stateLabel.textContent="Get ready"; comboNumbers.innerHTML=""; comboNames.textContent=""; idleHint.style.display="none"; updateStanceBadge(null);
     }
@@ -1620,7 +1659,7 @@
       if("speechSynthesis" in window) speechSynthesis.cancel();
       delivering=false; clearDeliver();
       const push = cfg.fatigueOn !== false && currentSegSecs>=45;
-      say("Ten seconds. " + pick(push ? TANK_LINES : TEN_LINES));
+      say("Ten seconds. " + pick(push ? TANK_LINES : TEN_LINES), "urgent");
       nextComboAt = Date.now() + (push ? 2600 : 1900);   // let the call land, then push
     }
     if(phase==="work" && Date.now()>=nextComboAt && secs>1.5 && !delivering && !(("speechSynthesis" in window) && speechSynthesis.speaking)){
@@ -1648,7 +1687,7 @@
     stateLabel.textContent="Done";
     const streakBit = stats.streak>1 ? `  ·  ${stats.streak}-day streak` : "";
     comboNames.textContent = `That's the session. Nice work.  •  ${totalWork} round${totalWork===1?"":"s"} done${streakBit}`;
-    clock.textContent="00:00"; updateStanceBadge(null); say("Session complete. Good work."); startBtn.textContent="Start round"; releaseWake(); paintDots();
+    clock.textContent="00:00"; updateStanceBadge(null); say("Session complete. Good work.", "warm"); startBtn.textContent="Start round"; releaseWake(); paintDots();
     showSummary(stats.history[0]);
   }
   // Log this session to the on-device history and return the new entry.
