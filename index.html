@@ -1230,7 +1230,7 @@
   let phase = "idle";
   let endAt = 0, pausedRemaining = 0, running = false, tickId = null, nextComboAt = 0;
   let wakeLock = null;
-  let delivering = false, deliverTimers = [];
+  let delivering = false, deliverTimers = [], deliverSeq = 0;
   let currentFormat = "combos", currentSegSecs = 0, tenSecFired = false, pyrIdx = 0, emomDone = false, drillCallAt = 0;
   let currentMoveFocus = "none";
   let lastTokens = null;
@@ -1344,14 +1344,19 @@
         console.warn(`Voice pack "${id}" not found — run gen_voice.py to generate it.`); } });
   }
   // Play the given clip slugs back-to-back through one gain node, then onend().
+  // onend MUST fire exactly once on every path — it drives the round scheduler,
+  // so dropping it (e.g. when a bell cue supersedes a combo mid-load) would wedge
+  // delivery and stop all further calls.
   function playClipSeq(slugs, tone, onend){
-    const c = ensureCtx(); if(!c || !slugs.length){ if(onend) onend(); return; }
+    let ended = false;
+    const finish = ()=>{ if(ended) return; ended = true; if(onend) onend(); };
+    const c = ensureCtx(); if(!c || !slugs.length){ finish(); return; }
     if(c.state==="suspended") c.resume().catch(()=>{});
     const gen = ++clipGen;
     const t = TONES[tone] || TONES.combo;
     const rate = Math.max(0.85, Math.min(1.3, (cfg.rate||1.25)/1.25 * (t.rate||1)));
     Promise.all(slugs.map(loadClip)).then(bufs=>{
-      if(gen!==clipGen) return;          // superseded/cancelled while loading
+      if(gen!==clipGen){ finish(); return; }   // superseded while loading: skip audio, but still release the caller
       const g = c.createGain(); g.gain.value = (t.vol!=null?t.vol:1); g.connect(c.destination);
       let when = c.currentTime + 0.03, last = null;
       bufs.forEach(b=>{
@@ -1360,9 +1365,9 @@
         s.connect(cg); cg.connect(g);
         s.start(when); when += b.duration/rate + 0.06; last = s;   // a small human gap
       });
-      if(last) last.onended = ()=>{ if(gen===clipGen && onend) onend(); };
-      else if(onend) onend();
-    }).catch(()=>{ if(gen===clipGen && onend) onend(); });   // keep timing if a clip can't load
+      if(last) last.onended = finish;
+      else finish();
+    }).catch(finish);   // keep timing if a clip can't load
   }
   // Speak a list of spoken atoms by playing their clips in order. (text is kept
   // in the signature for readable call sites; the on-screen display uses it.)
@@ -1517,7 +1522,10 @@
 
     cancelSpeech(); clearDeliver();
     delivering = true;
-    const done = ()=>{ delivering=false; scheduleNext(tokens.length); };
+    const myGen = ++deliverSeq;
+    // Only the current, still-active delivery may advance the scheduler — ignore a
+    // completion that arrives after a pause, round change, or a newer combo.
+    const done = ()=>{ if(myGen!==deliverSeq || !delivering) return; delivering=false; scheduleNext(tokens.length); };
     speak(spokenFor(tokens), comboAtoms(tokens), "combo", done);
   }
   function stanceFor(n){
