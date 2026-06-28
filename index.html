@@ -563,10 +563,6 @@
         <div class="acc-body">
           <div class="note" style="margin-top:0;">Slips, rolls, steps, pivots and guard work. Ticked ones get woven between your punches, with the punch each slip loads. Directions are shown orthodox and flip automatically on southpaw rounds.</div>
           <div id="moveLibrary"></div>
-          <div class="add-row">
-            <input id="moveSeq" placeholder="Add movement e.g. shoulder roll">
-            <button id="addMove">Add</button>
-          </div>
         </div>
       </details>
 
@@ -601,12 +597,7 @@
       <div class="field">
         <div class="field-label"><span>Voice speed</span><span class="val" id="vRate">1.25&times;</span></div>
         <input type="range" id="sRate" min="0.8" max="1.6" step="0.05" value="1.25">
-        <div class="note help">How fast the coach talks. The next combo isn't called until you've had time to finish the current one, and longer combos wait longer before the next call.</div>
-      </div>
-      <div class="field">
-        <div class="field-label"><span>Coach voice</span></div>
-        <select id="sVoice"></select>
-        <div class="note help">★ marks the most natural-sounding voices &mdash; pick one of those. <b>iPhone:</b> for a far less robotic corner, download an <i>Enhanced</i> or <i>Premium</i> voice in Settings &rarr; Accessibility &rarr; Spoken Content &rarr; Voices, then choose it here. Downloaded a voice (e.g. <i>Jamie</i>) that isn&rsquo;t listed? iOS hides some voices from web apps &mdash; set it as your phone&rsquo;s voice in Settings &rarr; Accessibility &rarr; Spoken Content &rarr; Voices, then pick <b>System default</b> above. <b>Android/Chrome:</b> the &ldquo;Google&rdquo; voices sound best. If it&rsquo;s silent: flip the phone&rsquo;s mute switch off, volume up. iOS only speaks after you tap Start.</div>
+        <div class="note help">How fast the coach talks. The next combo isn't called until you've had time to finish the current one, and longer combos wait longer before the next call. The coach is a recorded human voice &mdash; if it&rsquo;s silent, flip the phone&rsquo;s mute switch off and turn the volume up. iOS only plays sound after you tap Start.</div>
       </div>
       <div class="field">
         <div class="toggle-row">
@@ -723,8 +714,7 @@
     {id:"step",  name:"Steps"},
     {id:"pivot", name:"Pivots"},
     {id:"guard", name:"Guard"},
-    {id:"feint", name:"Feints"},
-    {id:"custommove", name:"Custom movement"}
+    {id:"feint", name:"Feints"}
   ];
   const MOVE_PRESETS = [
     ["slip","Slip left"],["slip","Slip right"],
@@ -835,7 +825,7 @@
     {id:"footwork", label:"Footwork",  sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"footwork",level:"intermediate",pace:"steady"}}
   ];
   const PRESETS_VER = 12;
-  const MOVE_VER = 3;
+  const MOVE_VER = 4;
   const isDigit = t => Object.prototype.hasOwnProperty.call(PUNCH, t);
   // Escape any user-supplied text (combo names/tokens from imported files)
   // before it goes into innerHTML, to prevent stored/DOM XSS.
@@ -1201,11 +1191,13 @@
     }
     if(c.moveVer !== MOVE_VER){
       const wasEnabled = {};
-      (c.movement||[]).forEach(m=>{ if(m.group!=="custommove") wasEnabled[m.name] = m.enabled; });
-      const customMoves = (c.movement||[]).filter(m=>m.group==="custommove");
-      c.movement = freshMovement().map(x => (x.name in wasEnabled) ? Object.assign({}, x, {enabled:wasEnabled[x.name]}) : x).concat(customMoves);
+      (c.movement||[]).forEach(m=>{ wasEnabled[m.name] = m.enabled; });
+      c.movement = freshMovement().map(x => (x.name in wasEnabled) ? Object.assign({}, x, {enabled:wasEnabled[x.name]}) : x);
       c.moveVer = MOVE_VER;
     }
+    // Custom movements are no longer supported (no recorded voice for them) —
+    // drop any that lingered in an older saved profile.
+    c.movement = c.movement.filter(m => m.group !== "custommove");
     return c;
   }
   function save(){ try{ store.set("coachfred.v2", JSON.stringify(cfg)); }catch(e){} }
@@ -1263,106 +1255,24 @@
   function duckOtherAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type = "transient"; }catch(e){} }
   function ensureAudio(){ duckOtherAudio(); unlockClips(); return Promise.resolve(); }
   // Stop whatever the coach is saying right now — TTS and/or recorded clips.
-  function cancelSpeech(){ if("speechSynthesis" in window){ try{ speechSynthesis.cancel(); }catch(e){} } stopClips(); }
+  function cancelSpeech(){ stopClips(); }
 
-  /* ---------- speech ---------- */
-  // The browser hands back its voices in a near-random order and the first one
-  // is usually the most robotic (a legacy/novelty default). Rank them so the
-  // genuinely natural voices — Siri/neural/enhanced — float to the top and
-  // become the default, and tag the good ones so the user can spot them.
-  const VOICE_GOOD = ["siri","neural","natural","premium","enhanced","multilingual",
-                      "wavenet","studio","journey","polyglot"];
-  const VOICE_OK   = ["google","samantha","alex","aria","jenny","guy","sonia","ryan",
-                      "libby","arthur","serena","matilda","moira","tessa","karen","daniel",
-                      "kate","oliver","nathan"];
-  // The legacy/novelty voices that read like a 90s text-to-speech box — plus the
-  // iOS "Eddy/Flo/Reed/Rocko/Sandy/Shelley" cartoon set and any "compact" variant
-  // (the low-quality build of an otherwise-fine voice).
-  const VOICE_BAD  = ["albert","bad news","bahh","bells","boing","bubbles","cellos",
-                      "good news","jester","organ","superstar","trinoids","whisper","wobble",
-                      "zarvox","fred","junior","deranged","hysterical","grandma","grandpa",
-                      "eloquence","compact","eddy","flo","reed","rocko","sandy","shelley"];
-  function scoreVoice(v){
-    const n = (v.name||"").toLowerCase(); let s = 0;
-    if(VOICE_BAD.some(b=>n.includes(b))) s -= 20;
-    if(VOICE_GOOD.some(b=>n.includes(b))) s += 8;
-    else if(VOICE_OK.some(b=>n.includes(b))) s += 4;
-    // Network/cloud voices (localService === false) are the neural ones — Chrome's
-    // "Google" voices, Edge's "Online (Natural)" voices — and sound markedly less
-    // robotic than the local eSpeak/compact fallbacks that otherwise win on desktop
-    // and Android. iOS exposes no network voices, so this is a no-op there.
-    if(v.localService === false) s += 6;
-    if(v.lang==="en-GB") s += 2; else if(v.lang==="en-US") s += 1;   // British corner by default
-    return s;
-  }
-  function loadVoices(){
-    if(!("speechSynthesis" in window)) return;
-    let voices = speechSynthesis.getVoices().filter(v=>v.lang && v.lang.startsWith("en"));
-    const sel = $("sVoice"); sel.innerHTML="";
-    // "System default" leaves the utterance voice unset, so iOS falls back to the
-    // voice picked in Settings → Spoken Content. It's the only way to reach voices
-    // Apple doesn't expose to web apps by name (Siri / some Enhanced voices).
-    const sysOpt = document.createElement("option");
-    sysOpt.value = ""; sysOpt.textContent = "System default (your phone's voice)";
-    sel.appendChild(sysOpt);
-    // Pre-recorded voice packs sit at the top — a fully human coach when the
-    // clips have been generated (see VOICE_PACKS.md), TTS until then.
-    VOICE_PACKS.forEach(p=>{
-      const o=document.createElement("option"); o.value="pack:"+p.id; o.textContent="★ "+p.label; sel.appendChild(o);
-    });
-    voices = voices.slice().sort((a,b)=> scoreVoice(b)-scoreVoice(a) || a.name.localeCompare(b.name));
-    voices.forEach(v=>{
-      const o=document.createElement("option"); o.value=v.name;
-      const star = scoreVoice(v) >= 4 ? "★ " : "";            // ★ = the natural-sounding ones
-      o.textContent=`${star}${v.name} (${v.lang})`; sel.appendChild(o);
-    });
-    let want;
-    if(isPackVal(cfg.voice) && VOICE_PACKS.some(p=>("pack:"+p.id)===cfg.voice)) want = cfg.voice; // recorded pack
-    else if(cfg.voice === "") want = "";                     // explicit system default
-    else { const m = voices.find(v=>v.name===cfg.voice); want = m ? m.name : (voices[0] ? voices[0].name : ""); }
-    sel.value = want; cfg.voice = want;                       // keep the user's pick, else best-ranked
-    applyVoicePack();
-  }
-  // Register the handler now; the first populate happens once the voice-pack
-  // helpers below are initialised (see the deferred call after primeSpeech).
-  if("speechSynthesis" in window) speechSynthesis.onvoiceschanged = loadVoices;
-  // Tone presets shape the same voice per call type — a firmer bell, a calmer
-  // rest, an urgent final-ten — plus a touch of pitch jitter on combos so the
-  // working rhythm reads like a person, not a flat readout.
+  /* ---------- voice: pre-recorded clips (ElevenLabs) ----------
+     Coach Fred has no browser text-to-speech. Every cue is a short audio clip —
+     one per spoken atom (each punch, movement, bell cue and motivation line) —
+     under voice/<id>/, generated with gen_voice.py (see VOICE_PACKS.md). Clips
+     play back-to-back through the Web Audio API, so the corner sounds like a
+     person rather than a readout. The whole spoken vocabulary is fixed and
+     fully recorded, so there's nothing left to fall back to. */
+  // Per-call-type shaping of the recorded clips: a firmer bell, a calmer rest,
+  // an urgent final-ten. rate nudges playback speed, vol the gain.
   const TONES = {
-    combo:  { rate:1.0,  pitch:1.0,  vol:1.0, jit:0.05 },
-    firm:   { rate:0.96, pitch:0.9,  vol:1.0 },
-    calm:   { rate:0.9,  pitch:0.96, vol:0.85 },
-    urgent: { rate:1.12, pitch:1.12, vol:1.0 },
-    warm:   { rate:0.95, pitch:1.02, vol:1.0 }
+    combo:  { rate:1.0,  vol:1.0 },
+    firm:   { rate:0.98, vol:1.0 },
+    calm:   { rate:0.94, vol:0.9 },
+    urgent: { rate:1.08, vol:1.0 },
+    warm:   { rate:0.97, vol:1.0 }
   };
-  function mkUtter(text, tone){
-    const t = TONES[tone] || TONES.combo;
-    const base = cfg.rate || 1.25;
-    const jit = t.jit ? (Math.random()*2-1)*t.jit : 0;
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = Math.max(0.5, Math.min(2, base*t.rate));
-    u.pitch = Math.max(0, Math.min(2, t.pitch + jit));
-    u.volume = t.vol;
-    const v = speechSynthesis.getVoices().find(x=>x.name===cfg.voice); if(v) u.voice=v;
-    return u;
-  }
-  function ttsSpeak(text, tone, onend){
-    if(!("speechSynthesis" in window) || !text){ if(onend) onend(); return; }
-    const u = mkUtter(text, tone);
-    if(onend) u.onend = onend;
-    speechSynthesis.speak(u);
-  }
-
-  /* ---------- recorded voice packs (pre-rendered, e.g. ElevenLabs) ----------
-     A "voice pack" is a folder of short clips — one per spoken atom (each
-     punch, movement, bell cue and motivation line) under voice/<id>/. When a
-     pack is picked the coach plays those clips in sequence instead of the
-     browser's robotic TTS. Any atom without a clip falls the WHOLE phrase back
-     to TTS, so a partial pack (e.g. cues + lines only) still works and stays
-     consistent within a phrase. Build a pack with gen_voice.py + your own
-     ElevenLabs key — see VOICE_PACKS.md. Nothing here ships audio; without a
-     generated pack the app behaves exactly as before. */
   const VOICE_PACKS = [
     { id:"fred", label:"Coach Fred — recorded (ElevenLabs)" }
   ];
@@ -1401,7 +1311,7 @@
     if(!id){ voicePackWant = null; voicePack = null; return; }
     if(voicePackWant === id) return;      // already loading or loaded this pack
     voicePackWant = id;
-    voicePack = { id, slugs:new Set() };  // truthy but empty -> falls back to TTS until manifest lands
+    voicePack = { id, slugs:new Set() };  // truthy but empty until the manifest lands
     fetch(`voice/${id}/manifest.json`).then(r=>{ if(!r.ok) throw 0; return r.json(); })
       .then(m=>{
         if(voicePackWant !== id) return;  // user switched away mid-fetch
@@ -1409,12 +1319,11 @@
         (m.slugs||[]).forEach(s=>{ try{ loadClip(s); }catch(e){} });   // warm the cache
       })
       .catch(()=>{ if(voicePackWant === id){ voicePack=null; voicePackWant=null;
-        console.warn(`Voice pack "${id}" not generated yet — run gen_voice.py with your ElevenLabs key. Using TTS for now.`); } });
+        console.warn(`Voice pack "${id}" not found — run gen_voice.py to generate it.`); } });
   }
-  // Play clip slugs back-to-back through one gain node, then onend(). On any
-  // runtime miss, fall the whole phrase back to TTS so the voice stays uniform.
-  function playClipSeq(slugs, tone, ttsText, onend){
-    const c = ensureCtx(); if(!c){ ttsSpeak(ttsText, tone, onend); return; }
+  // Play the given clip slugs back-to-back through one gain node, then onend().
+  function playClipSeq(slugs, tone, onend){
+    const c = ensureCtx(); if(!c || !slugs.length){ if(onend) onend(); return; }
     if(c.state==="suspended") c.resume().catch(()=>{});
     const gen = ++clipGen;
     const t = TONES[tone] || TONES.combo;
@@ -1429,17 +1338,14 @@
       });
       if(last) last.onended = ()=>{ if(gen===clipGen && onend) onend(); };
       else if(onend) onend();
-    }).catch(()=>{ if(gen===clipGen) ttsSpeak(ttsText, tone, onend); });
+    }).catch(()=>{ if(gen===clipGen && onend) onend(); });   // keep timing if a clip can't load
   }
-  // Unified speak. ttsText is the natural string for TTS; atoms is the list of
-  // spoken units for clip mode (defaults to the whole string as one unit).
-  function speak(ttsText, atoms, tone, onend){
-    atoms = (atoms && atoms.length ? atoms : [ttsText]).map(String).filter(s=>s.trim());
-    if(voicePack){
-      const slugs = atoms.map(slugify);
-      if(slugs.length && slugs.every(s=>voicePack.slugs.has(s))){ playClipSeq(slugs, tone, ttsText, onend); return; }
-    }
-    ttsSpeak(ttsText, tone, onend);
+  // Speak a list of spoken atoms by playing their clips in order. (text is kept
+  // in the signature for readable call sites; the on-screen display uses it.)
+  function speak(text, atoms, tone, onend){
+    atoms = (atoms && atoms.length ? atoms : [text]).map(String).map(s=>s.trim()).filter(Boolean);
+    const slugs = voicePack ? atoms.map(slugify).filter(s=>voicePack.slugs.has(s)) : [];
+    playClipSeq(slugs, tone, onend);
   }
   // Bell cues are written as ". "-joined clauses; each clause is one clip atom.
   const cueAtoms = text => text.split(". ").map(s=>s.replace(/\.\s*$/,"").trim()).filter(Boolean);
@@ -1456,14 +1362,23 @@
     });
     return out;
   }
-  function say(text, tone){
-    if(!("speechSynthesis" in window) && !voicePack) return;
-    speak(text, cueAtoms(text), tone);
+  function say(text, tone){ speak(text, cueAtoms(text), tone); }
+  function primeSpeech(){ unlockClips(); }   // run inside the Start tap so iOS unlocks audio
+  // Settle on a recorded pack and load it. (No picker UI today — there's one
+  // recorded coach — but this still populates #sVoice if a future build adds a
+  // multi-pack selector.)
+  function loadVoices(){
+    if(!isPackVal(cfg.voice) || !VOICE_PACKS.some(p=>("pack:"+p.id)===cfg.voice))
+      cfg.voice = "pack:" + VOICE_PACKS[0].id;
+    const sel = $("sVoice");
+    if(sel){
+      sel.innerHTML = "";
+      VOICE_PACKS.forEach(p=>{ const o=document.createElement("option"); o.value="pack:"+p.id; o.textContent=p.label; sel.appendChild(o); });
+      sel.value = cfg.voice;
+    }
+    applyVoicePack();
   }
-  function primeSpeech(){ unlockClips(); if(!("speechSynthesis" in window)) return; const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); }
-  // Deferred first populate: the pack helpers above are now initialised, so this
-  // is safe (calling loadVoices at its definition would hit the const/let TDZ).
-  if("speechSynthesis" in window) loadVoices(); else applyVoicePack();
+  loadVoices();
 
   /* ---------- combo selection + delivery ---------- */
   const BODYP = { off:0, some:0.25, lots:0.45 };
@@ -1576,7 +1491,6 @@
     comboNames.textContent = combo.name ? `${combo.name.toUpperCase()}  \u2014  ${names}` : names;
     comboNumbers.classList.remove("hit"); void comboNumbers.offsetWidth; comboNumbers.classList.add("hit");
 
-    if(!("speechSynthesis" in window) && !voicePack){ scheduleNext(tokens.length); return; }
     cancelSpeech(); clearDeliver();
     delivering = true;
     const done = ()=>{ delivering=false; scheduleNext(tokens.length); };
@@ -1833,7 +1747,7 @@
       say("Ten seconds. " + pick(push ? TANK_LINES : TEN_LINES), "urgent");
       nextComboAt = Date.now() + (push ? 2600 : 1900);   // let the call land, then push
     }
-    if(phase==="work" && Date.now()>=nextComboAt && secs>1.5 && !delivering && !(("speechSynthesis" in window) && speechSynthesis.speaking)){
+    if(phase==="work" && Date.now()>=nextComboAt && secs>1.5 && !delivering){
       callCombo();
     }
     if(remaining<=0){ if(phase==="work") onRoundComplete(); advance(); }
@@ -1923,7 +1837,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v18";
+  const APP_VERSION = "v19";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant voice test — verify audio works without running a whole session.
@@ -1999,7 +1913,7 @@
     {h:"Pick your combos", b:"Over in <b>Combos</b>, tick the combos you want in the pool &mdash; the caller pulls from the ticked ones at random. They&rsquo;re grouped by style, with a level badge on each. Tap a group to open it.", at:()=> tutPickCombos() },
     {h:"Build your own", b:"Open <b>Build a combo</b> and tap <b>Punches</b> and <b>Movement</b> &mdash; each one stacks into the box at the top so you can see the combo take shape. Name it, hit <b>Save</b>, and it joins your pool.", at:()=>{ tutOpenPane("combos"); return tutOpenAcc($("stage")).closest(".builder"); }},
     {h:"Pick your fighter", b:"In <b>Settings &rarr; Theme</b>, reskin the whole app. Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Tap one and the whole corner changes.", at:()=>{ tutOpenPane("more"); return tutOpenAcc($("themeGrid")); }},
-    {h:"Turn the sound on", b:"The coach speaks out loud, so flip your phone off silent and turn it up. Set <b>Voice speed</b> and pick a <b>Coach voice</b> here, then hit <b>Test voice</b> to check it. On iPhone the coach only speaks <b>after you tap Start</b>.", at:()=>{ tutOpenPane("more"); return $("testVoice").closest(".field"); }},
+    {h:"Turn the sound on", b:"The coach is a recorded human voice, so flip your phone off silent and turn it up. Set <b>Voice speed</b> here, then hit <b>Test voice</b> to check it. On iPhone the coach only speaks <b>after you tap Start</b>.", at:()=>{ tutOpenPane("more"); return $("testVoice").closest(".field"); }},
     {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
   let tutIdx = 0, tutTarget = null, tutTimer = null;
@@ -2319,7 +2233,6 @@
         row.innerHTML = `
           <button class="chk ${m.enabled?'on':''}" data-mid="${m.id}">${m.enabled?'&#10003;':''}</button>
           <div class="meta"><div class="nm" style="font-size:15px;color:var(--tape);">${m.name}</div></div>
-          ${m.group==="custommove" ? `<button class="del" data-mdel="${m.id}">&times;</button>` : ``}
         `;
         wrap.appendChild(row);
       });
@@ -2327,14 +2240,8 @@
     renderMovePad();
   }
   $("moveLibrary").addEventListener("click", e=>{
-    const chk=e.target.closest(".chk"), del=e.target.closest(".del");
+    const chk=e.target.closest(".chk");
     if(chk){ const m=cfg.movement.find(x=>x.id===chk.dataset.mid); if(m){ m.enabled=!m.enabled; save(); renderMovement(); } }
-    else if(del){ cfg.movement=cfg.movement.filter(x=>x.id!==del.dataset.mdel); save(); renderMovement(); }
-  });
-  $("addMove").addEventListener("click", ()=>{
-    const raw=$("moveSeq").value.trim(); if(!raw) return;
-    cfg.movement.push({id:"m"+Date.now(), group:"custommove", name:raw, enabled:true});
-    $("moveSeq").value=""; save(); renderMovement();
   });
 
   /* ---------- more pane ---------- */
@@ -2343,7 +2250,6 @@
   $("segBody").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.bodyMix=b.dataset.v; save(); });
   $("segCall").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.callStyle=b.dataset.v; save(); });
   $("sRate").addEventListener("input", e=>{ cfg.rate=+e.target.value; $("vRate").innerHTML = cfg.rate.toFixed(2)+"&times;"; save(); });
-  $("sVoice").addEventListener("change", e=>{ cfg.voice=e.target.value; save(); applyVoicePack(); ensureAudio(); primeSpeech(); say("Hands up"); });
 
   /* ---------- init UI from cfg ---------- */
   function initUI(){
@@ -2451,7 +2357,7 @@
   function refreshAllFromCfg(){
     if(!THEMES[cfg.theme]) cfg.theme="fred";
     applyTheme(cfg.theme);
-    if("speechSynthesis" in window) loadVoices();
+    loadVoices();
     initUI();
     renderLibrary(); renderMovement(); renderProgram();
     buildFocusSelect($("uniformFocus"), cfg.uniformFocus);

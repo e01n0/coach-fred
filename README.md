@@ -105,11 +105,17 @@ streak counter becomes a real training journal. The log lives on your device and
 travels in the **.coach** backup.
 
 ## Sounds
-Coach Fred is **voice-only** — no bell, no clapper. The coach speaks every cue:
-**“Round start”** (with your stance) to open a round, **“Rest”** between rounds,
-and a **“ten seconds”** call with a shout of motivation in the final stretch (the
-phrase is picked at random, so it stays fresh). On longer rounds the **fatigue
-shaping** eases the pace through the back half, then digs in for that last push.
+Coach Fred is **voice-only** — no bell, no clapper. The corner is a **recorded
+human voice** (pre-rendered with ElevenLabs), not robotic text-to-speech: every
+cue is a short audio clip and the app plays them back-to-back. The coach speaks
+every cue: **“Round start”** (with your stance) to open a round, **“Rest”**
+between rounds, and a **“ten seconds”** call with a shout of motivation in the
+final stretch (the phrase is picked at random, so it stays fresh). On longer
+rounds the **fatigue shaping** eases the pace through the back half, then digs in
+for that last push. The clips are cached for offline use, and **Voice speed**
+(Setup → Settings) sets how fast the corner calls. See
+[VOICE_PACKS.md](VOICE_PACKS.md) to regenerate the voice with your own
+ElevenLabs voice.
 
 ## Install (PWA)
 Coach Fred is an installable Progressive Web App. Open it in a browser and use

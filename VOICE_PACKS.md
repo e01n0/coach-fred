@@ -1,11 +1,10 @@
 # Recorded voice packs (ElevenLabs)
 
-Coach Fred is voice-only. Out of the box every cue is spoken by the browser's
-built-in text-to-speech, which on many devices sounds robotic. A **voice pack**
-replaces that with **pre-rendered ElevenLabs audio** — a genuinely human corner
-man — while keeping the app fully offline and self-contained (it just ships some
-extra audio files). No API key is ever stored in the app, and nothing changes
-until you generate and commit a pack.
+Coach Fred is voice-only, and the corner is a **recorded human voice** —
+pre-rendered with ElevenLabs and shipped as static audio. There is **no browser
+text-to-speech**: every cue is a short clip. This keeps the app fully offline and
+self-contained (it just ships some audio files). No API key is ever stored in the
+app; you regenerate the voice by running the script with your own key.
 
 ## How it works
 
@@ -15,36 +14,30 @@ movement, each bell cue and each motivation line. They're listed in
 one MP3 per phrase with ElevenLabs into `voice/<pack>/`, plus a `manifest.json`
 of what's present.
 
-At runtime, when you choose a recorded voice in the app, it plays those clips in
-sequence: combos play word-by-word (`jab! · cross! · hook!` — staccato, which
-suits a boxing corner), and the longer lines play as whole, natural phrases.
-**Any clip that's missing falls the whole phrase back to TTS**, so a partial
-pack works fine and the voice stays consistent within a phrase.
+At runtime the app plays those clips in sequence: combos play word-by-word
+(`jab! · cross! · hook!` — staccato, which suits a boxing corner), and the longer
+lines play as whole, natural phrases. The spoken vocabulary is fixed and fully
+recorded, so there's no gap to cover — a clip that genuinely fails to load is
+simply skipped and the round's timing carries on.
 
-## Generate a pack
+## Regenerate the voice
 
 1. Get an [ElevenLabs](https://elevenlabs.io) API key and pick a voice — choose
    a **punchy, energetic** one; it's a fight corner, not an audiobook. Note its
-   **voice id**.
+   **voice id** (Voices page). A paid plan unlocks the full library and voice
+   cloning, and clears the free tier's attribution/redistribution terms.
 
-2. Render the clips:
+2. Render the full pack (overwriting the shipped one):
 
    ```bash
    export ELEVENLABS_API_KEY=sk_...
-
-   # Recommended first pass — the spoken lines where robotic TTS grates most
-   # (round intros, "rest", "ten seconds" + all the motivation lines). ~51 clips.
-   python3 gen_voice.py --voice-id <VOICE_ID> --styles cue,line,test
-
-   # Or the full vocabulary, including every combo word (~103 clips):
-   python3 gen_voice.py --voice-id <VOICE_ID>
+   python3 gen_voice.py --voice-id <VOICE_ID> --pack fred --force
    ```
 
-   Already-rendered clips are skipped, so re-running is cheap; `--force`
-   re-renders. Tune delivery with `--stability`, `--similarity`, `--style`.
+   Tune delivery with `--stability`, `--similarity`, `--style`. (Drop `--force`
+   to only fill in missing clips.)
 
-3. In the app: **Setup → Settings → Coach voice → “★ Coach Fred — recorded
-   (ElevenLabs)”**, then **Test voice**.
+3. In the app, hit **Test voice** (Setup → Settings) to hear it.
 
 4. **Commit `voice/<pack>/`** so it deploys with the static site:
 
@@ -60,13 +53,15 @@ like the rest of the app.
 
 ## Adding more packs (e.g. per-fighter voices)
 
-`--pack <id>` writes to `voice/<id>/`. To expose a new pack in the picker, add an
-entry to `VOICE_PACKS` in `index.html`:
+`--pack <id>` writes to `voice/<id>/`. The app currently ships a single recorded
+coach and has no voice-picker UI, but the plumbing is multi-pack aware: add an
+entry to `VOICE_PACKS` in `index.html` and the app will populate a `#sVoice`
+selector if one is present in the markup.
 
 ```js
 const VOICE_PACKS = [
-  { id:"fred",  label:"Coach Fred — recorded (ElevenLabs)" },
-  { id:"rocky", label:"Rocky — recorded (ElevenLabs)" },
+  { id:"fred",  label:"Coach Fred" },
+  { id:"rocky", label:"Rocky" },
 ];
 ```
 

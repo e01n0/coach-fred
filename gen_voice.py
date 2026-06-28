@@ -1,27 +1,25 @@
 #!/usr/bin/env python3
 """Pre-render Coach Fred's voice with ElevenLabs into a playable voice pack.
 
-Coach Fred is voice-only. By default the browser speaks every cue with its
-built-in (often robotic) text-to-speech. This script renders each spoken atom
-listed in voice/phrases.json to an MP3 with ElevenLabs, so the app can play a
-genuinely human corner man. The app loads a pack from voice/<pack>/ and falls
-back to TTS for any clip that isn't there — so rendering a subset is fine.
+Coach Fred is voice-only and uses no browser text-to-speech: every cue is a
+recorded clip. This script renders each spoken atom listed in voice/phrases.json
+to an MP3 with ElevenLabs, so the app plays a genuinely human corner man. The
+app loads a pack from voice/<pack>/; the spoken vocabulary is fixed and fully
+recorded, so render the whole thing.
 
-Nothing here is committed for you and no key is stored: you bring your own
-ElevenLabs API key and voice, run this once, then commit the voice/<pack>/
-folder so it deploys with the static site.
+Nothing here stores a key: you bring your own ElevenLabs API key and voice, run
+this once, then commit the voice/<pack>/ folder so it deploys with the static
+site.
 
 Usage
 -----
     export ELEVENLABS_API_KEY=sk_...
-    # the whole vocabulary (~103 clips):
-    python3 gen_voice.py --voice-id <ELEVENLABS_VOICE_ID>
-    # recommended first pass — the spoken lines where TTS grates most, ~51 clips:
-    python3 gen_voice.py --voice-id <ELEVENLABS_VOICE_ID> --styles cue,line,test
+    # render the full vocabulary (~103 clips), overwriting the shipped pack:
+    python3 gen_voice.py --voice-id <ELEVENLABS_VOICE_ID> --pack fred --force
 
 The pack id must match an entry in VOICE_PACKS in index.html (default: "fred").
-Already-rendered clips are skipped, so re-running resumes cheaply; --force
-re-renders. Styles: combo (punches/movements), cue (bell calls), line
+Without --force, already-rendered clips are skipped so re-running resumes
+cheaply. Styles (--styles): combo (punches/movements), cue (bell calls), line
 (motivation), test. Pick a punchy, energetic voice — it's a boxing corner.
 """
 import argparse, json, os, sys, time, urllib.request, urllib.error
