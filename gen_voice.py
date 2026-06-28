@@ -76,6 +76,7 @@ def main():
                     help="override per-style exaggeration 0..1 for all clips")
     ap.add_argument("--force", action="store_true", help="re-render clips that already exist")
     ap.add_argument("--sleep", type=float, default=0.3, help="pause between calls (seconds)")
+    ap.add_argument("--only", default="", help="comma list of slugs to render (subset of --styles); blank = all")
     args = ap.parse_args()
 
     key = os.environ.get("ELEVENLABS_API_KEY")
@@ -86,7 +87,8 @@ def main():
         phrases = json.load(f)
 
     want = {s.strip() for s in args.styles.split(",") if s.strip()}
-    todo = [p for p in phrases if p["style"] in want]
+    only = {s.strip() for s in args.only.split(",") if s.strip()}
+    todo = [p for p in phrases if p["style"] in want and (not only or p["slug"] in only)]
     outdir = os.path.join(ROOT, "voice", args.pack)
     os.makedirs(outdir, exist_ok=True)
 
