@@ -834,7 +834,7 @@
     {id:"burnout",  label:"Burnout",   sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:45,format:"burnout",pace:"relentless"}},
     {id:"footwork", label:"Footwork",  sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"footwork",level:"intermediate",pace:"steady"}}
   ];
-  const PRESETS_VER = 11;
+  const PRESETS_VER = 12;
   const MOVE_VER = 3;
   const isDigit = t => Object.prototype.hasOwnProperty.call(PUNCH, t);
   // Escape any user-supplied text (combo names/tokens from imported files)
@@ -923,6 +923,10 @@
     ["defence","Double slip 3-2",["slip right","slip left","3","2"],3],
     ["defence","Slip slip 2-3-2",["slip left","slip right","2","3","2"],3],
     ["defence","Parry roll 2-3-2",["parry","roll right","2","3","2"],3],
+    ["defence","Shield cross",["shield","2"],1],
+    ["defence","Shield hook cross",["shield","3","2"],2],
+    ["defence","Shield 2-3-2",["shield","2","3","2"],2],
+    ["defence","Parry 2-3",["parry","2","3"],1],
     // BODY — change levels, head to body
     ["body","Jab high-low",["1","1b"],1],
     ["body","Body jab cross",["1b","2"],1],
@@ -997,7 +1001,11 @@
     ["phase","1-2 slip roll",["1","2","slip right","roll left"],2],
     ["phase","1-2-3 slip roll",["1","2","3","slip left","roll left"],3],
     ["phase","1-2-3-2 slip slip",["1","2","3","2","slip left","slip right"],3],
-    ["phase","1-2 pull 2 slip slip",["1","2","pull back","2","slip left","slip right"],3]
+    ["phase","1-2 pull 2 slip slip",["1","2","pull back","2","slip left","slip right"],3],
+    // Shield / parry led multi-phase
+    ["phase","1-2 shield 2-3",["1","2","shield","2","3"],2],
+    ["phase","1 parry 2 shield 2",["1","parry","2","shield","2"],3],
+    ["phase","1-2-3 shield slip 3b-4b",["1","2","3","shield","slip","3b","4b"],3]
   ];
 
   /* ---------- themes (reskin the CSS variables) ---------- */
