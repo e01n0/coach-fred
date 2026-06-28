@@ -1268,18 +1268,28 @@
   // is usually the most robotic (a legacy/novelty default). Rank them so the
   // genuinely natural voices — Siri/neural/enhanced — float to the top and
   // become the default, and tag the good ones so the user can spot them.
-  const VOICE_GOOD = ["siri","neural","natural","premium","enhanced","multilingual"];
+  const VOICE_GOOD = ["siri","neural","natural","premium","enhanced","multilingual",
+                      "wavenet","studio","journey","polyglot"];
   const VOICE_OK   = ["google","samantha","alex","aria","jenny","guy","sonia","ryan",
                       "libby","arthur","serena","matilda","moira","tessa","karen","daniel",
                       "kate","oliver","nathan"];
+  // The legacy/novelty voices that read like a 90s text-to-speech box — plus the
+  // iOS "Eddy/Flo/Reed/Rocko/Sandy/Shelley" cartoon set and any "compact" variant
+  // (the low-quality build of an otherwise-fine voice).
   const VOICE_BAD  = ["albert","bad news","bahh","bells","boing","bubbles","cellos",
                       "good news","jester","organ","superstar","trinoids","whisper","wobble",
-                      "zarvox","fred","junior","deranged","hysterical","grandma","grandpa"];
+                      "zarvox","fred","junior","deranged","hysterical","grandma","grandpa",
+                      "eloquence","compact","eddy","flo","reed","rocko","sandy","shelley"];
   function scoreVoice(v){
     const n = (v.name||"").toLowerCase(); let s = 0;
     if(VOICE_BAD.some(b=>n.includes(b))) s -= 20;
     if(VOICE_GOOD.some(b=>n.includes(b))) s += 8;
     else if(VOICE_OK.some(b=>n.includes(b))) s += 4;
+    // Network/cloud voices (localService === false) are the neural ones — Chrome's
+    // "Google" voices, Edge's "Online (Natural)" voices — and sound markedly less
+    // robotic than the local eSpeak/compact fallbacks that otherwise win on desktop
+    // and Android. iOS exposes no network voices, so this is a no-op there.
+    if(v.localService === false) s += 6;
     if(v.lang==="en-GB") s += 2; else if(v.lang==="en-US") s += 1;   // British corner by default
     return s;
   }
