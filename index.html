@@ -469,6 +469,13 @@
           <select id="sFormat"></select>
           <div class="note" id="formatNote"></div>
         </div>
+        <div class="field" id="drillField" style="display:none;">
+          <div class="field-label"><span>Combo to drill</span></div>
+          <select id="sDrillCombo"></select>
+          <div class="field-label" style="margin-top:12px;"><span>Call every</span><span class="val" id="vDrill">8s</span></div>
+          <input type="range" id="sDrillInterval" min="3" max="30" step="1" value="8">
+          <div class="note help">Picks one combo and calls it on a steady beat for the whole round. Set the round length above to your work time. If a call runs long, the next one waits until it finishes.</div>
+        </div>
       </div>
 
       <div id="customBox" style="display:none;">
@@ -805,7 +812,8 @@
     ["pyramid","Pyramid ladder","Climb the punch count 1→6 and back down, over and over."],
     ["burnout","Burnout punch-out","Non-stop 1-2 straight punches — speed and volume over power."],
     ["footwork","Footwork drills","Called footwork: pivots, shuffles, in-and-out, angles."],
-    ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the top, rest the rest."]
+    ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the top, rest the rest."],
+    ["drill","Drill (one combo on repeat)","Locks onto a single combo and calls it on a fixed beat — for grooving one combination."]
   ];
   const FORMAT_LABEL = Object.fromEntries(FORMATS.map(f=>[f[0],f[1]]));
 
@@ -1151,6 +1159,7 @@
     pace:"relaxed", moveMix:"light", level:"build", bodyMix:"some", voice:null,
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"numbers", rate:1.25,
     format:"combos", fatigueOn:true,
+    drillComboId:null, drillInterval:8,
     theme:"fred",
     library:null, custom:[], movement:null
   };
@@ -1222,7 +1231,7 @@
   let endAt = 0, pausedRemaining = 0, running = false, tickId = null, nextComboAt = 0;
   let wakeLock = null;
   let delivering = false, deliverTimers = [];
-  let currentFormat = "combos", currentSegSecs = 0, tenSecFired = false, pyrIdx = 0, emomDone = false;
+  let currentFormat = "combos", currentSegSecs = 0, tenSecFired = false, pyrIdx = 0, emomDone = false, drillCallAt = 0;
   let currentMoveFocus = "none";
   let lastTokens = null;
 
@@ -1400,6 +1409,12 @@
   const PERSHOT = 0.5;
   const BREATHER = { relentless:[1.0,2.0], steady:[1.8,3.0], relaxed:[3.0,4.5] };
   function scheduleNext(n){
+    if(currentFormat==="drill"){
+      // Fixed beat measured from the start of the call. If speech overran the
+      // interval, this lands in the past and the next call fires immediately.
+      nextComboAt = drillCallAt + (cfg.drillInterval||8)*1000;
+      return;
+    }
     if(currentFormat==="burnout"){ nextComboAt = Date.now() + (n||1)*PERSHOT*0.55*1000; return; }
     let br = rnd(...(BREATHER[cfg.pace] || BREATHER.steady));
     // Fatigue shaping: a real corner eases the pace through the back half of a
@@ -1570,7 +1585,14 @@
     }
     return {tokens: pick(FOCUS_SETUPS[f.id]).slice(), name:""};
   }
+  function drillCombo(){
+    const c = allCombos().find(x=>x.id===cfg.drillComboId);
+    if(c) return {tokens:c.tokens.slice(), name:c.name||""};
+    // no pick saved (or it was deleted): fall back to a random eligible combo
+    return selectCombo();
+  }
   function callCombo(){
+    if(currentFormat==="drill"){ drillCallAt = Date.now(); deliver(drillCombo()); return; }
     if(currentFormat==="pyramid"){ deliver({tokens: PYRAMID[pyrIdx++ % PYRAMID.length].slice(), name:""}); return; }
     if(currentFormat==="burnout"){ deliver({tokens:["1","2"], name:""}); return; }
     if(currentFormat==="footwork"){ deliver(footworkCall()); return; }
@@ -1920,14 +1942,31 @@
     save(); initUI();
     if(phase==="idle") reset();
   }
+  function comboPickLabel(c){
+    const seq = c.tokens.map(t=> isDigit(t) ? t : (t.split(" ")[0])).join(" ");
+    return c.name ? `${c.name} — ${seq}` : seq;
+  }
+  function renderDrillPicker(){
+    const sel = $("sDrillCombo");
+    const list = allCombos();
+    sel.innerHTML = list.map(c=>`<option value="${c.id}">${esc(comboPickLabel(c))}</option>`).join("");
+    // keep the saved pick if it still exists, else default to the first combo
+    if(!list.some(c=>c.id===cfg.drillComboId)) cfg.drillComboId = list.length ? list[0].id : null;
+    if(cfg.drillComboId) sel.value = cfg.drillComboId;
+  }
   function syncFormatUI(){
-    const special = (cfg.format||"combos")!=="combos";
+    const fmt = cfg.format||"combos";
+    const special = fmt!=="combos";
     $("uniformFocusField").style.display = special ? "none" : "block";
-    const f = FORMATS.find(x=>x[0]===(cfg.format||"combos"));
+    $("drillField").style.display = fmt==="drill" ? "block" : "none";
+    if(fmt==="drill") renderDrillPicker();
+    const f = FORMATS.find(x=>x[0]===fmt);
     $("formatNote").textContent = f ? f[2] : "";
   }
   $("workoutGrid").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) applyWorkout(b.dataset.wk); });
   $("sFormat").addEventListener("change", e=>{ cfg.format=e.target.value; activeWorkout=null; renderWorkouts(); syncFormatUI(); save(); if(phase==="idle") reset(); });
+  $("sDrillCombo").addEventListener("change", e=>{ cfg.drillComboId=e.target.value; save(); if(phase==="idle") reset(); });
+  $("sDrillInterval").addEventListener("input", e=>{ cfg.drillInterval=+e.target.value; $("vDrill").textContent=cfg.drillInterval+"s"; save(); });
   $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
   function renderThemes(){
     const grid = $("themeGrid");
@@ -2062,6 +2101,8 @@
       d.appendChild(body);
       wrap.appendChild(d);
     });
+    // keep the drill combo picker in sync when combos are added/removed
+    if($("drillField") && $("drillField").style.display!=="none") renderDrillPicker();
   }
   $("library").addEventListener("toggle", e=>{
     const d=e.target.closest && e.target.closest("details.acc");
@@ -2174,6 +2215,7 @@
     buildFocusSelect($("uniformFocus"), cfg.uniformFocus);
     $("sFormat").innerHTML = FORMATS.map(f=>`<option value="${f[0]}">${f[1]}</option>`).join("");
     $("sFormat").value = cfg.format || "combos";
+    $("sDrillInterval").value = cfg.drillInterval || 8; $("vDrill").textContent = (cfg.drillInterval||8)+"s";
     syncFormatUI();
     renderWorkouts();
     $("sFatigue").checked = cfg.fatigueOn !== false;
