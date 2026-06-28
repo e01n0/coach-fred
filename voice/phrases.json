@@ -1,262 +1,262 @@
 [
   {
     "slug": "1",
-    "text": "One.",
+    "text": "One!",
     "style": "combo"
   },
   {
     "slug": "2",
-    "text": "Two.",
+    "text": "Two!",
     "style": "combo"
   },
   {
     "slug": "3",
-    "text": "Three",
+    "text": "Three!",
     "style": "combo"
   },
   {
     "slug": "4",
-    "text": "Four",
+    "text": "Four!",
     "style": "combo"
   },
   {
     "slug": "5",
-    "text": "Five",
+    "text": "Five!",
     "style": "combo"
   },
   {
     "slug": "6",
-    "text": "Six",
+    "text": "Six!",
     "style": "combo"
   },
   {
     "slug": "7",
-    "text": "Seven",
+    "text": "Seven!",
     "style": "combo"
   },
   {
     "slug": "8",
-    "text": "Eight",
+    "text": "Eight!",
     "style": "combo"
   },
   {
     "slug": "jab",
-    "text": "Jab",
+    "text": "Jab!",
     "style": "combo"
   },
   {
     "slug": "cross",
-    "text": "Cross",
+    "text": "Cross!",
     "style": "combo"
   },
   {
     "slug": "hook",
-    "text": "Hook",
+    "text": "Hook!",
     "style": "combo"
   },
   {
     "slug": "rear-hook",
-    "text": "Rear hook",
+    "text": "Rear hook!",
     "style": "combo"
   },
   {
     "slug": "uppercut",
-    "text": "Uppercut",
+    "text": "Uppercut!",
     "style": "combo"
   },
   {
     "slug": "rear-uppercut",
-    "text": "Rear uppercut",
+    "text": "Rear uppercut!",
     "style": "combo"
   },
   {
     "slug": "body-jab",
-    "text": "Body jab",
+    "text": "Body jab!",
     "style": "combo"
   },
   {
     "slug": "body-cross",
-    "text": "Body cross",
+    "text": "Body cross!",
     "style": "combo"
   },
   {
     "slug": "body-hook",
-    "text": "Body hook",
+    "text": "Body hook!",
     "style": "combo"
   },
   {
     "slug": "rear-body-hook",
-    "text": "Rear body hook",
+    "text": "Rear body hook!",
     "style": "combo"
   },
   {
     "slug": "slip-left",
-    "text": "Slip left",
+    "text": "Slip left!",
     "style": "combo"
   },
   {
     "slug": "slip-right",
-    "text": "Slip right",
+    "text": "Slip right!",
     "style": "combo"
   },
   {
     "slug": "roll-left",
-    "text": "Roll left",
+    "text": "Roll left!",
     "style": "combo"
   },
   {
     "slug": "roll-right",
-    "text": "Roll right",
+    "text": "Roll right!",
     "style": "combo"
   },
   {
     "slug": "step-in",
-    "text": "Step in",
+    "text": "Step in!",
     "style": "combo"
   },
   {
     "slug": "step-out",
-    "text": "Step out",
+    "text": "Step out!",
     "style": "combo"
   },
   {
     "slug": "step-back",
-    "text": "Step back",
+    "text": "Step back!",
     "style": "combo"
   },
   {
     "slug": "step-left",
-    "text": "Step left",
+    "text": "Step left!",
     "style": "combo"
   },
   {
     "slug": "step-right",
-    "text": "Step right",
+    "text": "Step right!",
     "style": "combo"
   },
   {
     "slug": "pivot-left",
-    "text": "Pivot left",
+    "text": "Pivot left!",
     "style": "combo"
   },
   {
     "slug": "pivot-right",
-    "text": "Pivot right",
+    "text": "Pivot right!",
     "style": "combo"
   },
   {
     "slug": "pull-back",
-    "text": "Pull back",
+    "text": "Pull back!",
     "style": "combo"
   },
   {
     "slug": "lean-back",
-    "text": "Lean back",
+    "text": "Lean back!",
     "style": "combo"
   },
   {
     "slug": "duck",
-    "text": "Duck",
+    "text": "Duck!",
     "style": "combo"
   },
   {
     "slug": "weave",
-    "text": "Weave",
+    "text": "Weave!",
     "style": "combo"
   },
   {
     "slug": "parry",
-    "text": "Parry",
+    "text": "Parry!",
     "style": "combo"
   },
   {
     "slug": "shield",
-    "text": "Shield",
+    "text": "Shield!",
     "style": "combo"
   },
   {
     "slug": "block",
-    "text": "Block",
+    "text": "Block!",
     "style": "combo"
   },
   {
     "slug": "long-guard",
-    "text": "Long guard",
+    "text": "Long guard!",
     "style": "combo"
   },
   {
     "slug": "catch",
-    "text": "Catch",
+    "text": "Catch!",
     "style": "combo"
   },
   {
     "slug": "high-guard",
-    "text": "High guard",
+    "text": "High guard!",
     "style": "combo"
   },
   {
     "slug": "feint-jab",
-    "text": "Feint jab",
+    "text": "Feint jab!",
     "style": "combo"
   },
   {
     "slug": "feint-cross",
-    "text": "Feint cross",
+    "text": "Feint cross!",
     "style": "combo"
   },
   {
     "slug": "feint-hook",
-    "text": "Feint hook",
+    "text": "Feint hook!",
     "style": "combo"
   },
   {
     "slug": "feint-level-change",
-    "text": "Feint level change",
+    "text": "Feint level change!",
     "style": "combo"
   },
   {
     "slug": "feint",
-    "text": "Feint",
+    "text": "Feint!",
     "style": "combo"
   },
   {
     "slug": "circle-left",
-    "text": "Circle left",
+    "text": "Circle left!",
     "style": "combo"
   },
   {
     "slug": "circle-right",
-    "text": "Circle right",
+    "text": "Circle right!",
     "style": "combo"
   },
   {
     "slug": "shuffle-left",
-    "text": "Shuffle left",
+    "text": "Shuffle left!",
     "style": "combo"
   },
   {
     "slug": "shuffle-right",
-    "text": "Shuffle right",
+    "text": "Shuffle right!",
     "style": "combo"
   },
   {
     "slug": "pendulum-step",
-    "text": "Pendulum step",
+    "text": "Pendulum step!",
     "style": "combo"
   },
   {
     "slug": "l-step",
-    "text": "L step",
+    "text": "L step!",
     "style": "combo"
   },
   {
     "slug": "cut-the-angle",
-    "text": "Cut the angle",
+    "text": "Cut the angle!",
     "style": "combo"
   },
   {
     "slug": "step-drag",
-    "text": "Step drag",
+    "text": "Step drag!",
     "style": "combo"
   },
   {
