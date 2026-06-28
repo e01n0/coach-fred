@@ -1164,7 +1164,7 @@
       {label:"Round 2", work:180, rest:60, focus:"all"},
       {label:"Round 3", work:180, rest:0,  focus:"all"}
     ],
-    pace:"relaxed", moveMix:"light", level:"build", bodyMix:"some", voice:null,
+    pace:"relaxed", moveMix:"light", level:"build", bodyMix:"some", voice:"pack:fred",
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"numbers", rate:1.25,
     format:"combos", fatigueOn:true,
     drillComboId:null, drillInterval:8,
@@ -1261,7 +1261,9 @@
   // coach is calling. iOS/Safari (16.4+) honours this via the Audio Session
   // API; Android and others lean on the OS's own automatic ducking.
   function duckOtherAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type = "transient"; }catch(e){} }
-  function ensureAudio(){ duckOtherAudio(); return Promise.resolve(); }
+  function ensureAudio(){ duckOtherAudio(); unlockClips(); return Promise.resolve(); }
+  // Stop whatever the coach is saying right now — TTS and/or recorded clips.
+  function cancelSpeech(){ if("speechSynthesis" in window){ try{ speechSynthesis.cancel(); }catch(e){} } stopClips(); }
 
   /* ---------- speech ---------- */
   // The browser hands back its voices in a near-random order and the first one
@@ -1303,6 +1305,11 @@
     const sysOpt = document.createElement("option");
     sysOpt.value = ""; sysOpt.textContent = "System default (your phone's voice)";
     sel.appendChild(sysOpt);
+    // Pre-recorded voice packs sit at the top — a fully human coach when the
+    // clips have been generated (see VOICE_PACKS.md), TTS until then.
+    VOICE_PACKS.forEach(p=>{
+      const o=document.createElement("option"); o.value="pack:"+p.id; o.textContent="★ "+p.label; sel.appendChild(o);
+    });
     voices = voices.slice().sort((a,b)=> scoreVoice(b)-scoreVoice(a) || a.name.localeCompare(b.name));
     voices.forEach(v=>{
       const o=document.createElement("option"); o.value=v.name;
@@ -1310,11 +1317,15 @@
       o.textContent=`${star}${v.name} (${v.lang})`; sel.appendChild(o);
     });
     let want;
-    if(cfg.voice === "") want = "";                           // explicit system default
+    if(isPackVal(cfg.voice) && VOICE_PACKS.some(p=>("pack:"+p.id)===cfg.voice)) want = cfg.voice; // recorded pack
+    else if(cfg.voice === "") want = "";                     // explicit system default
     else { const m = voices.find(v=>v.name===cfg.voice); want = m ? m.name : (voices[0] ? voices[0].name : ""); }
     sel.value = want; cfg.voice = want;                       // keep the user's pick, else best-ranked
+    applyVoicePack();
   }
-  if("speechSynthesis" in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+  // Register the handler now; the first populate happens once the voice-pack
+  // helpers below are initialised (see the deferred call after primeSpeech).
+  if("speechSynthesis" in window) speechSynthesis.onvoiceschanged = loadVoices;
   // Tone presets shape the same voice per call type — a firmer bell, a calmer
   // rest, an urgent final-ten — plus a touch of pitch jitter on combos so the
   // working rhythm reads like a person, not a flat readout.
@@ -1336,11 +1347,123 @@
     const v = speechSynthesis.getVoices().find(x=>x.name===cfg.voice); if(v) u.voice=v;
     return u;
   }
-  function say(text, tone){
-    if(!("speechSynthesis" in window)) return;
-    speechSynthesis.speak(mkUtter(text, tone));
+  function ttsSpeak(text, tone, onend){
+    if(!("speechSynthesis" in window) || !text){ if(onend) onend(); return; }
+    const u = mkUtter(text, tone);
+    if(onend) u.onend = onend;
+    speechSynthesis.speak(u);
   }
-  function primeSpeech(){ if(!("speechSynthesis" in window)) return; const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); }
+
+  /* ---------- recorded voice packs (pre-rendered, e.g. ElevenLabs) ----------
+     A "voice pack" is a folder of short clips — one per spoken atom (each
+     punch, movement, bell cue and motivation line) under voice/<id>/. When a
+     pack is picked the coach plays those clips in sequence instead of the
+     browser's robotic TTS. Any atom without a clip falls the WHOLE phrase back
+     to TTS, so a partial pack (e.g. cues + lines only) still works and stays
+     consistent within a phrase. Build a pack with gen_voice.py + your own
+     ElevenLabs key — see VOICE_PACKS.md. Nothing here ships audio; without a
+     generated pack the app behaves exactly as before. */
+  const VOICE_PACKS = [
+    { id:"fred", label:"Coach Fred — recorded (ElevenLabs)" }
+  ];
+  const isPackVal = v => typeof v==="string" && v.startsWith("pack:");
+  const packIdOf  = v => isPackVal(v) ? v.slice(5) : null;
+  // Canonical clip filename for a spoken atom. MUST match gen_voice.py's slug().
+  const slugify = s => String(s).toLowerCase().trim()
+        .replace(/&/g,"and").replace(/['".,!?:;]/g,"")
+        .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+
+  let voicePack = null;        // { id, slugs:Set } once a pack's manifest loads
+  let voicePackWant = null;    // pack id currently loading/loaded (re-entrancy guard)
+  let actx = null;             // shared AudioContext (lazy; unlocked on first tap)
+  const clipBuf = new Map();   // slug -> Promise<AudioBuffer>
+  let clipGen = 0;             // bumped to cancel an in-flight clip sequence
+
+  function ensureCtx(){
+    if(actx) return actx;
+    try{ const AC = window.AudioContext || window.webkitAudioContext; if(AC) actx = new AC(); }catch(e){}
+    return actx;
+  }
+  function unlockClips(){ const c=ensureCtx(); if(c && c.state==="suspended") c.resume().catch(()=>{}); }
+  function loadClip(slug){
+    if(clipBuf.has(slug)) return clipBuf.get(slug);
+    const c = ensureCtx(); if(!c || !voicePack) return Promise.reject();
+    const p = fetch(`voice/${voicePack.id}/${slug}.mp3`)
+      .then(r=>{ if(!r.ok) throw new Error("missing "+slug); return r.arrayBuffer(); })
+      .then(buf=> new Promise((res,rej)=> c.decodeAudioData(buf, res, rej)));
+    clipBuf.set(slug, p);
+    p.catch(()=>clipBuf.delete(slug));   // let a failed load retry next time
+    return p;
+  }
+  function stopClips(){ clipGen++; }     // a running sequence sees the bump and bows out
+  function applyVoicePack(){
+    const id = packIdOf(cfg.voice);
+    if(!id){ voicePackWant = null; voicePack = null; return; }
+    if(voicePackWant === id) return;      // already loading or loaded this pack
+    voicePackWant = id;
+    voicePack = { id, slugs:new Set() };  // truthy but empty -> falls back to TTS until manifest lands
+    fetch(`voice/${id}/manifest.json`).then(r=>{ if(!r.ok) throw 0; return r.json(); })
+      .then(m=>{
+        if(voicePackWant !== id) return;  // user switched away mid-fetch
+        voicePack = { id, slugs:new Set(m.slugs||[]) };
+        (m.slugs||[]).forEach(s=>{ try{ loadClip(s); }catch(e){} });   // warm the cache
+      })
+      .catch(()=>{ if(voicePackWant === id){ voicePack=null; voicePackWant=null;
+        console.warn(`Voice pack "${id}" not generated yet — run gen_voice.py with your ElevenLabs key. Using TTS for now.`); } });
+  }
+  // Play clip slugs back-to-back through one gain node, then onend(). On any
+  // runtime miss, fall the whole phrase back to TTS so the voice stays uniform.
+  function playClipSeq(slugs, tone, ttsText, onend){
+    const c = ensureCtx(); if(!c){ ttsSpeak(ttsText, tone, onend); return; }
+    if(c.state==="suspended") c.resume().catch(()=>{});
+    const gen = ++clipGen;
+    const t = TONES[tone] || TONES.combo;
+    const rate = Math.max(0.85, Math.min(1.3, (cfg.rate||1.25)/1.25 * (t.rate||1)));
+    Promise.all(slugs.map(loadClip)).then(bufs=>{
+      if(gen!==clipGen) return;          // superseded/cancelled while loading
+      const g = c.createGain(); g.gain.value = (t.vol!=null?t.vol:1); g.connect(c.destination);
+      let when = c.currentTime + 0.03, last = null;
+      bufs.forEach(b=>{
+        const s = c.createBufferSource(); s.buffer=b; s.playbackRate.value=rate; s.connect(g);
+        s.start(when); when += b.duration/rate + 0.06; last = s;   // a small human gap
+      });
+      if(last) last.onended = ()=>{ if(gen===clipGen && onend) onend(); };
+      else if(onend) onend();
+    }).catch(()=>{ if(gen===clipGen) ttsSpeak(ttsText, tone, onend); });
+  }
+  // Unified speak. ttsText is the natural string for TTS; atoms is the list of
+  // spoken units for clip mode (defaults to the whole string as one unit).
+  function speak(ttsText, atoms, tone, onend){
+    atoms = (atoms && atoms.length ? atoms : [ttsText]).map(String).filter(s=>s.trim());
+    if(voicePack){
+      const slugs = atoms.map(slugify);
+      if(slugs.length && slugs.every(s=>voicePack.slugs.has(s))){ playClipSeq(slugs, tone, ttsText, onend); return; }
+    }
+    ttsSpeak(ttsText, tone, onend);
+  }
+  // Bell cues are written as ". "-joined clauses; each clause is one clip atom.
+  const cueAtoms = text => text.split(". ").map(s=>s.replace(/\.\s*$/,"").trim()).filter(Boolean);
+  // A combo's spoken units, matching spokenFor() token-for-token so slugs line up.
+  function comboAtoms(tokens){
+    const out=[];
+    tokens.forEach(t=>{
+      if(!isDigit(t)){ out.push(orient(t)); return; }
+      const pure=/^[1-8]$/.test(t);
+      if(cfg.callStyle==="numbers")    out.push(pure ? t : SPEAK[t]);
+      else if(cfg.callStyle==="names") out.push(SPEAK[t]);
+      else if(pure){ out.push(t); out.push(SPEAK[t]); }   // hybrid "1 jab" -> two reusable clips
+      else out.push(SPEAK[t]);
+    });
+    return out;
+  }
+  function say(text, tone){
+    if(!("speechSynthesis" in window) && !voicePack) return;
+    speak(text, cueAtoms(text), tone);
+  }
+  function primeSpeech(){ unlockClips(); if(!("speechSynthesis" in window)) return; const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); }
+  // Deferred first populate: the pack helpers above are now initialised, so this
+  // is safe (calling loadVoices at its definition would hit the const/let TDZ).
+  if("speechSynthesis" in window) loadVoices(); else applyVoicePack();
 
   /* ---------- combo selection + delivery ---------- */
   const BODYP = { off:0, some:0.25, lots:0.45 };
@@ -1453,12 +1576,11 @@
     comboNames.textContent = combo.name ? `${combo.name.toUpperCase()}  \u2014  ${names}` : names;
     comboNumbers.classList.remove("hit"); void comboNumbers.offsetWidth; comboNumbers.classList.add("hit");
 
-    if(!("speechSynthesis" in window)){ scheduleNext(tokens.length); return; }
-    speechSynthesis.cancel(); clearDeliver();
+    if(!("speechSynthesis" in window) && !voicePack){ scheduleNext(tokens.length); return; }
+    cancelSpeech(); clearDeliver();
     delivering = true;
-    const u = mkUtter(spokenFor(tokens));
-    u.onend = ()=>{ delivering=false; scheduleNext(tokens.length); };
-    speechSynthesis.speak(u);
+    const done = ()=>{ delivering=false; scheduleNext(tokens.length); };
+    speak(spokenFor(tokens), comboAtoms(tokens), "combo", done);
   }
   function stanceFor(n){
     if(!cfg.stanceOn) return null;
@@ -1705,7 +1827,7 @@
     // clapper. On long rounds with an arc it digs in and the pace spikes too.
     if(phase==="work" && !tenSecFired && currentSegSecs>13 && secs<=12){
       tenSecFired = true;
-      if("speechSynthesis" in window) speechSynthesis.cancel();
+      cancelSpeech();
       delivering=false; clearDeliver();
       const push = cfg.fatigueOn !== false && currentSegSecs>=45;
       say("Ten seconds. " + pick(push ? TANK_LINES : TEN_LINES), "urgent");
@@ -1717,11 +1839,11 @@
     if(remaining<=0){ if(phase==="work") onRoundComplete(); advance(); }
   }
   function run(){ running=true; startBtn.textContent="Pause"; acquireWake(); if(tickId) clearInterval(tickId); tickId=setInterval(tick,200); }
-  function pause(){ running=false; startBtn.textContent="Resume"; pausedRemaining=Math.max(0,endAt-Date.now()); clearInterval(tickId); tickId=null; if("speechSynthesis" in window) speechSynthesis.cancel(); clearDeliver(); delivering=false; releaseWake(); }
+  function pause(){ running=false; startBtn.textContent="Resume"; pausedRemaining=Math.max(0,endAt-Date.now()); clearInterval(tickId); tickId=null; cancelSpeech(); clearDeliver(); delivering=false; releaseWake(); }
   function resume(){ endAt=Date.now()+pausedRemaining; if(phase==="work") nextComboAt=Date.now()+700; run(); }
   function skip(){
     if(phase!=="work" && phase!=="rest" && phase!=="prep") return;
-    if("speechSynthesis" in window) speechSynthesis.cancel();
+    cancelSpeech();
     clearDeliver(); delivering=false;
     advance();
     if(!running && phase!=="done"){
@@ -1757,7 +1879,7 @@
 
   function reset(){
     running=false; clearInterval(tickId); tickId=null;
-    if("speechSynthesis" in window) speechSynthesis.cancel();
+    cancelSpeech();
     clearDeliver(); delivering=false;
     releaseWake();
     buildSchedule();
@@ -1801,7 +1923,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v17";
+  const APP_VERSION = "v18";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   console.log("Coach Fred " + APP_VERSION);
   // Instant voice test — verify audio works without running a whole session.
@@ -1829,7 +1951,7 @@
     if(!currentStance) return;
     currentStance = currentStance==="Orthodox" ? "Southpaw" : "Orthodox";
     updateStanceBadge(currentStance);
-    if("speechSynthesis" in window) speechSynthesis.cancel();
+    cancelSpeech();
     ensureAudio(); say(currentStance);
   });
 
@@ -2221,7 +2343,7 @@
   $("segBody").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.bodyMix=b.dataset.v; save(); });
   $("segCall").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.callStyle=b.dataset.v; save(); });
   $("sRate").addEventListener("input", e=>{ cfg.rate=+e.target.value; $("vRate").innerHTML = cfg.rate.toFixed(2)+"&times;"; save(); });
-  $("sVoice").addEventListener("change", e=>{ cfg.voice=e.target.value; save(); ensureAudio(); say("Hands up"); });
+  $("sVoice").addEventListener("change", e=>{ cfg.voice=e.target.value; save(); applyVoicePack(); ensureAudio(); primeSpeech(); say("Hands up"); });
 
   /* ---------- init UI from cfg ---------- */
   function initUI(){

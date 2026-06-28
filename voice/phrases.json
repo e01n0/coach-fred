@@ -1,0 +1,517 @@
+[
+  {
+    "slug": "1",
+    "text": "One",
+    "style": "combo"
+  },
+  {
+    "slug": "2",
+    "text": "Two",
+    "style": "combo"
+  },
+  {
+    "slug": "3",
+    "text": "Three",
+    "style": "combo"
+  },
+  {
+    "slug": "4",
+    "text": "Four",
+    "style": "combo"
+  },
+  {
+    "slug": "5",
+    "text": "Five",
+    "style": "combo"
+  },
+  {
+    "slug": "6",
+    "text": "Six",
+    "style": "combo"
+  },
+  {
+    "slug": "7",
+    "text": "Seven",
+    "style": "combo"
+  },
+  {
+    "slug": "8",
+    "text": "Eight",
+    "style": "combo"
+  },
+  {
+    "slug": "jab",
+    "text": "jab",
+    "style": "combo"
+  },
+  {
+    "slug": "cross",
+    "text": "cross",
+    "style": "combo"
+  },
+  {
+    "slug": "hook",
+    "text": "hook",
+    "style": "combo"
+  },
+  {
+    "slug": "rear-hook",
+    "text": "rear hook",
+    "style": "combo"
+  },
+  {
+    "slug": "uppercut",
+    "text": "uppercut",
+    "style": "combo"
+  },
+  {
+    "slug": "rear-uppercut",
+    "text": "rear uppercut",
+    "style": "combo"
+  },
+  {
+    "slug": "body-jab",
+    "text": "body jab",
+    "style": "combo"
+  },
+  {
+    "slug": "body-cross",
+    "text": "body cross",
+    "style": "combo"
+  },
+  {
+    "slug": "body-hook",
+    "text": "body hook",
+    "style": "combo"
+  },
+  {
+    "slug": "rear-body-hook",
+    "text": "rear body hook",
+    "style": "combo"
+  },
+  {
+    "slug": "slip-left",
+    "text": "Slip left",
+    "style": "combo"
+  },
+  {
+    "slug": "slip-right",
+    "text": "Slip right",
+    "style": "combo"
+  },
+  {
+    "slug": "roll-left",
+    "text": "Roll left",
+    "style": "combo"
+  },
+  {
+    "slug": "roll-right",
+    "text": "Roll right",
+    "style": "combo"
+  },
+  {
+    "slug": "step-in",
+    "text": "Step in",
+    "style": "combo"
+  },
+  {
+    "slug": "step-out",
+    "text": "Step out",
+    "style": "combo"
+  },
+  {
+    "slug": "step-back",
+    "text": "Step back",
+    "style": "combo"
+  },
+  {
+    "slug": "step-left",
+    "text": "Step left",
+    "style": "combo"
+  },
+  {
+    "slug": "step-right",
+    "text": "Step right",
+    "style": "combo"
+  },
+  {
+    "slug": "pivot-left",
+    "text": "Pivot left",
+    "style": "combo"
+  },
+  {
+    "slug": "pivot-right",
+    "text": "Pivot right",
+    "style": "combo"
+  },
+  {
+    "slug": "pull-back",
+    "text": "Pull back",
+    "style": "combo"
+  },
+  {
+    "slug": "lean-back",
+    "text": "Lean back",
+    "style": "combo"
+  },
+  {
+    "slug": "duck",
+    "text": "Duck",
+    "style": "combo"
+  },
+  {
+    "slug": "weave",
+    "text": "Weave",
+    "style": "combo"
+  },
+  {
+    "slug": "parry",
+    "text": "Parry",
+    "style": "combo"
+  },
+  {
+    "slug": "shield",
+    "text": "Shield",
+    "style": "combo"
+  },
+  {
+    "slug": "block",
+    "text": "Block",
+    "style": "combo"
+  },
+  {
+    "slug": "long-guard",
+    "text": "Long guard",
+    "style": "combo"
+  },
+  {
+    "slug": "catch",
+    "text": "Catch",
+    "style": "combo"
+  },
+  {
+    "slug": "high-guard",
+    "text": "High guard",
+    "style": "combo"
+  },
+  {
+    "slug": "feint-jab",
+    "text": "Feint jab",
+    "style": "combo"
+  },
+  {
+    "slug": "feint-cross",
+    "text": "Feint cross",
+    "style": "combo"
+  },
+  {
+    "slug": "feint-hook",
+    "text": "Feint hook",
+    "style": "combo"
+  },
+  {
+    "slug": "feint-level-change",
+    "text": "Feint level change",
+    "style": "combo"
+  },
+  {
+    "slug": "feint",
+    "text": "Feint",
+    "style": "combo"
+  },
+  {
+    "slug": "circle-left",
+    "text": "circle left",
+    "style": "combo"
+  },
+  {
+    "slug": "circle-right",
+    "text": "circle right",
+    "style": "combo"
+  },
+  {
+    "slug": "shuffle-left",
+    "text": "shuffle left",
+    "style": "combo"
+  },
+  {
+    "slug": "shuffle-right",
+    "text": "shuffle right",
+    "style": "combo"
+  },
+  {
+    "slug": "pendulum-step",
+    "text": "pendulum step",
+    "style": "combo"
+  },
+  {
+    "slug": "l-step",
+    "text": "L step",
+    "style": "combo"
+  },
+  {
+    "slug": "cut-the-angle",
+    "text": "cut the angle",
+    "style": "combo"
+  },
+  {
+    "slug": "step-drag",
+    "text": "step drag",
+    "style": "combo"
+  },
+  {
+    "slug": "round-start",
+    "text": "Round start",
+    "style": "cue"
+  },
+  {
+    "slug": "rest",
+    "text": "Rest",
+    "style": "cue"
+  },
+  {
+    "slug": "ten-seconds",
+    "text": "Ten seconds",
+    "style": "cue"
+  },
+  {
+    "slug": "session-complete",
+    "text": "Session complete",
+    "style": "cue"
+  },
+  {
+    "slug": "good-work",
+    "text": "Good work",
+    "style": "cue"
+  },
+  {
+    "slug": "orthodox",
+    "text": "Orthodox",
+    "style": "cue"
+  },
+  {
+    "slug": "southpaw",
+    "text": "Southpaw",
+    "style": "cue"
+  },
+  {
+    "slug": "hands-up",
+    "text": "Hands up",
+    "style": "cue"
+  },
+  {
+    "slug": "pyramid-ladder",
+    "text": "Pyramid ladder",
+    "style": "cue"
+  },
+  {
+    "slug": "burnout-punch-out",
+    "text": "Burnout punch-out",
+    "style": "cue"
+  },
+  {
+    "slug": "footwork-drills",
+    "text": "Footwork drills",
+    "style": "cue"
+  },
+  {
+    "slug": "emom",
+    "text": "EMOM",
+    "style": "cue"
+  },
+  {
+    "slug": "drill",
+    "text": "Drill",
+    "style": "cue"
+  },
+  {
+    "slug": "jab-focus",
+    "text": "Jab focus",
+    "style": "cue"
+  },
+  {
+    "slug": "cross-focus",
+    "text": "Cross focus",
+    "style": "cue"
+  },
+  {
+    "slug": "lead-hook-focus",
+    "text": "Lead hook focus",
+    "style": "cue"
+  },
+  {
+    "slug": "rear-hook-focus",
+    "text": "Rear hook focus",
+    "style": "cue"
+  },
+  {
+    "slug": "lead-uppercut-focus",
+    "text": "Lead uppercut focus",
+    "style": "cue"
+  },
+  {
+    "slug": "rear-uppercut-focus",
+    "text": "Rear uppercut focus",
+    "style": "cue"
+  },
+  {
+    "slug": "body-shots-focus",
+    "text": "Body shots focus",
+    "style": "cue"
+  },
+  {
+    "slug": "slips-focus",
+    "text": "Slips focus",
+    "style": "cue"
+  },
+  {
+    "slug": "rolls-focus",
+    "text": "Rolls focus",
+    "style": "cue"
+  },
+  {
+    "slug": "steps-focus",
+    "text": "Steps focus",
+    "style": "cue"
+  },
+  {
+    "slug": "pivots-focus",
+    "text": "Pivots focus",
+    "style": "cue"
+  },
+  {
+    "slug": "guard-focus",
+    "text": "Guard focus",
+    "style": "cue"
+  },
+  {
+    "slug": "feints-focus",
+    "text": "Feints focus",
+    "style": "cue"
+  },
+  {
+    "slug": "finish-strong",
+    "text": "finish strong",
+    "style": "line"
+  },
+  {
+    "slug": "stay-sharp",
+    "text": "stay sharp",
+    "style": "line"
+  },
+  {
+    "slug": "hands-up-keep-working",
+    "text": "hands up, keep working",
+    "style": "line"
+  },
+  {
+    "slug": "all-the-way-through",
+    "text": "all the way through",
+    "style": "line"
+  },
+  {
+    "slug": "make-them-count",
+    "text": "make them count",
+    "style": "line"
+  },
+  {
+    "slug": "stay-tight",
+    "text": "stay tight",
+    "style": "line"
+  },
+  {
+    "slug": "keep-the-pace",
+    "text": "keep the pace",
+    "style": "line"
+  },
+  {
+    "slug": "right-to-the-buzzer",
+    "text": "right to the buzzer",
+    "style": "line"
+  },
+  {
+    "slug": "sharp-and-clean",
+    "text": "sharp and clean",
+    "style": "line"
+  },
+  {
+    "slug": "dont-drop-off",
+    "text": "don't drop off",
+    "style": "line"
+  },
+  {
+    "slug": "stay-busy",
+    "text": "stay busy",
+    "style": "line"
+  },
+  {
+    "slug": "strong-finish",
+    "text": "strong finish",
+    "style": "line"
+  },
+  {
+    "slug": "empty-the-tank",
+    "text": "empty the tank",
+    "style": "line"
+  },
+  {
+    "slug": "dig-deep",
+    "text": "dig deep",
+    "style": "line"
+  },
+  {
+    "slug": "leave-nothing-in-there",
+    "text": "leave nothing in there",
+    "style": "line"
+  },
+  {
+    "slug": "last-push-all-out",
+    "text": "last push, all out",
+    "style": "line"
+  },
+  {
+    "slug": "find-another-gear",
+    "text": "find another gear",
+    "style": "line"
+  },
+  {
+    "slug": "everything-youve-got",
+    "text": "everything you've got",
+    "style": "line"
+  },
+  {
+    "slug": "this-is-where-it-counts",
+    "text": "this is where it counts",
+    "style": "line"
+  },
+  {
+    "slug": "push-through-it",
+    "text": "push through it",
+    "style": "line"
+  },
+  {
+    "slug": "no-letting-up",
+    "text": "no letting up",
+    "style": "line"
+  },
+  {
+    "slug": "bury-it-here",
+    "text": "bury it here",
+    "style": "line"
+  },
+  {
+    "slug": "hardest-ten-of-the-round",
+    "text": "hardest ten of the round",
+    "style": "line"
+  },
+  {
+    "slug": "give-me-everything",
+    "text": "give me everything",
+    "style": "line"
+  },
+  {
+    "slug": "coach-fred-ready-to-work",
+    "text": "Coach Fred, ready to work.",
+    "style": "test"
+  }
+]
