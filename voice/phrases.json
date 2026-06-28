@@ -41,52 +41,52 @@
   },
   {
     "slug": "jab",
-    "text": "jab",
+    "text": "Jab",
     "style": "combo"
   },
   {
     "slug": "cross",
-    "text": "cross",
+    "text": "Cross",
     "style": "combo"
   },
   {
     "slug": "hook",
-    "text": "hook",
+    "text": "Hook",
     "style": "combo"
   },
   {
     "slug": "rear-hook",
-    "text": "rear hook",
+    "text": "Rear hook",
     "style": "combo"
   },
   {
     "slug": "uppercut",
-    "text": "uppercut",
+    "text": "Uppercut",
     "style": "combo"
   },
   {
     "slug": "rear-uppercut",
-    "text": "rear uppercut",
+    "text": "Rear uppercut",
     "style": "combo"
   },
   {
     "slug": "body-jab",
-    "text": "body jab",
+    "text": "Body jab",
     "style": "combo"
   },
   {
     "slug": "body-cross",
-    "text": "body cross",
+    "text": "Body cross",
     "style": "combo"
   },
   {
     "slug": "body-hook",
-    "text": "body hook",
+    "text": "Body hook",
     "style": "combo"
   },
   {
     "slug": "rear-body-hook",
-    "text": "rear body hook",
+    "text": "Rear body hook",
     "style": "combo"
   },
   {
@@ -221,27 +221,27 @@
   },
   {
     "slug": "circle-left",
-    "text": "circle left",
+    "text": "Circle left",
     "style": "combo"
   },
   {
     "slug": "circle-right",
-    "text": "circle right",
+    "text": "Circle right",
     "style": "combo"
   },
   {
     "slug": "shuffle-left",
-    "text": "shuffle left",
+    "text": "Shuffle left",
     "style": "combo"
   },
   {
     "slug": "shuffle-right",
-    "text": "shuffle right",
+    "text": "Shuffle right",
     "style": "combo"
   },
   {
     "slug": "pendulum-step",
-    "text": "pendulum step",
+    "text": "Pendulum step",
     "style": "combo"
   },
   {
@@ -251,12 +251,12 @@
   },
   {
     "slug": "cut-the-angle",
-    "text": "cut the angle",
+    "text": "Cut the angle",
     "style": "combo"
   },
   {
     "slug": "step-drag",
-    "text": "step drag",
+    "text": "Step drag",
     "style": "combo"
   },
   {

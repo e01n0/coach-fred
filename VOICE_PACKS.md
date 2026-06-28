@@ -20,6 +20,24 @@ lines play as whole, natural phrases. The spoken vocabulary is fixed and fully
 recorded, so there's no gap to cover — a clip that genuinely fails to load is
 simply skipped and the round's timing carries on.
 
+Each clip is rendered in isolation, so two atoms can come back at slightly
+different volumes; strung together that makes a stray word pop ("one, *two*,
+one"). The app levels every clip to a common loudness on playback (RMS with a
+peak ceiling so nothing clips), so concatenated atoms sit evenly — no re-render
+needed for that part.
+
+## Consistent intonation across atoms
+
+Because combo atoms are spoken alone and then concatenated, the biggest lever on
+how natural a counted combo sounds is **stability**: low stability gives each
+single word its own dramatic, erratic read (a punchy "two", a drifted "jab"),
+which clashes when the words are played back to back. `gen_voice.py` therefore
+sets delivery **per style** (`STYLE_SETTINGS`): combos render at high stability
+for an even, consistent read; motivation lines render lower with a touch of
+style for expression. Passing `--stability/--similarity/--style` overrides this
+for every clip. The clip texts are also uniformly sentence-cased so the model
+reads each as a clean word rather than a casual lowercase token.
+
 ## Regenerate the voice
 
 1. Get an [ElevenLabs](https://elevenlabs.io) API key and pick a voice — choose
@@ -34,8 +52,11 @@ simply skipped and the round's timing carries on.
    python3 gen_voice.py --voice-id <VOICE_ID> --pack fred --force
    ```
 
-   Tune delivery with `--stability`, `--similarity`, `--style`. (Drop `--force`
-   to only fill in missing clips.)
+   Delivery is tuned per style by default (see *Consistent intonation* above);
+   `--stability`, `--similarity`, `--style` override it for all clips. (Drop
+   `--force` to only fill in missing clips.) Pronunciation of any single word
+   (e.g. a stubborn "jab") is controlled by its `text` in `voice/phrases.json` —
+   respell it there and re-render that clip.
 
 3. In the app, hit **Test voice** (Setup → Settings) to hear it.
 

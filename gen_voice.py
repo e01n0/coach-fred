@@ -27,6 +27,20 @@ import argparse, json, os, sys, time, urllib.request, urllib.error
 API = "https://api.elevenlabs.io/v1/text-to-speech/{vid}?output_format=mp3_44100_128"
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
+# Per-style delivery. Combo atoms (numbers, punches, movements) are short, isolated
+# clips that get concatenated at runtime, so they must be *consistent with each
+# other*: high stability keeps every atom even in pitch and energy, so a stray
+# "two" doesn't pop and a lone "jab" doesn't drift in vowel — the two things that
+# make a counted combo sound jarring. Motivation lines want the opposite: lower
+# stability with a touch of style for an expressive corner-man read. CLI flags
+# (--stability/--similarity/--style), if passed, override these for every style.
+STYLE_SETTINGS = {
+    "combo": {"stability": 0.70, "similarity": 0.85, "style": 0.0},
+    "cue":   {"stability": 0.55, "similarity": 0.80, "style": 0.10},
+    "line":  {"stability": 0.40, "similarity": 0.80, "style": 0.25},
+    "test":  {"stability": 0.50, "similarity": 0.80, "style": 0.10},
+}
+
 
 def render(text, voice_id, model, key, stability, similarity, style_exag):
     body = json.dumps({
@@ -54,9 +68,12 @@ def main():
     ap.add_argument("--styles", default="combo,cue,line,test",
                     help="comma list to render: combo,cue,line,test")
     ap.add_argument("--model", default="eleven_multilingual_v2", help="ElevenLabs model id")
-    ap.add_argument("--stability", type=float, default=0.45)
-    ap.add_argument("--similarity", type=float, default=0.8)
-    ap.add_argument("--style", type=float, default=0.0, help="style exaggeration 0..1")
+    ap.add_argument("--stability", type=float, default=None,
+                    help="override per-style stability for all clips (default: per-style, see STYLE_SETTINGS)")
+    ap.add_argument("--similarity", type=float, default=None,
+                    help="override per-style similarity_boost for all clips")
+    ap.add_argument("--style", type=float, default=None,
+                    help="override per-style exaggeration 0..1 for all clips")
     ap.add_argument("--force", action="store_true", help="re-render clips that already exist")
     ap.add_argument("--sleep", type=float, default=0.3, help="pause between calls (seconds)")
     args = ap.parse_args()
@@ -80,10 +97,14 @@ def main():
         if os.path.exists(dest) and not args.force:
             skipped += 1
             continue
+        st = STYLE_SETTINGS.get(p["style"], STYLE_SETTINGS["cue"])
+        stability  = args.stability  if args.stability  is not None else st["stability"]
+        similarity = args.similarity if args.similarity is not None else st["similarity"]
+        style_x    = args.style      if args.style      is not None else st["style"]
         for attempt in range(4):
             try:
                 audio = render(p["text"], args.voice_id, args.model, key,
-                               args.stability, args.similarity, args.style)
+                               stability, similarity, style_x)
                 with open(dest, "wb") as out:
                     out.write(audio)
                 made += 1

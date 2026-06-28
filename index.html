@@ -1306,6 +1306,28 @@
     return p;
   }
   function stopClips(){ clipGen++; }     // a running sequence sees the bump and bows out
+  // Even out per-clip loudness. Each ElevenLabs clip is rendered in isolation, so
+  // a lone "two" can land louder than the "one"s around it — strung together that
+  // makes a word pop and sound jarring ("one, TWO, one"). Measure each decoded
+  // clip once (RMS, with a peak ceiling so we never clip) and cache its gain.
+  const normCache = new WeakMap();
+  const NORM_RMS = 0.075;                 // target speech level (~ -22 dBFS)
+  function normGain(buf){
+    let g = normCache.get(buf);
+    if(g!=null) return g;
+    let sumSq=0, peak=1e-6, n=0;
+    for(let ch=0; ch<buf.numberOfChannels; ch++){
+      const d = buf.getChannelData(ch);
+      for(let i=0;i<d.length;i++){ const v=d[i]; sumSq+=v*v; const a=v<0?-v:v; if(a>peak)peak=a; }
+      n += d.length;
+    }
+    const rms = Math.sqrt(sumSq/Math.max(1,n));
+    g = rms>1e-4 ? NORM_RMS/rms : 1;
+    g = Math.max(0.6, Math.min(2.2, g));  // don't pump quiet/loud outliers too hard
+    g = Math.min(g, 0.98/peak);           // never drive a clip into clipping
+    normCache.set(buf, g);
+    return g;
+  }
   function applyVoicePack(){
     const id = packIdOf(cfg.voice);
     if(!id){ voicePackWant = null; voicePack = null; return; }
@@ -1333,7 +1355,9 @@
       const g = c.createGain(); g.gain.value = (t.vol!=null?t.vol:1); g.connect(c.destination);
       let when = c.currentTime + 0.03, last = null;
       bufs.forEach(b=>{
-        const s = c.createBufferSource(); s.buffer=b; s.playbackRate.value=rate; s.connect(g);
+        const s = c.createBufferSource(); s.buffer=b; s.playbackRate.value=rate;
+        const cg = c.createGain(); cg.gain.value = normGain(b);   // level this atom to its neighbours
+        s.connect(cg); cg.connect(g);
         s.start(when); when += b.duration/rate + 0.06; last = s;   // a small human gap
       });
       if(last) last.onended = ()=>{ if(gen===clipGen && onend) onend(); };
