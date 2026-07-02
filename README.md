@@ -59,6 +59,21 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
 
 In **Round by round** mode each round can use a different type.
 
+## Drill a combo
+**Setup → Workout → Drill a combo** grooves one combination for the whole
+session — the timer sets rounds and rest, the drill sets what gets called:
+
+- **Build up** — starts with the combo's first two pieces and adds one each
+  round, layers a slip/roll and counter onto the finished combo near the end,
+  then mixes it into normal calling for the last round: can you still fire it
+  when it's not the only thing coming?
+- **Speed** — the full combo on a beat that tightens every round, down to 3s.
+- **Repeat** — the classic steady-beat drill, one rep per call.
+
+**Repeat** and **Speed** can alternate two combos (A/B) so you switch gears
+between reps. In **Round by round** mode, a round with the **Drill** type has
+its own combo picker.
+
 ## Shot focus (custom rounds)
 **Setup → Workout → Round by round → Shot focus** leans the corner onto one shot
 or one family of movement for that round — "rear uppercut round 1, rolls round

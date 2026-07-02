@@ -478,6 +478,37 @@
         <div class="workouts" id="workoutGrid"></div>
       </div>
 
+      <details class="acc" id="drillAcc">
+        <summary><span class="acc-t">Drill a combo</span><span class="cnt" id="drillState"></span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;">Groove one combination for the whole session &mdash; the timer up top sets rounds and rest. <b>Build up</b> starts with the first two pieces and adds one each round, layers defence near the end, then mixes the finished combo into normal calling. <b>Speed</b> repeats it on a beat that tightens every round. <b>Repeat</b> holds a steady beat all the way.</div>
+          <div class="field">
+            <div class="seg" id="segDrill">
+              <button data-v="off" class="on">Off</button>
+              <button data-v="ladder">Build up</button>
+              <button data-v="speed">Speed</button>
+              <button data-v="drill">Repeat</button>
+            </div>
+          </div>
+          <div id="drillOpts" style="display:none;">
+            <div class="field">
+              <div class="field-label"><span>Combo</span></div>
+              <select id="sDrillCombo"></select>
+            </div>
+            <div class="field" id="drillBField">
+              <div class="field-label"><span>Alternate with</span></div>
+              <select id="sDrillComboB"></select>
+              <div class="note">Optional second combo &mdash; the corner alternates the two so you switch gears between reps.</div>
+            </div>
+            <div class="field">
+              <div class="field-label"><span>Call every</span></div>
+              <div class="stepper" style="max-width:180px;" data-t="drill"><button data-st="drill" data-d="-1">&minus;</button><div class="sv" id="vDrill">8s</div><button data-st="drill" data-d="1">+</button></div>
+              <div class="note" id="drillBeatNote"></div>
+            </div>
+          </div>
+        </div>
+      </details>
+
       <div class="field">
         <div class="field-label"><span>Level</span></div>
         <select id="sLevel">
@@ -494,17 +525,10 @@
           <div class="field-label"><span>Combo pool</span></div>
           <select id="uniformFocus"></select>
         </div>
-        <div class="field">
+        <div class="field" id="formatField">
           <div class="field-label"><span>Round type</span></div>
           <select id="sFormat"></select>
           <div class="note" id="formatNote"></div>
-        </div>
-        <div class="field" id="drillField" style="display:none;">
-          <div class="field-label"><span>Combo to drill</span></div>
-          <select id="sDrillCombo"></select>
-          <div class="field-label" style="margin-top:12px;"><span>Call every</span></div>
-          <div class="stepper" style="max-width:180px;" data-t="drill"><button data-st="drill" data-d="-1">&minus;</button><div class="sv" id="vDrill">8s</div><button data-st="drill" data-d="1">+</button></div>
-          <div class="note">Picks one combo and calls it on a steady beat for the whole round. If a call runs long, the next one waits until it finishes.</div>
         </div>
       </div>
 
@@ -887,7 +911,12 @@
     ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the top, rest the rest."],
     ["drill","Drill (one combo on repeat)","Locks onto a single combo and calls it on a fixed beat — for grooving one combination."]
   ];
-  const FORMAT_LABEL = Object.fromEntries(FORMATS.map(f=>[f[0],f[1]]));
+  // Drill modes live under "Drill a combo", not the Round type select; ladder
+  // and speed are session-arc modes (they progress across rounds), so they are
+  // uniform-only. FORMAT_LABEL still needs them for bell calls + the log.
+  const FORMAT_LABEL = Object.assign(Object.fromEntries(FORMATS.map(f=>[f[0],f[1]])),
+    {ladder:"Build the combo", speed:"Speed ladder"});
+  const DRILLISH = {drill:1, ladder:1, speed:1};
 
   /* ---------- preset workouts (real, web-validated structures) ----------
      Pro boxing is 3-min rounds / 1-min rest; amateur & Olympic men's bouts run
@@ -1242,7 +1271,7 @@
     pace:"relaxed", moveMix:"light", level:"beginner", bodyMix:"some", voice:"pack:fred",
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
     format:"combos", fatigueOn:true, warmupOn:false, bellOn:false,
-    drillComboId:null, drillInterval:8,
+    drillComboId:null, drillComboB:null, drillInterval:8,
     theme:"fred",
     library:null, custom:[], movement:null
   };
@@ -1322,6 +1351,7 @@
   let delivering = false, deliverTimers = [], deliverSeq = 0;
   let currentFormat = "combos", currentSegSecs = 0, tenSecFired = false, pyrIdx = 0, emomDone = false, drillCallAt = 0;
   let restLeadFired = false, cdNext = 0;   // rest lead-in + 3-2-1 count back in
+  let currentDrillId = null, currentLadder = null, currentSpeedMs = 8000, drillAlt = false;
   let currentMoveFocus = "none";
   let lastTokens = null;
 
@@ -1607,12 +1637,13 @@
   const BREATHER = { relentless:[1.0,2.0], steady:[1.8,3.0], relaxed:[3.0,4.5] };
   function scheduleNext(n){
     if(currentFormat==="warmup"){ nextComboAt = Date.now() + ((n||1)*PERSHOT + rnd(3.5,5))*1000; return; }
-    if(currentFormat==="drill"){
+    if(currentFormat==="drill"||currentFormat==="ladder"){
       // Fixed beat measured from the start of the call. If speech overran the
       // interval, this lands in the past and the next call fires immediately.
       nextComboAt = drillCallAt + (cfg.drillInterval||8)*1000;
       return;
     }
+    if(currentFormat==="speed"){ nextComboAt = drillCallAt + currentSpeedMs; return; }
     if(currentFormat==="burnout"){ nextComboAt = Date.now() + (n||1)*PERSHOT*0.55*1000; return; }
     let br = rnd(...(BREATHER[cfg.pace] || BREATHER.steady));
     // Fatigue shaping: a real corner eases the pace through the back half of a
@@ -1785,10 +1816,35 @@
     return {tokens: pick(FOCUS_SETUPS[f.id]).slice(), name:""};
   }
   function drillCombo(){
-    const c = allCombos().find(x=>x.id===cfg.drillComboId);
+    // A/B: when a second combo is set (repeat/speed), alternate the two.
+    const ids = [currentDrillId||cfg.drillComboId, cfg.drillComboB].filter(Boolean);
+    let id = ids[0];
+    if(ids.length>1 && currentFormat!=="ladder"){ drillAlt = !drillAlt; id = drillAlt ? ids[1] : ids[0]; }
+    const c = allCombos().find(x=>x.id===id);
     if(c) return {tokens:c.tokens.slice(), name:c.name||""};
     // no pick saved (or it was deleted): fall back to a random eligible combo
     return selectCombo();
+  }
+  function drillBaseCombo(){
+    const c = allCombos().find(x=>x.id===(currentDrillId||cfg.drillComboId));
+    return c ? {tokens:c.tokens.slice(), name:c.name||""} : null;
+  }
+  /* Build-the-combo ladder: round r of R walks the combo's construction —
+     first two pieces, +1 piece per rung, full combo, full + a defence/counter
+     layer, then a final "mix" rung where it has to fire among normal calls. */
+  function ladderForRound(base, r, R){
+    const N = base.tokens.length;
+    const S = Math.max(2, (N-1) + 2);              // prefix rungs + layer + mix
+    const p = R<=1 ? 1 : (r-1)/(R-1);
+    const stage = Math.min(S-1, Math.floor(p*S));
+    if(stage < N-1) return {tokens: base.tokens.slice(0, stage+2), mix:false};
+    if(stage < S-1){                                // layer rung: full + defence + counter
+      const t = base.tokens.slice();
+      const mv = enabledMoves().filter(m=>/slip|roll/i.test(m.name));
+      if(mv.length){ const m = pick(mv); t.push(m.name.toLowerCase(), ...counterFor(m.name)); }
+      return {tokens:t, mix:false};
+    }
+    return {tokens: base.tokens.slice(), mix:true}; // final rung: mixed into normal calling
   }
   // Warm-up: easy footwork and light single shots, nothing that needs power.
   function warmupCall(){
@@ -1797,7 +1853,13 @@
   }
   function callCombo(){
     if(currentFormat==="warmup"){ deliver(warmupCall()); return; }
-    if(currentFormat==="drill"){ drillCallAt = Date.now(); deliver(drillCombo()); return; }
+    if(currentFormat==="drill"||currentFormat==="speed"){ drillCallAt = Date.now(); deliver(drillCombo()); return; }
+    if(currentFormat==="ladder"){
+      drillCallAt = Date.now();
+      if(currentLadder && currentLadder.mix && Math.random()<0.5){ deliver(selectCombo()); return; }
+      deliver(currentLadder ? {tokens: currentLadder.tokens.slice(), name:""} : drillCombo());
+      return;
+    }
     if(currentFormat==="pyramid"){ deliver({tokens: PYRAMID[pyrIdx++ % PYRAMID.length].slice(), name:""}); return; }
     if(currentFormat==="burnout"){ deliver({tokens:["1","2"], name:""}); return; }
     if(currentFormat==="footwork"){ deliver(footworkCall()); return; }
@@ -1842,7 +1904,7 @@
     } else {
       const p = cfg.program;
       p.forEach((r,i)=>{
-        seg.push({type:"work", secs:r.work, label:r.label||`Round ${i+1}`, focus:r.focus, format:r.format||"combos", moveFocus:r.moveFocus||"none"});
+        seg.push({type:"work", secs:r.work, label:r.label||`Round ${i+1}`, focus:r.focus, format:r.format||"combos", moveFocus:r.moveFocus||"none", drillComboId:r.drillComboId||null});
         if(r.rest>0 && i<p.length-1) seg.push({type:"rest", secs:r.rest});
       });
     }
@@ -1870,6 +1932,17 @@
       currentFormat = seg.format || "combos"; pyrIdx = 0; emomDone = false;
       currentMoveFocus = seg.moveFocus || "none";
       lastTokens = null;
+      currentDrillId = seg.drillComboId || null;
+      if(currentFormat==="ladder"){
+        const base = drillBaseCombo();
+        currentLadder = base ? ladderForRound(base, workCount, totalWork) : null;
+        if(!currentLadder) currentFormat = "combos";
+      }
+      if(currentFormat==="speed"){
+        const start = cfg.drillInterval||8;
+        const p = totalWork<=1 ? 1 : (workCount-1)/(totalWork-1);
+        currentSpeedMs = Math.max(3000, Math.round((start + (3-start)*p)*1000));
+      }
       stateLabel.textContent = seg.label;
       idleHint.style.display="none";
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
@@ -2053,7 +2126,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v22";
+  const APP_VERSION = "v23";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2286,24 +2359,50 @@
     const seq = c.tokens.map(t=> isDigit(t) ? t : (t.split(" ")[0])).join(" ");
     return c.name ? `${c.name} — ${seq}` : seq;
   }
+  function comboOptionsHTML(val, allowNone){
+    let html = allowNone ? `<option value="">&mdash; none &mdash;</option>` : "";
+    GROUPS.forEach(g=>{
+      const items = allCombos().filter(c=>c.group===g.id);
+      if(!items.length) return;
+      html += `<optgroup label="${g.name}">` +
+        items.map(c=>`<option value="${c.id}" ${c.id===val?"selected":""}>${esc(comboPickLabel(c))}</option>`).join("") +
+        `</optgroup>`;
+    });
+    return html;
+  }
   function renderDrillPicker(){
-    const sel = $("sDrillCombo");
     const list = allCombos();
-    sel.innerHTML = list.map(c=>`<option value="${c.id}">${esc(comboPickLabel(c))}</option>`).join("");
-    // keep the saved pick if it still exists, else default to the first combo
+    // keep the saved picks if they still exist, else default / clear
     if(!list.some(c=>c.id===cfg.drillComboId)) cfg.drillComboId = list.length ? list[0].id : null;
-    if(cfg.drillComboId) sel.value = cfg.drillComboId;
+    if(cfg.drillComboB && !list.some(c=>c.id===cfg.drillComboB)) cfg.drillComboB = null;
+    $("sDrillCombo").innerHTML = comboOptionsHTML(cfg.drillComboId, false);
+    $("sDrillComboB").innerHTML = comboOptionsHTML(cfg.drillComboB||"", true);
   }
   function syncFormatUI(){
     const fmt = cfg.format||"combos";
+    const drillish = !!DRILLISH[fmt];
     // EMOM still calls from the pool, so the pool picker stays visible for it.
-    const hidePool = fmt!=="combos" && fmt!=="emom";
-    $("uniformFocusField").style.display = hidePool ? "none" : "block";
-    $("drillField").style.display = fmt==="drill" ? "block" : "none";
-    if(fmt==="drill") renderDrillPicker();
+    $("uniformFocusField").style.display = (fmt==="combos"||fmt==="emom") ? "block" : "none";
+    $("formatField").style.display = drillish ? "none" : "block";   // a drill overrides the round type
+    $("drillOpts").style.display = drillish ? "block" : "none";
+    $("drillBField").style.display = (fmt==="drill"||fmt==="speed") ? "block" : "none";
+    [...$("segDrill").children].forEach(x=>x.classList.toggle("on", x.dataset.v===(drillish?fmt:"off")));
+    $("drillState").textContent = drillish ? ({ladder:"build up", speed:"speed", drill:"repeat"})[fmt] : "";
+    if(drillish){ $("drillAcc").open = true; renderDrillPicker(); }
+    else $("sFormat").value = fmt;
+    $("drillBeatNote").textContent = fmt==="speed"
+      ? "The starting beat — it tightens every round, down to 3s by the last."
+      : "One rep per call on a steady beat. If a call runs long, the next waits.";
     const f = FORMATS.find(x=>x[0]===fmt);
     $("formatNote").textContent = f ? f[2] : "";
   }
+  $("segDrill").addEventListener("click", e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    cfg.format = b.dataset.v==="off" ? "combos" : b.dataset.v;
+    activeWorkout=null; renderWorkouts();
+    syncFormatUI(); save(); if(phase==="idle") reset();
+  });
+  $("sDrillComboB").addEventListener("change", e=>{ cfg.drillComboB = e.target.value || null; save(); });
   $("workoutGrid").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) applyWorkout(b.dataset.wk); });
   $("sFormat").addEventListener("change", e=>{ cfg.format=e.target.value; activeWorkout=null; renderWorkouts(); syncFormatUI(); save(); if(phase==="idle") reset(); });
   $("sDrillCombo").addEventListener("change", e=>{ cfg.drillComboId=e.target.value; save(); if(phase==="idle") reset(); });
@@ -2419,6 +2518,7 @@
   /* ---------- program editor ---------- */
   function renderProgram(){
     const list = $("progList"); list.innerHTML="";
+    let defaulted = false;
     cfg.program.forEach((r,idx)=>{
       const card=document.createElement("div"); card.className="prog-card";
       const focusOpts = [["all","All ticked"],["freestyle","Freestyle"]].concat(GROUPS.map(g=>[g.id,g.name]))
@@ -2428,6 +2528,12 @@
       const rmf = r.moveFocus||"none";
       const mfOpts = SHOT_FOCUS.map(o=>`<option value="${o.id}" ${o.id===rmf?"selected":""}>${o.name}</option>`).join("");
       const focusApplies = (rfmt==="combos" || rfmt==="emom");
+      // Drill rounds get their own combo picker (previously this silently
+      // drilled a random combo). Default the pick so the card never lies.
+      if(rfmt==="drill" && !r.drillComboId){ const first=allCombos()[0]; r.drillComboId = first ? first.id : null; defaulted = true; }
+      const drillPick = rfmt==="drill" ? `
+        <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Combo to drill</div>
+        <select data-i="${idx}" data-k="drillComboId">${comboOptionsHTML(r.drillComboId, false)}</select>` : "";
       card.innerHTML = `
         <div class="prog-top">
           <input class="lbl" value="${(r.label||("Round "+(idx+1))).replace(/"/g,'&quot;')}" data-i="${idx}" data-k="label">
@@ -2445,13 +2551,14 @@
         </div>
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Combos</div>
         <select data-i="${idx}" data-k="focus" ${rfmt!=="combos"?"disabled":""}>${focusOpts}</select>
-        <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Format</div>
-        <select data-i="${idx}" data-k="format">${fmtOpts}</select>
+        <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Round type</div>
+        <select data-i="${idx}" data-k="format">${fmtOpts}</select>${drillPick}
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Shot focus</div>
         <select data-i="${idx}" data-k="moveFocus" ${focusApplies?"":"disabled"}>${mfOpts}</select>
       `;
       list.appendChild(card);
     });
+    if(defaulted) save();   // a defaulted drill pick must persist, not just render
   }
   $("progList").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
@@ -2512,8 +2619,8 @@
       d.appendChild(body);
       wrap.appendChild(d);
     });
-    // keep the drill combo picker in sync when combos are added/removed
-    if($("drillField") && $("drillField").style.display!=="none") renderDrillPicker();
+    // keep the drill combo pickers in sync when combos are added/removed
+    if($("drillOpts") && $("drillOpts").style.display!=="none") renderDrillPicker();
   }
   $("library").addEventListener("toggle", e=>{
     const d=e.target.closest && e.target.closest("details.acc");
@@ -2614,8 +2721,7 @@
     syncModeUI();
     refreshTimerUI();
     buildFocusSelect($("uniformFocus"), cfg.uniformFocus);
-    $("sFormat").innerHTML = FORMATS.map(f=>`<option value="${f[0]}">${f[1]}</option>`).join("");
-    $("sFormat").value = cfg.format || "combos";
+    $("sFormat").innerHTML = FORMATS.filter(f=>f[0]!=="drill").map(f=>`<option value="${f[0]}">${f[1]}</option>`).join("");
     syncFormatUI();
     renderWorkouts();
     $("sFatigue").checked = cfg.fatigueOn !== false;

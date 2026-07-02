@@ -114,7 +114,7 @@ Requires new clips via `gen_voice.py` (see VOICE_PACKS.md).
 
 ---
 
-## Session 5 — Modes I: Drill a combo, properly
+## Session 5 — Modes I: Drill a combo, properly ✅ done (v23)
 
 **Goal:** "work one combo and build it up" becomes a first-class flow, not the
 sixth row of a format `<select>`.

@@ -613,5 +613,15 @@
   "slug": "hands-down-big-breaths",
   "text": "Hands down, big breaths.",
   "style": "line"
+ },
+ {
+  "slug": "build-the-combo",
+  "text": "Build the combo!",
+  "style": "cue"
+ },
+ {
+  "slug": "speed-ladder",
+  "text": "Speed ladder!",
+  "style": "cue"
  }
 ]
