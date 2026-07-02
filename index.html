@@ -743,7 +743,14 @@
       <div class="field">
         <div class="field-label"><span>Voice speed</span><span class="val" id="vRate">1.0&times;</span></div>
         <input type="range" id="sRate" min="0.65" max="1.3" step="0.05" value="1">
-        <div class="note help">How fast the coach talks. The next combo isn't called until you've had time to finish the current one, and longer combos wait longer before the next call. The coach is a recorded human voice &mdash; if it&rsquo;s silent, flip the phone&rsquo;s mute switch off and turn the volume up. iOS only plays sound after you tap Start.</div>
+        <div class="note help">How fast the coach talks. The next combo isn't called until you've had time to finish the current one, and longer combos wait longer before the next call. The coach is a recorded human voice &mdash; it plays through the iPhone mute switch by default (see <b>Play on silent</b> below); if it&rsquo;s quiet, turn the volume up. iOS only plays sound after you tap Start.</div>
+      </div>
+      <div class="field">
+        <div class="toggle-row">
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Play on silent (iPhone)</span>
+          <label class="switch"><input type="checkbox" id="sLoud" checked><span class="slider"></span></label>
+        </div>
+        <div class="note">The corner speaks even with the mute switch on &mdash; like a music app. It takes priority over music playing on <b>this</b> phone; turn it off to duck under your music instead (the mute switch must then be off).</div>
       </div>
       <div class="field">
         <div class="toggle-row">
@@ -830,9 +837,9 @@
     <div class="ac-line">You should have just heard <b>&ldquo;Coach Fred, ready to work.&rdquo;</b> Every combo gets called out loud like that.</div>
     <div class="ac-tips" id="acTips">
       <b>No sound? Usual suspects:</b><br>
-      &bull; Flip the phone&rsquo;s <b>silent / mute switch off</b> &mdash; iPhones stay quiet on silent.<br>
-      &bull; Turn the <b>volume up</b>.<br>
+      &bull; Turn the <b>volume up</b> (the coach plays through the iPhone mute switch by default).<br>
       &bull; <b>Bluetooth headphones</b> paired? The coach is talking to them.<br>
+      &bull; Check <b>More &rarr; Play on silent</b> is on if your phone is muted.<br>
       <div class="sum-actions" style="margin-top:12px;">
         <button id="acAgain">Play it again</button>
       </div>
@@ -1359,7 +1366,7 @@
     ],
     pace:"relaxed", moveMix:"light", level:"beginner", bodyMix:"some", voice:"pack:fred",
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
-    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true, camOn:false,
+    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true, camOn:false, playInSilent:true,
     drillComboId:null, drillComboB:null, drillInterval:8,
     theme:"fred",
     library:null, custom:[], movement:null
@@ -1468,11 +1475,18 @@
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
 
   /* ---------- audio ---------- */
-  // Coach Fred is voice-only — every cue is spoken, so there's no bell or
-  // clapper to play. We still nudge the OS to duck other apps' music while the
-  // coach is calling. iOS/Safari (16.4+) honours this via the Audio Session
-  // API; Android and others lean on the OS's own automatic ducking.
-  function duckOtherAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type = "transient"; }catch(e){} }
+  // iOS Audio Session (Safari 16.4+): "playback" plays THROUGH the mute
+  // switch — like a music app, and like the old TTS voice did — but takes
+  // priority over music playing on this phone. "transient" ducks politely
+  // under music instead, but the mute switch silences it. Hearing the coach
+  // is the product, so playback is the default; the toggle is for people who
+  // train to music from the same phone. Android needs neither.
+  function duckOtherAudio(){
+    try{
+      if(navigator.audioSession)
+        navigator.audioSession.type = (cfg.playInSilent!==false) ? "playback" : "transient";
+    }catch(e){}
+  }
   // Haptic cue at round changes (Android — iOS Safari doesn't expose vibrate).
   function buzz(pattern){ try{ if(cfg.vibrateOn!==false && navigator.vibrate) navigator.vibrate(pattern); }catch(e){} }
   // Optional ring-bell, synthesised in WebAudio (no clip, works offline):
@@ -1657,6 +1671,7 @@
     applyVoicePack();
   }
   loadVoices();
+  duckOtherAudio();   // set the audio-session category up front (playback by default)
   $("sVoice").addEventListener("change", e=>{
     cfg.voice = e.target.value; save();
     clipBuf.clear(); voicePackWant = null;   // clip cache is keyed by slug — flush across packs
@@ -2433,7 +2448,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v29";
+  const APP_VERSION = "v30";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2562,7 +2577,7 @@
     {h:"Pick your combos", b:"Over in <b>Combos</b>, tick the combos you want in the pool &mdash; the caller pulls from the ticked ones at random. They&rsquo;re grouped by style, with a level badge on each. Tap a group to open it.", at:()=> tutPickCombos() },
     {h:"Build your own", b:"Open <b>Build a combo</b> and tap <b>Punches</b> and <b>Movement</b> &mdash; each one stacks into the box at the top so you can see the combo take shape. Name it, hit <b>Save</b>, and it joins your pool.", at:()=>{ tutOpenPane("combos"); return tutOpenAcc($("stage")).closest(".builder"); }},
     {h:"Pick your fighter", b:"In <b>More &rarr; Theme</b>, reskin the whole app. Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Tap one and the whole corner changes.", at:()=>{ tutOpenPane("more"); return tutOpenAcc($("themeGrid")); }},
-    {h:"Turn the sound on", b:"The coach is a recorded human voice, so flip your phone off silent and turn it up. Set <b>Voice speed</b> here, then hit <b>Test voice</b> to check it. On iPhone the coach only speaks <b>after you tap Start</b>.", at:()=>{ tutOpenPane("more"); return $("testVoice").closest(".field"); }},
+    {h:"Turn the sound on", b:"The coach is a recorded human voice and plays <b>even on silent</b> (see <b>Play on silent</b>). Turn the volume up, set <b>Voice speed</b>, then hit <b>Test voice</b> to check it. On iPhone the coach only speaks <b>after you tap Start</b>.", at:()=>{ tutOpenPane("more"); return $("testVoice").closest(".field"); }},
     {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
   // First run auto-opens a 3-step intro; the full 12-step tour lives behind "?".
@@ -2776,6 +2791,11 @@
   $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
   $("sBell").addEventListener("change", e=>{ cfg.bellOn=e.target.checked; save(); if(cfg.bellOn){ ensureAudio(); playBell(1); } });
   $("sVibe").addEventListener("change", e=>{ cfg.vibrateOn=e.target.checked; save(); if(cfg.vibrateOn) buzz(120); });
+  $("sLoud").addEventListener("change", e=>{
+    cfg.playInSilent=e.target.checked; save();
+    duckOtherAudio(); ensureAudio(); primeSpeech();
+    say("Coach Fred, ready to work.");   // instant proof it plays (or ducks) as configured
+  });
   $("sCam").addEventListener("change", e=>{ cfg.camOn=e.target.checked; save(); });
   $("sWarmup").addEventListener("change", e=>{ cfg.warmupOn=e.target.checked; save(); refreshTimerUI(); if(phase==="idle") reset(); });
   function renderThemes(){
@@ -3158,6 +3178,7 @@
     $("sFatigue").checked = cfg.fatigueOn !== false;
     $("sBell").checked = !!cfg.bellOn;
     $("sVibe").checked = cfg.vibrateOn !== false;
+    $("sLoud").checked = cfg.playInSilent !== false;
     $("sCam").checked = !!cfg.camOn;
     $("sWarmup").checked = !!cfg.warmupOn;
     [...$("segPace").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.pace));
