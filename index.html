@@ -305,6 +305,8 @@
   .chk{width:28px;height:28px;flex:0 0 auto;border-radius:8px;border:2px solid var(--steel);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--canvas);font-weight:800;}
   .chk.on{background:var(--rest);border-color:var(--rest);}
   .del{background:none;border:none;color:var(--steel);font-size:22px;cursor:pointer;padding:0 4px;flex:0 0 auto;}
+  .hear{background:none;border:none;font-size:16px;padding:4px 5px;cursor:pointer;flex:0 0 auto;opacity:.7;}
+  .hear:active{transform:scale(.9);opacity:1;}
   .add-row{display:flex;gap:8px;margin-top:10px;}
   .add-row input{flex:1;padding:13px;border-radius:11px;background:var(--canvas-2);color:var(--tape);border:1px solid var(--line);font-family:inherit;font-size:16px;}
   .add-row button{padding:13px 18px;border-radius:11px;border:none;background:var(--tape);color:var(--canvas);font-weight:700;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;}
@@ -363,6 +365,22 @@
   .stance-badge:active{transform:scale(.95);}
   .stance-badge.orthodox{box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--tape) 55%, transparent);}
   .stance-badge.southpaw{box-shadow:inset 0 0 0 2px var(--prep);color:var(--prep);}
+
+  /* landscape / propped-up phone: shrink the chrome, keep the clock king */
+  @media (orientation:landscape) and (max-height:520px){
+    #app{padding:env(safe-area-inset-top) 26px env(safe-area-inset-bottom);}
+    header{padding:6px 2px 2px;}
+    .clock{font-size:clamp(60px,26vh,120px);}
+    .combo{min-height:16vh;padding-top:2px;}
+    .combo-numbers{font-size:clamp(38px,15vh,80px);}
+    .session-line{margin-top:6px;padding:6px 13px;font-size:12px;}
+    .idle-hint{font-size:13px;}
+    footer{padding:6px 0 8px;}
+    .btn{padding:11px 10px;font-size:15px;}
+    #startBtn{min-height:44px;}
+    .btn.secondary{min-height:42px;}
+    .coffee-row{display:none;}
+  }
 
   /* tutorial */
   .tut{position:fixed;inset:0;z-index:30;display:none;}
@@ -572,6 +590,13 @@
               <label class="switch"><input type="checkbox" id="sBell"><span class="slider"></span></label>
             </div>
             <div class="note">A ring under the voice at the start and end of every round. Off keeps the corner voice-only.</div>
+          </div>
+          <div class="field">
+            <div class="toggle-row">
+              <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Vibrate on the bell</span>
+              <label class="switch"><input type="checkbox" id="sVibe" checked><span class="slider"></span></label>
+            </div>
+            <div class="note">A buzz at round changes (Android &mdash; iPhones don&rsquo;t allow it in the browser).</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Call style</span></div>
@@ -933,6 +958,7 @@
     ["footwork","Footwork drills","Called footwork: pivots, shuffles, in-and-out, angles."],
     ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the top, rest the rest."],
     ["quiet","Quiet round (bell + ten only)","Just the bell, the ten-second shout and the count back in — you freestyle, the corner keeps time."],
+    ["reaction","Reaction calls (random)","Single random calls — a punch, a slip, a roll — at unpredictable gaps. React, don't think."],
     ["drill","Drill (one combo on repeat)","Locks onto a single combo and calls it on a fixed beat — for grooving one combination."]
   ];
   // Drill modes live under "Drill a combo", not the Round type select; ladder
@@ -1294,7 +1320,7 @@
     ],
     pace:"relaxed", moveMix:"light", level:"beginner", bodyMix:"some", voice:"pack:fred",
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
-    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false,
+    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true,
     drillComboId:null, drillComboB:null, drillInterval:8,
     theme:"fred",
     library:null, custom:[], movement:null
@@ -1408,6 +1434,8 @@
   // coach is calling. iOS/Safari (16.4+) honours this via the Audio Session
   // API; Android and others lean on the OS's own automatic ducking.
   function duckOtherAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type = "transient"; }catch(e){} }
+  // Haptic cue at round changes (Android — iOS Safari doesn't expose vibrate).
+  function buzz(pattern){ try{ if(cfg.vibrateOn!==false && navigator.vibrate) navigator.vibrate(pattern); }catch(e){} }
   // Optional ring-bell, synthesised in WebAudio (no clip, works offline):
   // a few detuned sine partials with a fast strike and a long decay.
   function playBell(strikes){
@@ -1670,6 +1698,11 @@
   const BREATHER = { relentless:[1.0,2.0], steady:[1.8,3.0], relaxed:[3.0,4.5] };
   function scheduleNext(n){
     if(currentFormat==="warmup"){ nextComboAt = Date.now() + ((n||1)*PERSHOT + rnd(3.5,5))*1000; return; }
+    if(currentFormat==="reaction"){
+      const G = {relaxed:[2.2,4.5], steady:[1.6,3.2], relentless:[1.0,2.2]};
+      nextComboAt = Date.now() + rnd(...(G[cfg.pace]||G.steady))*1000;
+      return;
+    }
     if(currentFormat==="drill"||currentFormat==="ladder"||currentFormat==="recall"){
       // Fixed beat measured from the start of the call. If speech overran the
       // interval, this lands in the past and the next call fires immediately.
@@ -1891,8 +1924,16 @@
     if(Math.random()<0.5) return footworkCall();
     return {tokens: pick([["1"],["1","1"],["1","2"],["2"],["3"],["1","2"]]).slice(), name:""};
   }
+  // Reaction: one call at a time — a punch or a defensive move — so you
+  // respond to the voice instead of working a memorised pattern.
+  function reactionCall(){
+    const mv = enabledMoves();
+    if(mv.length && Math.random()<0.45) return {tokens:[pick(mv).name.toLowerCase()], name:""};
+    return {tokens:[pick(["1","2","3","4","5","6"])], name:""};
+  }
   function callCombo(){
     if(currentFormat==="quiet"){ nextComboAt = Date.now()+3600000; return; }   // bell + ten only
+    if(currentFormat==="reaction"){ deliver(reactionCall()); return; }
     if(currentFormat==="warmup"){ deliver(warmupCall()); return; }
     if(currentFormat==="drill"||currentFormat==="speed"){ drillCallAt = Date.now(); deliver(drillCombo()); return; }
     if(currentFormat==="recall"){
@@ -2000,7 +2041,7 @@
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
       const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
       const focusSay = hasShotFocus() ? `. ${SHOT_FOCUS_BY_ID[currentMoveFocus].name} focus` : "";
-      playBell(2);
+      playBell(2); buzz([180,80,180]);
       say(roundCallText(workCount) + (st ? `. ${st}` : "") + fmtSay + focusSay, "firm");
       roundNow.textContent = pad2(workCount); roundTotal.textContent = pad2(totalWork);
     } else if(seg.type==="warmup"){
@@ -2010,7 +2051,7 @@
       say("Warm up, nice and loose", "warm");
     } else if(seg.type==="rest"){
       stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null);
-      playBell(1);
+      playBell(1); buzz(120);
       say("Rest", "calm");
       // a breathing cue a few seconds in, on rests long enough to use it
       if(seg.secs>=30 && Math.random()<0.6){
@@ -2081,7 +2122,7 @@
   }
   function finish(){
     phase="done"; app.className="done"; running=false; skipBtn.disabled=true; clearInterval(tickId); tickId=null;
-    playBell(3);
+    playBell(3); buzz([200,100,200,100,400]);
     onSessionComplete();
     recordSession();
     stateLabel.textContent="Done";
@@ -2184,7 +2225,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v24";
+  const APP_VERSION = "v25";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2502,6 +2543,7 @@
   $("sDrillCombo").addEventListener("change", e=>{ cfg.drillComboId=e.target.value; save(); if(phase==="idle") reset(); });
   $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
   $("sBell").addEventListener("change", e=>{ cfg.bellOn=e.target.checked; save(); if(cfg.bellOn){ ensureAudio(); playBell(1); } });
+  $("sVibe").addEventListener("change", e=>{ cfg.vibrateOn=e.target.checked; save(); if(cfg.vibrateOn) buzz(120); });
   $("sWarmup").addEventListener("change", e=>{ cfg.warmupOn=e.target.checked; save(); refreshTimerUI(); if(phase==="idle") reset(); });
   function renderThemes(){
     const grid = $("themeGrid");
@@ -2706,6 +2748,7 @@
           <button class="chk ${c.enabled?'on':''}" data-id="${c.id}">${c.enabled?'&#10003;':''}</button>
           <div class="seq">${comboSeqLabel(c.tokens)}</div>
           <div class="meta"><div class="nm">${esc(c.name)}</div></div>
+          <button class="hear" data-hear="${c.id}" aria-label="Hear it">&#128266;</button>
           ${lvlBadge(c.lvl)}
           ${c.group==="custom" ? `<button class="del" data-del="${c.id}">&times;</button>` : ``}
         `;
@@ -2722,6 +2765,13 @@
     if(d && d.dataset.grp) libOpen[d.dataset.grp]=d.open;
   }, true);
   $("library").addEventListener("click", e=>{
+    const hear=e.target.closest(".hear");
+    if(hear){
+      e.preventDefault(); e.stopPropagation();
+      const c=allCombos().find(x=>x.id===hear.dataset.hear);
+      if(c){ ensureAudio(); cancelSpeech(); speak(spokenFor(c.tokens), comboAtoms(c.tokens), "combo"); }
+      return;
+    }
     const chk=e.target.closest(".chk"); const del=e.target.closest(".del"); const grpall=e.target.closest(".grpall");
     if(grpall){
       e.preventDefault(); e.stopPropagation();
@@ -2823,6 +2873,7 @@
     renderWorkouts();
     $("sFatigue").checked = cfg.fatigueOn !== false;
     $("sBell").checked = !!cfg.bellOn;
+    $("sVibe").checked = cfg.vibrateOn !== false;
     $("sWarmup").checked = !!cfg.warmupOn;
     [...$("segPace").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.pace));
     [...$("segMoveMix").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.moveMix));
