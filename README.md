@@ -105,12 +105,17 @@ streak counter becomes a real training journal. The log lives on your device and
 travels in the **.coach** backup.
 
 ## Sounds
-Coach Fred is **voice-only** — no bell, no clapper. The corner is a **recorded
-human voice** (pre-rendered with ElevenLabs), not robotic text-to-speech: every
-cue is a short audio clip and the app plays them back-to-back. The coach speaks
-every cue: **“Round start”** (with your stance) to open a round, **“Rest”**
-between rounds, and a **“ten seconds”** call with a shout of motivation in the
-final stretch (the phrase is picked at random, so it stays fresh). On longer
+The corner is a **recorded human voice** (pre-rendered with ElevenLabs), not
+robotic text-to-speech: every cue is a short audio clip and the app plays them
+back-to-back. The coach calls the card like a real corner: **“Round three”**
+(**“Final round”** on the last) with your stance to open a round, **“Rest”**
+between rounds, a heads-up near the end of rest (*“ten seconds — round four,
+southpaw”*), a **3-2-1 count** back in, a breathing cue on longer rests, and a
+**“ten seconds”** shout of motivation in the final stretch of a round (the
+phrase is picked at random, so it stays fresh). An optional **bell**
+(Coaching → Ring the bell) rings under the voice at the start and end of every
+round; off keeps the corner voice-only. A **Warm-up round** toggle adds two
+easy minutes of footwork and light shots before round one. On longer
 rounds the **fatigue shaping** eases the pace through the back half, then digs in
 for that last push. The clips are cached for offline use, and **Voice speed**
 (Setup → More) sets how fast the corner calls. See

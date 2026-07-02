@@ -160,7 +160,7 @@
   .coffee:active{transform:scale(.96);}
   .coffee .cup{font-size:15px;line-height:1;}
   .coffee-row{flex:0 0 auto;display:flex;justify-content:center;padding:0 0 14px;}
-  #app.work .coffee-row,#app.rest .coffee-row,#app.prep .coffee-row{display:none;}
+  #app.work .coffee-row,#app.rest .coffee-row,#app.prep .coffee-row,#app.warmup .coffee-row{display:none;}
   .sheet-foot{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 20px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(0,0,0,.18);}
   .ver{font-family:"Barlow Semi Condensed",sans-serif;font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb, var(--tape) 38%, transparent);}
   .testbtn{font-family:"Barlow Semi Condensed",sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tape);background:rgba(0,0,0,.28);border:1px solid color-mix(in srgb, var(--tape) 22%, transparent);border-radius:999px;padding:8px 16px;cursor:pointer;transition:transform .08s,border-color .2s;}
@@ -245,7 +245,8 @@
   /* idle-screen session summary — tap to open Setup on the timer */
   .session-line{margin-top:12px;font-family:var(--hud-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb, var(--tape) 76%, transparent);background:rgba(0,0,0,.18);border:1px solid var(--line);padding:9px 16px;border-radius:999px;cursor:pointer;}
   .session-line:active{transform:scale(.97);}
-  #app.work .session-line,#app.rest .session-line,#app.prep .session-line,#app.done .session-line{display:none;}
+  #app.work .session-line,#app.rest .session-line,#app.prep .session-line,#app.done .session-line,#app.warmup .session-line{display:none;}
+  #app.warmup{background:radial-gradient(130% 90% at 50% 18%, var(--prep-deep) 0%, var(--prep-edge) 75%, var(--canvas) 100%);}
 
   /* timer block — steppers for rounds / length / rest / get ready */
   .timer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -465,6 +466,14 @@
       </div>
 
       <div class="field">
+        <div class="toggle-row">
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Warm-up round (2:00)</span>
+          <label class="switch"><input type="checkbox" id="sWarmup"><span class="slider"></span></label>
+        </div>
+        <div class="note">Two easy minutes of footwork and light shots before round one.</div>
+      </div>
+
+      <div class="field">
         <div class="field-label"><span>Quick start</span></div>
         <div class="workouts" id="workoutGrid"></div>
       </div>
@@ -520,6 +529,13 @@
               </div>
             </div>
             <div class="note help">Alternate flips orthodox/southpaw each round, starting from the stance you pick above. The stance is shown and called at the start of every round. Tap the badge on the main screen to flip it mid-session.</div>
+          </div>
+          <div class="field">
+            <div class="toggle-row">
+              <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Ring the bell</span>
+              <label class="switch"><input type="checkbox" id="sBell"><span class="slider"></span></label>
+            </div>
+            <div class="note">A ring under the voice at the start and end of every round. Off keeps the corner voice-only.</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Call style</span></div>
@@ -835,6 +851,15 @@
     "push through it","no letting up","bury it here","hardest ten of the round",
     "give me everything"
   ];
+  // Spoken between rounds, a few seconds into a long rest.
+  const REST_LINES = ["Deep breaths","Shake them out","Hands down, big breaths"];
+  const ROUND_WORDS = ["one","two","three","four","five","six","seven","eight","nine","ten",
+                       "eleven","twelve","thirteen","fourteen","fifteen"];
+  // "Round three", or "Final round" on the last one — the corner knows the card.
+  function roundCallText(n){
+    if(totalWork>1 && n===totalWork) return "Final round";
+    return ROUND_WORDS[n-1] ? `Round ${ROUND_WORDS[n-1]}` : "Round start";
+  }
 
   /* ---------- round formats ---------- */
   // Pyramid / ladder: climb the straight punch count 1->6, then back down — a
@@ -1216,7 +1241,7 @@
     ],
     pace:"relaxed", moveMix:"light", level:"beginner", bodyMix:"some", voice:"pack:fred",
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
-    format:"combos", fatigueOn:true,
+    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false,
     drillComboId:null, drillInterval:8,
     theme:"fred",
     library:null, custom:[], movement:null
@@ -1296,6 +1321,7 @@
   let wakeLock = null;
   let delivering = false, deliverTimers = [], deliverSeq = 0;
   let currentFormat = "combos", currentSegSecs = 0, tenSecFired = false, pyrIdx = 0, emomDone = false, drillCallAt = 0;
+  let restLeadFired = false, cdNext = 0;   // rest lead-in + 3-2-1 count back in
   let currentMoveFocus = "none";
   let lastTokens = null;
 
@@ -1319,6 +1345,26 @@
   // coach is calling. iOS/Safari (16.4+) honours this via the Audio Session
   // API; Android and others lean on the OS's own automatic ducking.
   function duckOtherAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type = "transient"; }catch(e){} }
+  // Optional ring-bell, synthesised in WebAudio (no clip, works offline):
+  // a few detuned sine partials with a fast strike and a long decay.
+  function playBell(strikes){
+    if(!cfg.bellOn) return;
+    const c = ensureCtx(); if(!c) return;
+    if(c.state==="suspended") c.resume().catch(()=>{});
+    let t = c.currentTime + 0.02;
+    for(let s=0; s<(strikes||1); s++){
+      [1046, 1568, 2093].forEach((f,i)=>{
+        const o=c.createOscillator(), g=c.createGain();
+        o.type="sine"; o.frequency.value = f*(1 + 0.002*i);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.4/(i+1), t+0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, t+1.05);
+        o.connect(g); g.connect(c.destination);
+        o.start(t); o.stop(t+1.1);
+      });
+      t += 0.45;
+    }
+  }
   function ensureAudio(){ duckOtherAudio(); unlockClips(); return Promise.resolve(); }
   // Stop whatever the coach is saying right now — TTS and/or recorded clips.
   function cancelSpeech(){ stopClips(); }
@@ -1560,6 +1606,7 @@
   const PERSHOT = 0.5;
   const BREATHER = { relentless:[1.0,2.0], steady:[1.8,3.0], relaxed:[3.0,4.5] };
   function scheduleNext(n){
+    if(currentFormat==="warmup"){ nextComboAt = Date.now() + ((n||1)*PERSHOT + rnd(3.5,5))*1000; return; }
     if(currentFormat==="drill"){
       // Fixed beat measured from the start of the call. If speech overran the
       // interval, this lands in the past and the next call fires immediately.
@@ -1743,7 +1790,13 @@
     // no pick saved (or it was deleted): fall back to a random eligible combo
     return selectCombo();
   }
+  // Warm-up: easy footwork and light single shots, nothing that needs power.
+  function warmupCall(){
+    if(Math.random()<0.5) return footworkCall();
+    return {tokens: pick([["1"],["1","1"],["1","2"],["2"],["3"],["1","2"]]).slice(), name:""};
+  }
   function callCombo(){
+    if(currentFormat==="warmup"){ deliver(warmupCall()); return; }
     if(currentFormat==="drill"){ drillCallAt = Date.now(); deliver(drillCombo()); return; }
     if(currentFormat==="pyramid"){ deliver({tokens: PYRAMID[pyrIdx++ % PYRAMID.length].slice(), name:""}); return; }
     if(currentFormat==="burnout"){ deliver({tokens:["1","2"], name:""}); return; }
@@ -1780,6 +1833,7 @@
   function buildSchedule(){
     const seg=[];
     if(cfg.prep>0) seg.push({type:"prep", secs:cfg.prep});
+    if(cfg.warmupOn) seg.push({type:"warmup", secs:120});
     if(cfg.mode==="uniform"){
       for(let i=0;i<cfg.rounds;i++){
         seg.push({type:"work", secs:cfg.work, label:`Round ${i+1}`, focus:cfg.uniformFocus, format:cfg.format||"combos"});
@@ -1799,6 +1853,7 @@
   function startPhaseTimer(seconds){
     endAt = Date.now()+seconds*1000;
     if(phase==="work") nextComboAt = Date.now()+rnd(1.1,1.7)*1000;
+    if(phase==="warmup") nextComboAt = Date.now()+rnd(2.5,3.5)*1000;
   }
   function loadSegment(i){
     const seg = schedule[i];
@@ -1808,6 +1863,8 @@
     app.className = seg.type;
     skipBtn.disabled = false;
     currentSegSecs = seg.secs; tenSecFired = false;
+    restLeadFired = false;
+    cdNext = ((seg.type==="rest"||seg.type==="prep") && seg.secs>=5) ? 3 : 0;
     if(seg.type==="work"){
       workCount++; currentFocus = seg.focus;
       currentFormat = seg.format || "combos"; pyrIdx = 0; emomDone = false;
@@ -1818,10 +1875,22 @@
       const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
       const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
       const focusSay = hasShotFocus() ? `. ${SHOT_FOCUS_BY_ID[currentMoveFocus].name} focus` : "";
-      say("Round start" + (st ? `. ${st}` : "") + fmtSay + focusSay, "firm");
+      playBell(2);
+      say(roundCallText(workCount) + (st ? `. ${st}` : "") + fmtSay + focusSay, "firm");
       roundNow.textContent = pad2(workCount); roundTotal.textContent = pad2(totalWork);
+    } else if(seg.type==="warmup"){
+      currentFormat = "warmup"; currentFocus = "all"; currentMoveFocus = "none"; lastTokens = null;
+      stateLabel.textContent = "Warm-up";
+      idleHint.style.display="none"; updateStanceBadge(null);
+      say("Warm up, nice and loose", "warm");
     } else if(seg.type==="rest"){
-      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null); say("Rest", "calm");
+      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null);
+      playBell(1);
+      say("Rest", "calm");
+      // a breathing cue a few seconds in, on rests long enough to use it
+      if(seg.secs>=30 && Math.random()<0.6){
+        deliverTimers.push(setTimeout(()=>{ if(phase==="rest" && running) say(pick(REST_LINES), "calm"); }, 4200));
+      }
     } else if(seg.type==="prep"){
       stateLabel.textContent="Get ready"; comboNumbers.innerHTML=""; comboNames.textContent=""; idleHint.style.display="none"; updateStanceBadge(null);
     }
@@ -1845,16 +1914,34 @@
       say("Ten seconds. " + pick(push ? TANK_LINES : TEN_LINES), "urgent");
       nextComboAt = Date.now() + (push ? 2600 : 1900);   // let the call land, then push
     }
-    if(phase==="work" && Date.now()>=nextComboAt && secs>1.5 && !delivering){
+    // Rest lead-in: orient the fighter before the bell — "ten seconds, round
+    // three, southpaw, body shots focus" — so nobody has to look at the screen.
+    if(phase==="rest" && !restLeadFired && currentSegSecs>=20 && secs<=12){
+      restLeadFired = true;
+      const nxt = schedule[segIndex+1];
+      if(nxt && nxt.type==="work"){
+        const st = stanceFor(workCount+1);
+        const fmtSay = (nxt.format && nxt.format!=="combos") ? `. ${FORMAT_LABEL[nxt.format].split(" (")[0]}` : "";
+        const f = (nxt.moveFocus && nxt.moveFocus!=="none" && SHOT_FOCUS_BY_ID[nxt.moveFocus]) ? `. ${SHOT_FOCUS_BY_ID[nxt.moveFocus].name} focus` : "";
+        say(`Ten seconds. ${roundCallText(workCount+1)}` + (st ? `. ${st}` : "") + fmtSay + f, "firm");
+      } else {
+        say("Ten seconds", "firm");
+      }
+    }
+    // 3-2-1 count back in at the end of rest and the get-ready countdown.
+    if((phase==="rest"||phase==="prep") && cdNext>0 && secs<=cdNext){
+      say(String(cdNext), "firm"); cdNext--;
+    }
+    if((phase==="work"||phase==="warmup") && Date.now()>=nextComboAt && secs>1.5 && !delivering){
       callCombo();
     }
     if(remaining<=0){ if(phase==="work") onRoundComplete(); advance(); }
   }
   function run(){ running=true; startBtn.textContent="Pause"; acquireWake(); if(tickId) clearInterval(tickId); tickId=setInterval(tick,200); }
   function pause(){ running=false; startBtn.textContent="Resume"; pausedRemaining=Math.max(0,endAt-Date.now()); clearInterval(tickId); tickId=null; cancelSpeech(); clearDeliver(); delivering=false; releaseWake(); }
-  function resume(){ endAt=Date.now()+pausedRemaining; if(phase==="work") nextComboAt=Date.now()+700; run(); }
+  function resume(){ endAt=Date.now()+pausedRemaining; if(phase==="work"||phase==="warmup") nextComboAt=Date.now()+700; run(); }
   function skip(){
-    if(phase!=="work" && phase!=="rest" && phase!=="prep") return;
+    if(phase!=="work" && phase!=="rest" && phase!=="prep" && phase!=="warmup") return;
     // Credit the round if it's skipped inside its final ten seconds —
     // hitting Skip at 0:02 shouldn't cost the round in your record.
     const rem = running ? (endAt-Date.now()) : pausedRemaining;
@@ -1869,6 +1956,7 @@
   }
   function finish(){
     phase="done"; app.className="done"; running=false; skipBtn.disabled=true; clearInterval(tickId); tickId=null;
+    playBell(3);
     onSessionComplete();
     recordSession();
     stateLabel.textContent="Done";
@@ -1965,7 +2053,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v21";
+  const APP_VERSION = "v22";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2154,15 +2242,16 @@
   const LEVEL_LABEL = {beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced", build:"Build up"};
   function updateSessionLine(){
     const el=$("sessionLine"); if(!el) return;
+    const wu = cfg.warmupOn ? " · warm-up" : "";
     if(cfg.mode==="custom"){
       const n=cfg.program.length;
-      el.textContent = `${n} round${n===1?"":"s"} · round by round`;
+      el.textContent = `${n} round${n===1?"":"s"} · round by round${wu}`;
       return;
     }
     const tail = (cfg.format && cfg.format!=="combos")
       ? (FORMAT_LABEL[cfg.format]||"").split(" (")[0]
       : (LEVEL_LABEL[cfg.level]||"");
-    el.textContent = `${cfg.rounds} × ${fmtS(cfg.work)} · ${fmtS(cfg.rest)} rest${tail?` · ${tail}`:""}`;
+    el.textContent = `${cfg.rounds} × ${fmtS(cfg.work)} · ${fmtS(cfg.rest)} rest${tail?` · ${tail}`:""}${wu}`;
   }
 
   /* ---------- preset workouts + round format ---------- */
@@ -2219,6 +2308,8 @@
   $("sFormat").addEventListener("change", e=>{ cfg.format=e.target.value; activeWorkout=null; renderWorkouts(); syncFormatUI(); save(); if(phase==="idle") reset(); });
   $("sDrillCombo").addEventListener("change", e=>{ cfg.drillComboId=e.target.value; save(); if(phase==="idle") reset(); });
   $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
+  $("sBell").addEventListener("change", e=>{ cfg.bellOn=e.target.checked; save(); if(cfg.bellOn){ ensureAudio(); playBell(1); } });
+  $("sWarmup").addEventListener("change", e=>{ cfg.warmupOn=e.target.checked; save(); refreshTimerUI(); if(phase==="idle") reset(); });
   function renderThemes(){
     const grid = $("themeGrid");
     grid.innerHTML = THEME_IDS.map(id=>{
@@ -2250,7 +2341,7 @@
   };
   function sessionTotal(){
     const rests = cfg.rest>0 ? Math.max(0,cfg.rounds-1)*cfg.rest : 0;
-    return (cfg.prep||0) + cfg.rounds*cfg.work + rests;
+    return (cfg.prep||0) + (cfg.warmupOn?120:0) + cfg.rounds*cfg.work + rests;
   }
   function refreshTimerUI(){
     for(const k in STEP_DEFS){ const d=STEP_DEFS[k], el=$(d.el); if(el && !el.querySelector("input")) el.textContent = d.show(d.get()); }
@@ -2285,7 +2376,9 @@
     m=str.match(/^(\d+(?:\.\d+)?)\s*m$/); if(m) return Math.round(+m[1]*60);
     m=str.match(/^(\d+)\s*s?$/); if(!m) return null;
     const n=+m[1];
-    return (n<15 && !/s$/.test(str)) ? n*60 : n;   // bare "2" means 2 minutes, "30" means 30 seconds
+    // Only Round length guesses minutes from a small bare number ("2" -> 2:00);
+    // for Rest and Get ready a bare number is always seconds ("5" -> 0:05).
+    return (key==="work" && n<15 && !/s$/.test(str)) ? n*60 : n;
   }
   $("pane-workout").addEventListener("click", e=>{
     const sv=e.target.closest(".stepper .sv"); if(!sv || sv.querySelector("input")) return;
@@ -2526,6 +2619,8 @@
     syncFormatUI();
     renderWorkouts();
     $("sFatigue").checked = cfg.fatigueOn !== false;
+    $("sBell").checked = !!cfg.bellOn;
+    $("sWarmup").checked = !!cfg.warmupOn;
     [...$("segPace").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.pace));
     [...$("segMoveMix").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.moveMix));
     $("sLevel").value = cfg.level;

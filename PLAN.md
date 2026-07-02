@@ -95,7 +95,7 @@ rounds, time, rest — becomes the first thing the sheet shows.
 
 ---
 
-## Session 4 — The corner sounds like a corner (voice upgrades)
+## Session 4 — The corner sounds like a corner (voice upgrades) ✅ done (v22)
 
 **Goal:** the coach references the session state, not just "Round start".
 Requires new clips via `gen_voice.py` (see VOICE_PACKS.md).
