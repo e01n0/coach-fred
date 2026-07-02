@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; media-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self'; manifest-src 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; media-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src 'self'; form-action 'self'; manifest-src 'self'" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -414,6 +414,7 @@
       <div class="dots" id="dots"></div>
       <button id="stanceBadge" class="stance-badge" style="display:none;"></button>
       <div class="hud-sys">SYS<b>//</b>RDY 0x1A</div>
+      <div class="hud-sys" id="camHud" style="display:none;"></div>
     </div>
     <div class="headbtns">
       <button class="gear" id="openTutorial" aria-label="How it works">?</button>
@@ -597,6 +598,13 @@
               <label class="switch"><input type="checkbox" id="sVibe" checked><span class="slider"></span></label>
             </div>
             <div class="note">A buzz at round changes (Android &mdash; iPhones don&rsquo;t allow it in the browser).</div>
+          </div>
+          <div class="field">
+            <div class="toggle-row">
+              <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Camera scoring (beta)</span>
+              <label class="switch"><input type="checkbox" id="sCam"><span class="slider"></span></label>
+            </div>
+            <div class="note">Prop the phone <b>side-on</b> at the bag and the camera counts <b>punches thrown</b> and <b>guard drops</b> per round &mdash; into rest screens, the summary and your record. All on-device, nothing recorded. First use downloads the pose model (~17&nbsp;MB, then offline); the camera only runs during work rounds to save battery.</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Call style</span></div>
@@ -1320,7 +1328,7 @@
     ],
     pace:"relaxed", moveMix:"light", level:"beginner", bodyMix:"some", voice:"pack:fred",
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
-    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true,
+    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true, camOn:false,
     drillComboId:null, drillComboB:null, drillInterval:8,
     theme:"fred",
     library:null, custom:[], movement:null
@@ -1978,6 +1986,114 @@
     deliver(selectCombo());
   }
 
+  /* ---------- camera scoring (beta) ----------
+     Side-on punch counting + guard-drop flags during work rounds, feeding the
+     summary and Your record. Fully lazy: nothing loads unless the toggle is on
+     and a session starts. Reuses the self-hosted pose runtime the camera pages
+     ship under ./vendor (~17 MB, one time, service-worker cached). Detection
+     runs only during work segments — duty-cycled for heat and battery. */
+  const camS = {
+    boot:null, lm:null, video:null, stream:null, raf:0, lastT:-1,
+    round:{thrown:0, drops:0}, total:{thrown:0, drops:0}, rounds:[],
+    state:{l:"ready", r:"ready"}, ema:{l:0, r:0}, refr:0, guardBad:0
+  };
+  const CAM_I = {NOSE:0, L_SH:11, R_SH:12, L_EL:13, R_EL:14, L_WR:15, R_WR:16, L_HIP:23, R_HIP:24};
+  const CAM_HI=1.65, CAM_LO=1.20;   // same retract->extend hysteresis as Bag Coach
+  const camDist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  const camVis=(lm,i)=> (lm[i].visibility==null)?1:lm[i].visibility;
+  function camAngle(b,a,c){
+    const v1x=a.x-b.x,v1y=a.y-b.y,v2x=c.x-b.x,v2y=c.y-b.y;
+    const d=(v1x*v2x+v1y*v2y)/((Math.hypot(v1x,v1y)*Math.hypot(v2x,v2y))||1e-6);
+    return Math.acos(Math.min(1,Math.max(-1,d)))*180/Math.PI;
+  }
+  function updateCamHud(msg){
+    const el=$("camHud"); if(!el) return;
+    if(!cfg.camOn || phase==="idle" || phase==="done"){ el.style.display="none"; return; }
+    el.style.display="block";
+    el.textContent = msg || `CAM ${camS.round.thrown} THROWN${camS.round.drops?` · ${camS.round.drops} GUARD`:``}`;
+  }
+  function camResetSession(){
+    camS.round={thrown:0,drops:0}; camS.total={thrown:0,drops:0}; camS.rounds=[];
+    camS.state={l:"ready",r:"ready"}; camS.ema={l:0,r:0}; camS.refr=0; camS.guardBad=0;
+  }
+  function camBank(){
+    if(!cfg.camOn) return;
+    if(camS.round.thrown || camS.round.drops){
+      camS.rounds.push({thrown:camS.round.thrown, drops:camS.round.drops});
+      camS.total.thrown += camS.round.thrown;
+      camS.total.drops  += camS.round.drops;
+    }
+    camS.round={thrown:0,drops:0};
+  }
+  async function camBoot(){
+    if(camS.boot) return camS.boot;
+    camS.boot = (async ()=>{
+      const {PoseLandmarker, FilesetResolver} = await import("./vendor/tasks-vision/vision_bundle.mjs");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:"user", width:{ideal:960}, height:{ideal:540}, frameRate:{ideal:60}}, audio:false});
+      const video = document.createElement("video");
+      video.playsInline = true; video.muted = true;
+      video.srcObject = stream; await video.play();
+      const vision = await FilesetResolver.forVisionTasks("./vendor/tasks-vision/wasm");
+      const buf = new Uint8Array(await (await fetch("./vendor/models/pose_landmarker_lite.task")).arrayBuffer());
+      let lm;
+      const common = {runningMode:"VIDEO", numPoses:1};
+      try{ lm = await PoseLandmarker.createFromOptions(vision,{baseOptions:{modelAssetBuffer:buf, delegate:"GPU"}, ...common}); }
+      catch(e){ lm = await PoseLandmarker.createFromOptions(vision,{baseOptions:{modelAssetBuffer:buf, delegate:"CPU"}, ...common}); }
+      camS.video=video; camS.stream=stream; camS.lm=lm;
+    })();
+    return camS.boot;
+  }
+  function camStop(){
+    cancelAnimationFrame(camS.raf); camS.raf=0;
+    try{ camS.stream && camS.stream.getTracks().forEach(t=>t.stop()); }catch(e){}
+    camS.stream=null; camS.video=null; camS.lm=null; camS.boot=null; camS.lastT=-1;
+  }
+  function camDetect(lm){
+    const I=CAM_I;
+    // side-on gate (front-on, a straight foreshortens to nothing)
+    if(camVis(lm,I.L_HIP)<0.3 || camVis(lm,I.R_HIP)<0.3){ updateCamHud("CAM · STEP BACK"); return; }
+    const shCx=(lm[I.L_SH].x+lm[I.R_SH].x)/2, shCy=(lm[I.L_SH].y+lm[I.R_SH].y)/2;
+    const hipCx=(lm[I.L_HIP].x+lm[I.R_HIP].x)/2, hipCy=(lm[I.L_HIP].y+lm[I.R_HIP].y)/2;
+    const torso=Math.hypot(shCx-hipCx,shCy-hipCy)||0.2;
+    if(Math.abs(lm[I.L_SH].x-lm[I.R_SH].x)/torso >= 0.5){
+      camS.state.l=camS.state.r="ready"; updateCamHud("CAM · TURN SIDE-ON"); return;
+    }
+    if(camS.refr>0) camS.refr--;
+    const shW=camDist(lm[I.L_SH],lm[I.R_SH])||0.2;
+    for(const [k,wr,sh,el] of [["l",I.L_WR,I.L_SH,I.L_EL],["r",I.R_WR,I.R_SH,I.R_EL]]){
+      if(camVis(lm,wr)<0.5||camVis(lm,sh)<0.5||camVis(lm,el)<0.5) continue;
+      const ext=Math.max(camDist(lm[wr],lm[sh])/shW, camAngle(lm[el],lm[sh],lm[wr])/100);
+      camS.ema[k]=camS.ema[k]?camS.ema[k]*0.5+ext*0.5:ext;
+      if(camS.state[k]==="ready" && camS.ema[k]>CAM_HI && camS.refr===0){
+        camS.state[k]="out"; camS.refr=5; camS.round.thrown++; updateCamHud();
+      } else if(camS.state[k]==="out" && camS.ema[k]<CAM_LO) camS.state[k]="ready";
+    }
+    // both hands below the shoulder line for ~0.6s = a guard drop
+    const headY=lm[I.NOSE].y, shY=(lm[I.L_SH].y+lm[I.R_SH].y)/2, span=Math.abs(shY-headY)||0.1;
+    const up=w=>(shY-lm[w].y)/span;
+    const bad=(up(I.L_WR)<-0.3)&&(up(I.R_WR)<-0.3);
+    camS.guardBad = bad ? camS.guardBad+1 : 0;
+    if(camS.guardBad===18){ camS.round.drops++; updateCamHud(); }
+  }
+  function camFrame(){
+    camS.raf = requestAnimationFrame(camFrame);
+    if(phase!=="work" || !running || !camS.lm || !camS.video) return;   // duty cycle: work only
+    if(camS.video.currentTime===camS.lastT) return;
+    camS.lastT=camS.video.currentTime;
+    let res; try{ res = camS.lm.detectForVideo(camS.video, performance.now()); }catch(e){ return; }
+    const lm = res && res.landmarks && res.landmarks[0];
+    if(lm) camDetect(lm);
+  }
+  function camStart(){
+    if(!cfg.camOn) return;
+    camResetSession(); updateCamHud("CAM · STARTING…");
+    camBoot().then(()=>{ if(!camS.raf) camFrame(); updateCamHud(); })
+      .catch(err=>{ console.warn("camera scoring unavailable:", err); camS.boot=null; updateCamHud("CAM UNAVAILABLE"); });
+  }
+  // test/dev hook: inject synthetic detections without a camera
+  window.__camSim = (thrown, drops)=>{ camS.round.thrown+=thrown||0; camS.round.drops+=drops||0; updateCamHud(); };
+
   /* ---------- wake lock ---------- */
   async function acquireWake(){ try{ if("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen"); }catch(e){} }
   function releaseWake(){ try{ wakeLock && wakeLock.release(); wakeLock=null; }catch(e){} }
@@ -2013,6 +2129,7 @@
     const seg = schedule[i];
     if(!seg){ finish(); return; }
     clearDeliver(); delivering=false;
+    if(phase==="work") camBank();   // bank the finished round's camera tallies
     phase = seg.type;
     app.className = seg.type;
     skipBtn.disabled = false;
@@ -2051,6 +2168,11 @@
       say("Warm up, nice and loose", "warm");
     } else if(seg.type==="rest"){
       stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null);
+      // between rounds, put the camera's read where the combos usually sit
+      if(cfg.camOn && camS.rounds.length){
+        const last = camS.rounds[camS.rounds.length-1];
+        comboNames.textContent = `Camera: ${last.thrown} thrown${last.drops?` · guard dropped ${last.drops}×`:""} — beat it next round`;
+      }
       playBell(1); buzz(120);
       say("Rest", "calm");
       // a breathing cue a few seconds in, on rests long enough to use it
@@ -2121,7 +2243,9 @@
     }
   }
   function finish(){
+    camBank(); camStop();
     phase="done"; app.className="done"; running=false; skipBtn.disabled=true; clearInterval(tickId); tickId=null;
+    updateCamHud();
     playBell(3); buzz([200,100,200,100,400]);
     onSessionComplete();
     recordSession();
@@ -2145,6 +2269,8 @@
       entry.moves = sessionCounts.moves;
       entry.topShot = Object.entries(sessionCounts.shots).sort((a,b)=>b[1]-a[1])[0][0];
     }
+    if(cfg.camOn && (camS.total.thrown || camS.total.drops))
+      entry.camera = {thrown:camS.total.thrown, drops:camS.total.drops};
     stats.history = stats.history || [];
     stats.history.unshift(entry);
     if(stats.history.length>60) stats.history.length = 60;   // keep the log bounded
@@ -2154,6 +2280,7 @@
 
   function reset(){
     running=false; clearInterval(tickId); tickId=null;
+    camStop(); updateCamHud();
     cancelSpeech();
     clearDeliver(); delivering=false;
     releaseWake();
@@ -2198,7 +2325,7 @@
     try{ store.set("coachfred.audioOk","1"); }catch(e){}
     $("audioCheck").classList.remove("show");
     cancelSpeech();
-    if(start){ reset(); segIndex=0; loadSegment(0); run(); }
+    if(start){ reset(); segIndex=0; loadSegment(0); run(); camStart(); }
   }
   $("acYes").addEventListener("click", ()=> endAudioCheck(true));
   $("acNo").addEventListener("click", ()=>{
@@ -2216,7 +2343,7 @@
     // round-one call lands clean — but never hang the session if it stalls.
     let went=false;
     const go=()=>{ if(went) return; went=true;
-      if(starting){ reset(); segIndex=0; loadSegment(0); run(); }
+      if(starting){ reset(); segIndex=0; loadSegment(0); run(); camStart(); }
       else if(running){ pause(); }
       else { resume(); }
     };
@@ -2225,7 +2352,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v25";
+  const APP_VERSION = "v26";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2544,6 +2671,7 @@
   $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
   $("sBell").addEventListener("change", e=>{ cfg.bellOn=e.target.checked; save(); if(cfg.bellOn){ ensureAudio(); playBell(1); } });
   $("sVibe").addEventListener("change", e=>{ cfg.vibrateOn=e.target.checked; save(); if(cfg.vibrateOn) buzz(120); });
+  $("sCam").addEventListener("change", e=>{ cfg.camOn=e.target.checked; save(); });
   $("sWarmup").addEventListener("change", e=>{ cfg.warmupOn=e.target.checked; save(); refreshTimerUI(); if(phase==="idle") reset(); });
   function renderThemes(){
     const grid = $("themeGrid");
@@ -2874,6 +3002,7 @@
     $("sFatigue").checked = cfg.fatigueOn !== false;
     $("sBell").checked = !!cfg.bellOn;
     $("sVibe").checked = cfg.vibrateOn !== false;
+    $("sCam").checked = !!cfg.camOn;
     $("sWarmup").checked = !!cfg.warmupOn;
     [...$("segPace").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.pace));
     [...$("segMoveMix").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.moveMix));
@@ -2899,6 +3028,7 @@
       [stats.streak||0, "Day streak"],
       [Math.round((stats.workSecs||0)/60), "Mins on bag"]
     ];
+    if(stats.reaction && stats.reaction.best) cells.push([stats.reaction.best+"ms", "Best slip"]);
     el.innerHTML = cells.map(c=>`<div class="stat"><span class="snum">${c[0]}</span><span class="slbl">${c[1]}</span></div>`).join("");
     $("wgVal").textContent = stats.weekGoal ? stats.weekGoal+" rds" : "Off";
     $("weekProg").textContent = stats.weekGoal ? `${weekRounds()}/${stats.weekGoal} this week` : "";
@@ -2922,9 +3052,13 @@
     el.innerHTML = h.slice(0,30).map(e=>{
       const mins=Math.max(1,Math.round((e.workSecs||0)/60));
       const shots = e.punches ? ` · ~${e.punches} punches` : "";
+      const cam = e.camera ? ` · saw ${e.camera.thrown}` : "";
+      const big = e.reaction
+        ? `${e.reaction.best}<small>ms best · ${e.reaction.reps} slips</small>`
+        : `${e.rounds}<small>rounds · ${mins} min</small>`;
       return `<div class="log-row"><div><div class="when">${histWhen(e.t)}</div>`+
-        `<div class="meta">${e.structure} · ${e.format}${shots}</div></div>`+
-        `<div class="big">${e.rounds}<small>rounds · ${mins} min</small></div></div>`;
+        `<div class="meta">${e.structure} · ${e.format}${shots}${cam}</div></div>`+
+        `<div class="big">${big}</div></div>`;
     }).join("");
   }
   function showSummary(entry){
@@ -2933,9 +3067,11 @@
     $("sumMins").textContent = Math.max(1,Math.round((entry.workSecs||0)/60));
     $("sumSessions").textContent = stats.sessions||0;
     $("sumSub").textContent = `${entry.structure} · ${entry.format}`;
-    $("sumShots").textContent = entry.punches
+    let shotsLine = entry.punches
       ? `~${entry.punches} punches called · mostly ${entry.topShot}${entry.moves?` · ${entry.moves} defensive moves`:""}`
       : "";
+    if(entry.camera) shotsLine += `${shotsLine?" · ":""}camera saw ${entry.camera.thrown} thrown${entry.camera.drops?`, ${entry.camera.drops} guard drops`:""}`;
+    $("sumShots").textContent = shotsLine;
     const sk=stats.streak||0;
     let line = sk>1 ? `${sk}-day streak — keep it going`
       : (sk===1 ? "Day one of a new streak — back tomorrow?" : "");

@@ -377,9 +377,39 @@ let drill={on:false, state:'idle', target:null, t0:0, next:0, reps:0, best:Infin
 $('startDrill').addEventListener('click',()=>{
   if(!neutral){ footNote.textContent='Calibrate first so the drill knows your neutral head position.'; return; }
   drill={on:true,state:'wait',target:null,t0:0,next:performance.now()+1200,reps:0,best:Infinity,sum:0};
+  runEntry=null;   // new run -> new record entry
   rcV.textContent='0';
   $('startDrill').textContent='Running…';
 });
+
+// ---------- shared record (same-origin Coach Fred stats) ----------
+// Each run lands in the main app's session log; the all-time best slip shows
+// under Your record. Returns true when rt is a new all-time best.
+let runEntry=null;
+function saveReactionStats(rt){
+  try{
+    const s = JSON.parse(localStorage.getItem('coachfred.stats')||'{}');
+    s.reaction = s.reaction||{};
+    const newBest = !s.reaction.best || rt < s.reaction.best;
+    if(newBest) s.reaction.best = rt;
+    s.reaction.reps = (s.reaction.reps||0) + 1;
+    s.history = s.history||[];
+    if(!runEntry){
+      runEntry = {t:Date.now(), rounds:0, workSecs:0, structure:'Reaction drill', format:'Camera',
+                  reaction:{reps:0, best:rt, avg:rt}};
+      s.history.unshift(runEntry);
+      if(s.history.length>60) s.history.length=60;
+    } else {
+      const i = s.history.findIndex(e=>e.t===runEntry.t && e.structure==='Reaction drill');
+      if(i>=0) s.history[i]=runEntry; else s.history.unshift(runEntry);
+    }
+    runEntry.reaction.reps = drill.reps;
+    runEntry.reaction.best = drill.best;
+    runEntry.reaction.avg  = Math.round(drill.sum/drill.reps);
+    localStorage.setItem('coachfred.stats', JSON.stringify(s));
+    return newBest;
+  }catch(e){ return false; }
+}
 
 function drillTick(off){
   if(!drill.on) return;
@@ -401,7 +431,9 @@ function drillTick(off){
         drill.reps++; drill.sum+=rt; drill.best=Math.min(drill.best,rt);
         rcV.textContent=drill.reps;
         flashColor('rgba(63,181,107,.45)');
-        showPrompt(rt+' ms', 'best '+drill.best+' · avg '+Math.round(drill.sum/drill.reps));
+        const allTime = saveReactionStats(rt);
+        showPrompt(rt+' ms', (allTime && drill.reps>1 ? 'NEW ALL-TIME BEST · ' : '')
+          +'best '+drill.best+' · avg '+Math.round(drill.sum/drill.reps));
       }else{
         flashColor('rgba(226,59,46,.5)');
         showPrompt('WRONG WAY','');
