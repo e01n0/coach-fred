@@ -638,5 +638,369 @@
   "slug": "reaction-calls",
   "text": "Reaction calls!",
   "style": "cue"
+ },
+ {
+  "slug": "1-m",
+  "text": "one,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "2-m",
+  "text": "two,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "3-m",
+  "text": "three,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "4-m",
+  "text": "four,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "5-m",
+  "text": "five,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "6-m",
+  "text": "six,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "7-m",
+  "text": "seven,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "8-m",
+  "text": "eight,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "jab-m",
+  "text": "jab,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "cross-m",
+  "text": "cross,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "hook-m",
+  "text": "hook,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "rear-hook-m",
+  "text": "rear hook,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "uppercut-m",
+  "text": "uppercut,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "rear-uppercut-m",
+  "text": "rear uppercut,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "body-jab-m",
+  "text": "body jab,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "body-cross-m",
+  "text": "body cross,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "body-hook-m",
+  "text": "body hook,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "rear-body-hook-m",
+  "text": "rear body hook,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "slip-left-m",
+  "text": "slip left,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "slip-right-m",
+  "text": "slip right,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "roll-left-m",
+  "text": "roll left,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "roll-right-m",
+  "text": "roll right,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "step-in-m",
+  "text": "step in,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "step-out-m",
+  "text": "step out,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "step-back-m",
+  "text": "step back,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "step-left-m",
+  "text": "step left,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "step-right-m",
+  "text": "step right,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "pivot-left-m",
+  "text": "pivot left,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "pivot-right-m",
+  "text": "pivot right,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "pull-back-m",
+  "text": "pull back,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "lean-back-m",
+  "text": "lean back,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "duck-m",
+  "text": "duck,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "weave-m",
+  "text": "weave,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "parry-m",
+  "text": "parry,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "shield-m",
+  "text": "shield,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "block-m",
+  "text": "block,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "long-guard-m",
+  "text": "long guard,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "catch-m",
+  "text": "catch,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "high-guard-m",
+  "text": "high guard,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "feint-jab-m",
+  "text": "feint jab,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "feint-cross-m",
+  "text": "feint cross,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "feint-hook-m",
+  "text": "feint hook,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "feint-level-change-m",
+  "text": "feint level change,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "feint-m",
+  "text": "feint,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "circle-left-m",
+  "text": "circle left,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "circle-right-m",
+  "text": "circle right,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "shuffle-left-m",
+  "text": "shuffle left,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "shuffle-right-m",
+  "text": "shuffle right,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "pendulum-step-m",
+  "text": "pendulum step,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "l-step-m",
+  "text": "l step,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "cut-the-angle-m",
+  "text": "cut the angle,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
+ },
+ {
+  "slug": "step-drag-m",
+  "text": "step drag,",
+  "style": "combo",
+  "prev": "One, two, ",
+  "next": " one, two."
  }
 ]
