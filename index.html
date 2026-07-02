@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; media-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self'; manifest-src 'self'" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Coach Fred" />
@@ -170,7 +170,7 @@
   .sheet.open{transform:translateY(0);}
   .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;}
   .sheet-head h2{font-family:"Anton";font-weight:400;letter-spacing:.05em;font-size:26px;text-transform:uppercase;}
-  .close{background:none;border:none;color:var(--tape);font-size:30px;line-height:1;cursor:pointer;padding:0 4px;}
+  .close{background:none;border:none;color:var(--tape);font-size:30px;line-height:1;cursor:pointer;padding:8px 14px;margin:-8px -10px;}
   .tabs{display:flex;gap:6px;padding:0 16px 8px;border-bottom:1px solid var(--line);}
   .tabs button{flex:1;padding:11px 4px;border:none;background:transparent;color:var(--steel);font-family:"Barlow Semi Condensed";font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;}
   .tabs button.on{color:var(--tape);border-bottom-color:var(--work);}
@@ -191,7 +191,7 @@
   .note.help{display:none;}
   .note.help.open{display:block;}
   .lbl-grp{display:inline-flex;align-items:center;gap:7px;}
-  .help-btn{flex:0 0 auto;width:18px;height:18px;line-height:1;padding:0;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--steel);font-family:inherit;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s,background .15s;}
+  .help-btn{flex:0 0 auto;width:24px;height:24px;line-height:1;padding:0;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--steel);font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s,background .15s;}
   .help-btn.on{color:var(--canvas);background:var(--steel);border-color:var(--steel);}
   .help-btn:active{opacity:.7;}
   .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
@@ -241,6 +241,24 @@
   .slider:before{content:"";position:absolute;height:24px;width:24px;left:3px;top:3px;background:var(--tape);border-radius:50%;transition:.2s;}
   .switch input:checked + .slider{background:var(--rest);}
   .switch input:checked + .slider:before{transform:translateX(24px);}
+
+  /* idle-screen session summary — tap to open Setup on the timer */
+  .session-line{margin-top:12px;font-family:var(--hud-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb, var(--tape) 76%, transparent);background:rgba(0,0,0,.18);border:1px solid var(--line);padding:9px 16px;border-radius:999px;cursor:pointer;}
+  .session-line:active{transform:scale(.97);}
+  #app.work .session-line,#app.rest .session-line,#app.prep .session-line,#app.done .session-line{display:none;}
+
+  /* timer block — steppers for rounds / length / rest / get ready */
+  .timer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .timer-grid .cap{font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
+  .timer-grid .stepper{width:100%;}
+  .timer-grid .stepper .sv{flex:1;cursor:pointer;min-height:40px;display:flex;align-items:center;justify-content:center;}
+  .timer-grid .stepper .sv input{width:100%;background:transparent;border:none;color:var(--tape);font-family:"Anton";font-size:18px;text-align:center;outline:none;}
+
+  /* quick-start confirmation toast */
+  .wk-toast{position:fixed;left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:25;display:none;align-items:center;gap:10px;background:var(--canvas-2);border:1px solid var(--prep);border-radius:14px;padding:12px 14px;box-shadow:0 12px 40px rgba(0,0,0,.5);}
+  .wk-toast.show{display:flex;}
+  .wk-toast .msg{flex:1;font-weight:600;font-size:14px;letter-spacing:.03em;}
+  .wk-toast button{border:none;border-radius:10px;background:var(--prep);color:var(--canvas);font-family:inherit;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:13px;padding:11px 14px;cursor:pointer;}
 
   /* collapsible accordion */
   .acc{border-bottom:1px solid var(--line);}
@@ -369,6 +387,7 @@
   <main>
     <div class="state-label" id="stateLabel">Ready</div>
     <div class="clock" id="clock">03:00</div>
+    <button class="session-line" id="sessionLine"></button>
     <div class="combo">
       <div class="combo-numbers" id="comboNumbers"></div>
       <div class="combo-names" id="comboNames"></div>
@@ -396,24 +415,45 @@
   <div class="tabs" id="tabs">
     <button data-pane="workout" class="on">Workout</button>
     <button data-pane="combos">Combos</button>
-    <button data-pane="more">Settings</button>
+    <button data-pane="more">More</button>
   </div>
   <div class="sheet-body">
 
-    <!-- WORKOUT PANE -->
+    <!-- WORKOUT PANE — timer first: rounds / length / rest are the app's core job -->
     <div class="pane on" id="pane-workout">
-      <div class="field">
-        <div class="field-label"><span>Quick start</span></div>
-        <div class="workouts" id="workoutGrid"></div>
-        <div class="note help">Real, ring-standard structures &mdash; tap one to load it, then tweak below. Tabata, HIIT and EMOM are timed interval formats; Pyramid, Burnout and Footwork change what the corner calls.</div>
+      <div id="uniformBox">
+        <div class="field">
+          <div class="field-label"><span>Rounds &amp; timing</span><span class="val" id="vTotal"></span></div>
+          <div class="timer-grid">
+            <div><div class="cap">Rounds</div>
+              <div class="stepper" data-t="rounds"><button data-st="rounds" data-d="-1">&minus;</button><div class="sv" id="vRounds">6</div><button data-st="rounds" data-d="1">+</button></div></div>
+            <div><div class="cap">Round length</div>
+              <div class="stepper" data-t="work"><button data-st="work" data-d="-1">&minus;</button><div class="sv" id="vWork">3:00</div><button data-st="work" data-d="1">+</button></div></div>
+            <div><div class="cap">Rest</div>
+              <div class="stepper" data-t="rest"><button data-st="rest" data-d="-1">&minus;</button><div class="sv" id="vRest">1:00</div><button data-st="rest" data-d="1">+</button></div></div>
+            <div><div class="cap">Get ready</div>
+              <div class="stepper" data-t="prep"><button data-st="prep" data-d="-1">&minus;</button><div class="sv" id="vPrep">0:10</div><button data-st="prep" data-d="1">+</button></div></div>
+          </div>
+          <div class="note">Hold to step fast, or tap a value to type it.</div>
+        </div>
+      </div>
+
+      <div id="customBox" style="display:none;">
+        <div id="progList"></div>
+        <button class="addbig" id="addRound">+ Add round</button>
+        <div class="note">Each round has its own length, rest, combos and type. Rest sits between rounds; the last round has no trailing rest.</div>
       </div>
 
       <div class="field">
-        <div class="field-label"><span>Structure</span></div>
         <div class="seg" id="segMode">
-          <button data-v="uniform" class="on">Uniform</button>
-          <button data-v="custom">Custom rounds</button>
+          <button data-v="uniform" class="on">Same every round</button>
+          <button data-v="custom">Round by round</button>
         </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label"><span>Quick start</span></div>
+        <div class="workouts" id="workoutGrid"></div>
       </div>
 
       <div class="field">
@@ -424,69 +464,50 @@
           <option value="advanced">Advanced</option>
           <option value="build">Build up over rounds</option>
         </select>
-        <div class="note help">Beginner keeps it simple; each level unlocks more and mixes in more defence and body work. <b>How scaling works:</b> Movement mix and Body shots set the ceiling &mdash; your Level scales it down, so Beginner stays sparse and Advanced fills it in. Build up ramps beginner&rarr;advanced across the rounds (per stance when alternating), layering defence then counters onto the same combos as it climbs &mdash; e.g. round 1 calls 1-2-3, later rounds 1-2-3 slip, then 1-2-3 slip 2.</div>
+        <div class="note help">Beginner keeps it simple; each level unlocks more and mixes in more defence and body work. <b>How scaling works:</b> Defence &amp; movement and Body shots set the ceiling &mdash; your Level scales it down, so Beginner stays sparse and Advanced fills it in. Build up ramps beginner&rarr;advanced across the rounds (per stance when alternating), layering defence then counters onto the same combos as it climbs &mdash; e.g. round 1 calls 1-2-3, later rounds 1-2-3 slip, then 1-2-3 slip 2.</div>
       </div>
 
-      <div class="field">
-        <div class="toggle-row">
-          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Call stance each round</span>
-          <label class="switch"><input type="checkbox" id="sStance" checked><span class="slider"></span></label>
-        </div>
-        <div class="seg" id="segStance" style="margin-top:12px;">
-          <button data-v="orthodox" class="on">Orthodox</button>
-          <button data-v="southpaw">Southpaw</button>
-          <button data-v="alternate">Alternate</button>
-        </div>
-        <div id="startStanceBox" style="margin-top:12px;">
-          <div class="field-label"><span>Alternate starts with</span></div>
-          <div class="seg" id="segStartStance">
-            <button data-v="orthodox" class="on">Orthodox</button>
-            <button data-v="southpaw">Southpaw</button>
-          </div>
-        </div>
-        <div class="note help">Alternate flips orthodox/southpaw each round, starting from the stance you pick above. The stance is shown and called at the start of every round. Tap the badge on the main screen to flip it mid-session.</div>
-      </div>
-
-      <div id="uniformBox">
-        <div class="field">
-          <div class="field-label"><span>Rounds</span><span class="val" id="vRounds">6</span></div>
-          <input type="range" id="sRounds" min="1" max="15" step="1" value="6">
-        </div>
-        <div class="field">
-          <div class="field-label"><span>Round length</span><span class="val" id="vWork">3:00</span></div>
-          <input type="range" id="sWork" min="15" max="300" step="15" value="180">
-        </div>
-        <div class="field">
-          <div class="field-label"><span>Rest</span><span class="val" id="vRest">1:00</span></div>
-          <input type="range" id="sRest" min="0" max="180" step="15" value="60">
-        </div>
+      <div id="uniformBox2">
         <div class="field" id="uniformFocusField">
-          <div class="field-label"><span>Combos for all rounds</span></div>
+          <div class="field-label"><span>Combo pool</span></div>
           <select id="uniformFocus"></select>
         </div>
         <div class="field">
-          <div class="field-label"><span>Round format</span></div>
+          <div class="field-label"><span>Round type</span></div>
           <select id="sFormat"></select>
           <div class="note" id="formatNote"></div>
         </div>
         <div class="field" id="drillField" style="display:none;">
           <div class="field-label"><span>Combo to drill</span></div>
           <select id="sDrillCombo"></select>
-          <div class="field-label" style="margin-top:12px;"><span>Call every</span><span class="val" id="vDrill">8s</span></div>
-          <input type="range" id="sDrillInterval" min="3" max="30" step="1" value="8">
-          <div class="note help">Picks one combo and calls it on a steady beat for the whole round. Set the round length above to your work time. If a call runs long, the next one waits until it finishes.</div>
+          <div class="field-label" style="margin-top:12px;"><span>Call every</span></div>
+          <div class="stepper" style="max-width:180px;" data-t="drill"><button data-st="drill" data-d="-1">&minus;</button><div class="sv" id="vDrill">8s</div><button data-st="drill" data-d="1">+</button></div>
+          <div class="note">Picks one combo and calls it on a steady beat for the whole round. If a call runs long, the next one waits until it finishes.</div>
         </div>
       </div>
 
-      <div id="customBox" style="display:none;">
-        <div id="progList"></div>
-        <button class="addbig" id="addRound">+ Add round</button>
-        <div class="note">Each round can pull from a different combo set. Rest sits between rounds; the last round has no trailing rest.</div>
-      </div>
-
       <details class="acc">
-        <summary><span class="acc-t">Coach calls</span></summary>
+        <summary><span class="acc-t">Coaching</span></summary>
         <div class="acc-body">
+          <div class="field">
+            <div class="toggle-row">
+              <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Call stance each round</span>
+              <label class="switch"><input type="checkbox" id="sStance" checked><span class="slider"></span></label>
+            </div>
+            <div class="seg" id="segStance" style="margin-top:12px;">
+              <button data-v="orthodox" class="on">Orthodox</button>
+              <button data-v="southpaw">Southpaw</button>
+              <button data-v="alternate">Alternate</button>
+            </div>
+            <div id="startStanceBox" style="margin-top:12px;">
+              <div class="field-label"><span>Alternate starts with</span></div>
+              <div class="seg" id="segStartStance">
+                <button data-v="orthodox" class="on">Orthodox</button>
+                <button data-v="southpaw">Southpaw</button>
+              </div>
+            </div>
+            <div class="note help">Alternate flips orthodox/southpaw each round, starting from the stance you pick above. The stance is shown and called at the start of every round. Tap the badge on the main screen to flip it mid-session.</div>
+          </div>
           <div class="field">
             <div class="field-label"><span>Call style</span></div>
             <div class="seg" id="segCall">
@@ -494,7 +515,7 @@
               <button data-v="names">Names</button>
               <button data-v="both">Both</button>
             </div>
-            <div class="note help">How punches are spoken. Numbers: "one, two". Names: "jab, cross". Both: "one jab, two cross", and body shots are always called by name ("body hook").</div>
+            <div class="note">Numbers: &ldquo;one, two&rdquo; &middot; Names: &ldquo;jab, cross&rdquo; &middot; Both: &ldquo;one jab, two cross&rdquo;. Body shots are always named.</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Combo pace</span></div>
@@ -506,13 +527,13 @@
           </div>
           <div class="field">
             <div class="toggle-row">
-              <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Fatigue shaping</span>
+              <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Corner pacing</span>
               <label class="switch"><input type="checkbox" id="sFatigue" checked><span class="slider"></span></label>
             </div>
-            <div class="note help">Like a real corner, the pace eases through the back half of a long round, then spikes for the final ten. Turn off for an even, metronome-steady pace throughout.</div>
+            <div class="note">Eases through the back half of a long round, then pushes the final ten &mdash; like a real corner. Off = metronome-steady.</div>
           </div>
           <div class="field">
-            <div class="field-label"><span>Movement mix</span></div>
+            <div class="field-label"><span>Defence &amp; movement</span></div>
             <div class="seg" id="segMoveMix">
               <button data-v="off">Off</button>
               <button data-v="light" class="on">Light</button>
@@ -527,7 +548,7 @@
               <button data-v="some" class="on">Some</button>
               <button data-v="lots">Lots</button>
             </div>
-            <div class="note help">Sets the ceiling for body shots (1b, 2b jab/cross to body, and 3b, 4b body hooks) mixed into freestyle combos. Your Level scales it down &mdash; see <b>How scaling works</b> under Level. Named body combos live in Combos &rarr; Body.</div>
+            <div class="note">How many body shots get mixed into freestyle combos &mdash; your Level scales it. Named body combos live in Combos &rarr; Body.</div>
           </div>
         </div>
       </details>
@@ -595,8 +616,8 @@
         </div>
       </details>
       <div class="field">
-        <div class="field-label"><span>Voice speed</span><span class="val" id="vRate">1.25&times;</span></div>
-        <input type="range" id="sRate" min="0.8" max="1.6" step="0.05" value="1.25">
+        <div class="field-label"><span>Voice speed</span><span class="val" id="vRate">1.0&times;</span></div>
+        <input type="range" id="sRate" min="0.65" max="1.3" step="0.05" value="1">
         <div class="note help">How fast the coach talks. The next combo isn't called until you've had time to finish the current one, and longer combos wait longer before the next call. The coach is a recorded human voice &mdash; if it&rsquo;s silent, flip the phone&rsquo;s mute switch off and turn the volume up. iOS only plays sound after you tap Start.</div>
       </div>
       <div class="field">
@@ -649,6 +670,7 @@
     </div>
 
   </div>
+  <div class="wk-toast" id="wkToast"><span class="msg" id="wkToastMsg"></span><button id="wkToastGo">Start now</button></div>
   <div class="sheet-foot">
     <a class="coffee" href="https://buymeacoffee.com/coachfred" target="_blank" rel="noopener noreferrer"><span class="cup">&#9749;</span> Buy me a coffee</a>
     <span class="ver" id="appVersion"></span>
@@ -813,7 +835,7 @@
      Tabata 20/10 x8, HIIT 40/20, EMOM and burnout/pyramid drills from FightCamp
      and Sweet Science of Fighting. */
   const WORKOUTS = [
-    {id:"beginner", label:"Beginner",  sub:"3 × 2:00", cfg:{mode:"uniform",rounds:3,work:120,rest:60,level:"beginner",uniformFocus:"all",format:"combos",moveMix:"light",bodyMix:"some",pace:"relaxed"}},
+    {id:"beginner", label:"Beginner",  sub:"3 × 2:00", cfg:{mode:"uniform",rounds:3,work:120,rest:60,level:"beginner",uniformFocus:"all",format:"combos",moveMix:"light",bodyMix:"some",pace:"relaxed",callStyle:"both"}},
     {id:"amateur",  label:"Amateur",   sub:"3 × 3:00", cfg:{mode:"uniform",rounds:3,work:180,rest:60,level:"intermediate",uniformFocus:"all",format:"combos",pace:"steady"}},
     {id:"club",     label:"Club bag",  sub:"6 × 3:00", cfg:{mode:"uniform",rounds:6,work:180,rest:60,level:"build",uniformFocus:"all",format:"combos",pace:"steady"}},
     {id:"pro",      label:"Pro",       sub:"12 × 3:00",cfg:{mode:"uniform",rounds:12,work:180,rest:60,level:"build",uniformFocus:"all",format:"combos",pace:"steady"}},
@@ -1155,7 +1177,7 @@
       {label:"Round 3", work:180, rest:0,  focus:"all"}
     ],
     pace:"relaxed", moveMix:"light", level:"build", bodyMix:"some", voice:"pack:fred",
-    stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"numbers", rate:1.25,
+    stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"numbers", speed:1,
     format:"combos", fatigueOn:true,
     drillComboId:null, drillInterval:8,
     theme:"fred",
@@ -1180,6 +1202,10 @@
       const raw = store.get("coachfred.v2");
       if(raw){ const saved = JSON.parse(raw); c = Object.assign(c, saved); }
     }catch(e){}
+    // Voice speed used to be stored as a raw clip rate with 1.25 = neutral;
+    // it's now a speed multiplier with 1 = neutral. Migrate old profiles.
+    if(!(typeof c.speed==="number" && c.speed>0))
+      c.speed = (typeof c.rate==="number" && c.rate>0) ? Math.min(1.3, Math.max(0.65, c.rate/1.25)) : 1;
     if(!c.library) c.library = freshLibrary();
     if(!Array.isArray(c.custom)) c.custom = [];
     if(!c.movement) c.movement = freshMovement();
@@ -1243,6 +1269,8 @@
   const roundNow=$("roundNow"), roundTotal=$("roundTotal"), dots=$("dots"), sheet=$("sheet");
 
   const fmt = s => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+  const fmtS = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;   // "2:00", no leading zero
+  const showSpeed = s => (+s).toFixed(2).replace(/0$/,"")+"×";
   const pad2 = n => String(n).padStart(2,"0");
   const rnd = (a,b) => a + Math.random()*(b-a);
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
@@ -1354,7 +1382,7 @@
     if(c.state==="suspended") c.resume().catch(()=>{});
     const gen = ++clipGen;
     const t = TONES[tone] || TONES.combo;
-    const rate = Math.max(0.85, Math.min(1.3, (cfg.rate||1.25)/1.25 * (t.rate||1)));
+    const rate = Math.max(0.85, Math.min(1.3, (cfg.speed||1) * (t.rate||1)));
     Promise.all(slugs.map(loadClip)).then(bufs=>{
       if(gen!==clipGen){ finish(); return; }   // superseded while loading: skip audio, but still release the caller
       const g = c.createGain(); g.gain.value = (t.vol!=null?t.vol:1); g.connect(c.destination);
@@ -1789,6 +1817,10 @@
   function resume(){ endAt=Date.now()+pausedRemaining; if(phase==="work") nextComboAt=Date.now()+700; run(); }
   function skip(){
     if(phase!=="work" && phase!=="rest" && phase!=="prep") return;
+    // Credit the round if it's skipped inside its final ten seconds —
+    // hitting Skip at 0:02 shouldn't cost the round in your record.
+    const rem = running ? (endAt-Date.now()) : pausedRemaining;
+    if(phase==="work" && rem<=10000) onRoundComplete();
     cancelSpeech();
     clearDeliver(); delivering=false;
     advance();
@@ -1840,6 +1872,7 @@
     skipBtn.disabled=true;
     roundNow.textContent="01"; roundTotal.textContent=pad2(totalWork);
     updateStanceBadge(null);
+    updateSessionLine();
     paintDots();
   }
   function paintDots(){
@@ -1869,8 +1902,10 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v19";
+  const APP_VERSION = "v20";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
+  // the HUD status line shows the loaded build instead of decorative hex
+  document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
   console.log("Coach Fred " + APP_VERSION);
   // Instant voice test — verify audio works without running a whole session.
   $("testVoice").addEventListener("click", ()=>{ ensureAudio(); primeSpeech(); say("Coach Fred, ready to work."); });
@@ -1902,8 +1937,17 @@
   });
 
   /* ---------- sheet + tabs ---------- */
-  $("openSettings").addEventListener("click", ()=>{ renderLibrary(); renderMovement(); renderProgram(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats(); sheet.classList.add("open"); });
-  $("closeSettings").addEventListener("click", ()=>{ save(); sheet.classList.remove("open"); if(phase==="idle") reset(); });
+  function openSetup(pane){
+    renderLibrary(); renderMovement(); renderProgram(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats();
+    if(pane){
+      [...$("tabs").children].forEach(x=> x.classList.toggle("on", x.dataset.pane===pane));
+      ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p===pane));
+    }
+    sheet.classList.add("open");
+  }
+  $("openSettings").addEventListener("click", ()=> openSetup());
+  $("sessionLine").addEventListener("click", ()=> openSetup("workout"));
+  $("closeSettings").addEventListener("click", ()=>{ save(); hideWkToast(); sheet.classList.remove("open"); if(phase==="idle") reset(); });
   $("tabs").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
     [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on");
@@ -1940,11 +1984,11 @@
     {h:"Read the calls", b:"Combos flash up here and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between.", at:()=>{ tutCloseSheet(); return document.querySelector(".combo"); }},
     {h:"Switch stance", b:"This badge shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you.", at:()=> tutShowStance() },
     {h:"Set up your session", b:"Everything else lives behind the <b>gear</b>. Tap it for workouts, your combo pool, the builder, voice and themes &mdash; I&rsquo;ll open it up next.", at:()=>{ tutCloseSheet(); return $("openSettings"); }},
-    {h:"Three tabs", b:"Setup splits into three. <b>Workout</b>: rounds, length, level and how the corner calls. <b>Combos</b>: pick your pool or build your own. <b>Settings</b>: voice, speed and theme.", at:()=>{ tutOpenPane("workout"); return $("tabs"); }},
-    {h:"Pick a workout", b:"<b>Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Set <b>Level</b>, rounds and timing below, and open <b>Coach calls</b> to shape pace, movement and body work.", at:()=>{ tutOpenPane("workout"); return $("workoutGrid"); }},
+    {h:"Three tabs", b:"Setup splits into three. <b>Workout</b>: your rounds and timing up top, level and how the corner calls. <b>Combos</b>: pick your pool or build your own. <b>More</b>: voice, themes and your record.", at:()=>{ tutOpenPane("workout"); return $("tabs"); }},
+    {h:"Pick a workout", b:"Your <b>rounds, timing and rest</b> sit right at the top. <b>Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Open <b>Coaching</b> to shape stance, pace, movement and body work.", at:()=>{ tutOpenPane("workout"); return $("workoutGrid"); }},
     {h:"Pick your combos", b:"Over in <b>Combos</b>, tick the combos you want in the pool &mdash; the caller pulls from the ticked ones at random. They&rsquo;re grouped by style, with a level badge on each. Tap a group to open it.", at:()=> tutPickCombos() },
     {h:"Build your own", b:"Open <b>Build a combo</b> and tap <b>Punches</b> and <b>Movement</b> &mdash; each one stacks into the box at the top so you can see the combo take shape. Name it, hit <b>Save</b>, and it joins your pool.", at:()=>{ tutOpenPane("combos"); return tutOpenAcc($("stage")).closest(".builder"); }},
-    {h:"Pick your fighter", b:"In <b>Settings &rarr; Theme</b>, reskin the whole app. Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Tap one and the whole corner changes.", at:()=>{ tutOpenPane("more"); return tutOpenAcc($("themeGrid")); }},
+    {h:"Pick your fighter", b:"In <b>More &rarr; Theme</b>, reskin the whole app. Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Tap one and the whole corner changes.", at:()=>{ tutOpenPane("more"); return tutOpenAcc($("themeGrid")); }},
     {h:"Turn the sound on", b:"The coach is a recorded human voice, so flip your phone off silent and turn it up. Set <b>Voice speed</b> here, then hit <b>Test voice</b> to check it. On iPhone the coach only speaks <b>after you tap Start</b>.", at:()=>{ tutOpenPane("more"); return $("testVoice").closest(".field"); }},
     {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
@@ -1997,6 +2041,9 @@
   function closeTut(){
     tut.classList.remove("open","spot","centered");
     tutClearStance(); sheet.classList.remove("open"); tutTarget=null;
+    // land the next Setup open on Workout, not wherever the tour finished
+    [...$("tabs").children].forEach(x=> x.classList.toggle("on", x.dataset.pane==="workout"));
+    ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p==="workout"));
     if(tutTimer){ clearTimeout(tutTimer); tutTimer=null; }
     try{ store.set("coachfred.tutSeen","1"); }catch(e){}
   }
@@ -2009,8 +2056,25 @@
 
   /* ---------- workout pane wiring ---------- */
   function syncModeUI(){
-    $("uniformBox").style.display = cfg.mode==="uniform" ? "block" : "none";
-    $("customBox").style.display  = cfg.mode==="custom"  ? "block" : "none";
+    const uni = cfg.mode==="uniform";
+    $("uniformBox").style.display  = uni ? "block" : "none";
+    $("uniformBox2").style.display = uni ? "block" : "none";
+    $("customBox").style.display   = uni ? "none"  : "block";
+  }
+
+  /* ---------- idle-screen session summary ---------- */
+  const LEVEL_LABEL = {beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced", build:"Build up"};
+  function updateSessionLine(){
+    const el=$("sessionLine"); if(!el) return;
+    if(cfg.mode==="custom"){
+      const n=cfg.program.length;
+      el.textContent = `${n} round${n===1?"":"s"} · round by round`;
+      return;
+    }
+    const tail = (cfg.format && cfg.format!=="combos")
+      ? (FORMAT_LABEL[cfg.format]||"").split(" (")[0]
+      : (LEVEL_LABEL[cfg.level]||"");
+    el.textContent = `${cfg.rounds} × ${fmtS(cfg.work)} · ${fmtS(cfg.rest)} rest${tail?` · ${tail}`:""}`;
   }
 
   /* ---------- preset workouts + round format ---------- */
@@ -2027,7 +2091,20 @@
     activeWorkout = id;
     save(); initUI();
     if(phase==="idle") reset();
+    showWkToast(w);
   }
+  /* quick-start confirmation: visible feedback + a one-tap start */
+  let wkToastT=null;
+  function showWkToast(w){
+    $("wkToastMsg").textContent = `${w.label} loaded — ${w.sub}`;
+    $("wkToast").classList.add("show");
+    clearTimeout(wkToastT); wkToastT=setTimeout(hideWkToast, 5000);
+  }
+  function hideWkToast(){ clearTimeout(wkToastT); $("wkToast").classList.remove("show"); }
+  $("wkToastGo").addEventListener("click", ()=>{
+    hideWkToast(); save(); sheet.classList.remove("open");
+    if(phase==="idle" || phase==="done") startBtn.click();
+  });
   function comboPickLabel(c){
     const seq = c.tokens.map(t=> isDigit(t) ? t : (t.split(" ")[0])).join(" ");
     return c.name ? `${c.name} — ${seq}` : seq;
@@ -2042,8 +2119,9 @@
   }
   function syncFormatUI(){
     const fmt = cfg.format||"combos";
-    const special = fmt!=="combos";
-    $("uniformFocusField").style.display = special ? "none" : "block";
+    // EMOM still calls from the pool, so the pool picker stays visible for it.
+    const hidePool = fmt!=="combos" && fmt!=="emom";
+    $("uniformFocusField").style.display = hidePool ? "none" : "block";
     $("drillField").style.display = fmt==="drill" ? "block" : "none";
     if(fmt==="drill") renderDrillPicker();
     const f = FORMATS.find(x=>x[0]===fmt);
@@ -2052,7 +2130,6 @@
   $("workoutGrid").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) applyWorkout(b.dataset.wk); });
   $("sFormat").addEventListener("change", e=>{ cfg.format=e.target.value; activeWorkout=null; renderWorkouts(); syncFormatUI(); save(); if(phase==="idle") reset(); });
   $("sDrillCombo").addEventListener("change", e=>{ cfg.drillComboId=e.target.value; save(); if(phase==="idle") reset(); });
-  $("sDrillInterval").addEventListener("input", e=>{ cfg.drillInterval=+e.target.value; $("vDrill").textContent=cfg.drillInterval+"s"; save(); });
   $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
   function renderThemes(){
     const grid = $("themeGrid");
@@ -2075,9 +2152,76 @@
     [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on");
     cfg.mode=b.dataset.v; syncModeUI(); touchWorkout(); save(); if(phase==="idle") reset();
   });
-  $("sRounds").addEventListener("input",e=>{ cfg.rounds=+e.target.value; $("vRounds").textContent=cfg.rounds; touchWorkout(); save(); if(phase==="idle") reset(); });
-  $("sWork").addEventListener("input",e=>{ cfg.work=+e.target.value; $("vWork").textContent=fmt(cfg.work); touchWorkout(); save(); if(phase==="idle") reset(); });
-  $("sRest").addEventListener("input",e=>{ cfg.rest=+e.target.value; $("vRest").textContent=fmt(cfg.rest); touchWorkout(); save(); });
+  /* ---------- timer steppers (rounds / length / rest / get ready / drill beat) ---------- */
+  const STEP_DEFS = {
+    rounds:{min:1,  max:15,  step:1,  el:"vRounds", get:()=>cfg.rounds,           set:v=>cfg.rounds=v,           show:v=>String(v), touch:true},
+    work:  {min:15, max:300, step:15, el:"vWork",   get:()=>cfg.work,             set:v=>cfg.work=v,             show:fmtS,         touch:true},
+    rest:  {min:0,  max:180, step:15, el:"vRest",   get:()=>cfg.rest,             set:v=>cfg.rest=v,             show:fmtS,         touch:true},
+    prep:  {min:0,  max:60,  step:5,  el:"vPrep",   get:()=>cfg.prep||0,          set:v=>cfg.prep=v,             show:fmtS,         touch:true},
+    drill: {min:3,  max:30,  step:1,  el:"vDrill",  get:()=>cfg.drillInterval||8, set:v=>cfg.drillInterval=v,    show:v=>v+"s"}
+  };
+  function sessionTotal(){
+    const rests = cfg.rest>0 ? Math.max(0,cfg.rounds-1)*cfg.rest : 0;
+    return (cfg.prep||0) + cfg.rounds*cfg.work + rests;
+  }
+  function refreshTimerUI(){
+    for(const k in STEP_DEFS){ const d=STEP_DEFS[k], el=$(d.el); if(el && !el.querySelector("input")) el.textContent = d.show(d.get()); }
+    const t=$("vTotal"); if(t) t.textContent = fmtS(sessionTotal());
+    updateSessionLine();
+  }
+  function stepTimer(key, dir){
+    const d=STEP_DEFS[key]; if(!d) return;
+    const v=Math.max(d.min, Math.min(d.max, d.get()+dir*d.step));
+    if(v===d.get()) return;
+    d.set(v);
+    if(d.touch) touchWorkout();
+    save(); refreshTimerUI();
+    if(phase==="idle") reset();
+  }
+  // press-and-hold repeats; a plain tap steps once
+  let stHold=null, stRep=null;
+  function stStop(){ clearTimeout(stHold); clearInterval(stRep); stHold=stRep=null; }
+  $("pane-workout").addEventListener("pointerdown", e=>{
+    const b=e.target.closest("button[data-st]"); if(!b) return;
+    e.preventDefault();
+    const key=b.dataset.st, dir=+b.dataset.d;
+    stepTimer(key, dir);
+    stHold=setTimeout(()=>{ stRep=setInterval(()=>stepTimer(key,dir), 110); }, 450);
+  });
+  ["pointerup","pointercancel"].forEach(ev=>document.addEventListener(ev, stStop));
+  // tap the value to type it: accepts "2:00", "90", "45s", "2m"
+  function parseDur(str, key){
+    str=String(str).trim().toLowerCase(); if(!str) return null;
+    if(key==="rounds"||key==="drill"){ const n=parseInt(str,10); return isNaN(n)?null:n; }
+    let m=str.match(/^(\d+):(\d{1,2})$/); if(m) return (+m[1])*60 + (+m[2]);
+    m=str.match(/^(\d+(?:\.\d+)?)\s*m$/); if(m) return Math.round(+m[1]*60);
+    m=str.match(/^(\d+)\s*s?$/); if(!m) return null;
+    const n=+m[1];
+    return (n<15 && !/s$/.test(str)) ? n*60 : n;   // bare "2" means 2 minutes, "30" means 30 seconds
+  }
+  $("pane-workout").addEventListener("click", e=>{
+    const sv=e.target.closest(".stepper .sv"); if(!sv || sv.querySelector("input")) return;
+    const key=(sv.parentElement.dataset||{}).t; const d=STEP_DEFS[key]; if(!d) return;
+    sv.innerHTML = `<input type="text" inputmode="numeric" enterkeyhint="done">`;
+    const inp=sv.querySelector("input");
+    inp.value = d.show(d.get()).replace(/s$/,"");
+    inp.focus(); inp.select();
+    const commit=()=>{
+      if(inp.dataset.done) return; inp.dataset.done="1";
+      const raw=parseDur(inp.value, key);
+      if(raw!=null){
+        const snapped = Math.round(raw/d.step)*d.step;
+        d.set(Math.max(d.min, Math.min(d.max, snapped)));
+        if(d.touch) touchWorkout();
+        save();
+      }
+      inp.remove();
+      refreshTimerUI();
+      if(phase==="idle") reset();
+    };
+    inp.addEventListener("blur", commit);
+    inp.addEventListener("keydown", ev=>{ if(ev.key==="Enter") inp.blur(); });
+  });
   $("uniformFocus").addEventListener("change",e=>{ cfg.uniformFocus=e.target.value; touchWorkout(); save(); });
   $("sLevel").addEventListener("change",e=>{ cfg.level=e.target.value; touchWorkout(); save(); if(phase==="idle") reset(); });
   function syncStanceUI(){ $("startStanceBox").style.display = (cfg.stanceOn && cfg.stanceMode==="alternate") ? "block" : "none"; }
@@ -2281,19 +2425,16 @@
   $("segMoveMix").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.moveMix=b.dataset.v; save(); });
   $("segBody").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.bodyMix=b.dataset.v; save(); });
   $("segCall").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on"); cfg.callStyle=b.dataset.v; save(); });
-  $("sRate").addEventListener("input", e=>{ cfg.rate=+e.target.value; $("vRate").innerHTML = cfg.rate.toFixed(2)+"&times;"; save(); });
+  $("sRate").addEventListener("input", e=>{ cfg.speed=+e.target.value; $("vRate").textContent = showSpeed(cfg.speed); save(); });
 
   /* ---------- init UI from cfg ---------- */
   function initUI(){
     [...$("segMode").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.mode));
     syncModeUI();
-    $("sRounds").value=cfg.rounds; $("vRounds").textContent=cfg.rounds;
-    $("sWork").value=cfg.work; $("vWork").textContent=fmt(cfg.work);
-    $("sRest").value=cfg.rest; $("vRest").textContent=fmt(cfg.rest);
+    refreshTimerUI();
     buildFocusSelect($("uniformFocus"), cfg.uniformFocus);
     $("sFormat").innerHTML = FORMATS.map(f=>`<option value="${f[0]}">${f[1]}</option>`).join("");
     $("sFormat").value = cfg.format || "combos";
-    $("sDrillInterval").value = cfg.drillInterval || 8; $("vDrill").textContent = (cfg.drillInterval||8)+"s";
     syncFormatUI();
     renderWorkouts();
     $("sFatigue").checked = cfg.fatigueOn !== false;
@@ -2306,7 +2447,7 @@
     [...$("segStartStance").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.startStance));
     syncStanceUI();
     [...$("segCall").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.callStyle));
-    $("sRate").value=cfg.rate; $("vRate").innerHTML = cfg.rate.toFixed(2)+"\u00d7";
+    $("sRate").value=cfg.speed; $("vRate").textContent = showSpeed(cfg.speed);
     renderThemes();
     buildPunchPad(); renderMovePad(); renderStage();
     initHelpPoppers(); renderStats();

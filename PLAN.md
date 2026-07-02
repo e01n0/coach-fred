@@ -13,7 +13,7 @@ demotes coaching nuance behind it.
 
 ---
 
-## Session 1 — Deep usability review (audit, not code)
+## Session 1 — Deep usability review (audit, not code) ✅ done — see USABILITY_REVIEW.md
 
 **Goal:** a written, prioritized usability audit that fixes the information
 architecture on paper before any code moves. Output: `USABILITY_REVIEW.md`.
@@ -54,7 +54,7 @@ amended by its findings.
 
 ---
 
-## Session 2 — Timer-first Setup restructure + quick wins
+## Session 2 — Timer-first Setup restructure + quick wins ✅ done (v20)
 
 **Goal:** implement the IA chosen in Session 1. The founder's case — set
 rounds, time, rest — becomes the first thing the sheet shows.

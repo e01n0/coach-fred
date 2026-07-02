@@ -47,8 +47,8 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
 - **EMOM** — 10 × 1:00, one combo at the top of each minute
 - **Pyramid**, **Burnout**, **Footwork** — drill formats (below)
 
-## Round formats
-**Setup → Workout → Round format** changes what the corner calls during work:
+## Round types
+**Setup → Workout → Round type** changes what the corner calls during work:
 
 - **Combos** *(default)* — combinations from your ticked pool
 - **Pyramid** — climb the punch count 1→6 and back down, a classic bag ladder
@@ -57,10 +57,10 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
   circling, L-step, cut-the-angle), which flip left/right on southpaw rounds
 - **EMOM** — every minute on the minute: one combo at the top, rest the rest
 
-In **Custom rounds** each round can use a different format.
+In **Round by round** mode each round can use a different type.
 
 ## Shot focus (custom rounds)
-**Setup → Workout → Custom rounds → Shot focus** leans the corner onto one shot
+**Setup → Workout → Round by round → Shot focus** leans the corner onto one shot
 or one family of movement for that round — "rear uppercut round 1, rolls round
 2" — so most of the round's combos pay off with the chosen shot or build around
 the chosen movement, instead of calling evenly from the whole pool. Pick from
@@ -82,25 +82,25 @@ shuffle:
   *"last ten — empty the tank"* in the closing seconds.
 - **Defensive-only beats** — pure *slip · roll · reset* calls with no punch, to
   drill head movement. These come up most on the **Defence** focus and with
-  **Movement mix → Heavy**.
+  **Defence & movement → Heavy**.
 - **Feints** — fakes (*feint jab*, *feint cross*, *feint hook*, *feint level
   change*) sit alongside slips, rolls and footwork in the movement library and
-  always draw the real shot behind them. Tick them under **Setup → Settings →
-  Movement**, dial them in with **Movement mix**, or make a round a feint round
+  always draw the real shot behind them. Tick them under **Setup → Combos →
+  Movement**, dial them in with **Defence & movement**, or make a round a feint round
   with **Shot focus → Feints**.
 
-Movement is gated by the **Movement mix** dial and your ticked moves — not by a
+Movement is gated by the **Defence & movement** dial and your ticked moves — not by a
 round's combo focus — so head movement and feints get drilled even on a Power
 or Basics round, from the first round on.
 
 ## Your record
 Coach Fred keeps a tally on your device — rounds, sessions, minutes on the bag
-and your current day streak. See it under **Setup → Settings → Your record**; it
+and your current day streak. See it under **Setup → More → Your record**; it
 rides along in your **.coach** backup.
 
 When you finish a session a **summary card** sums up the work — rounds, minutes
 on the bag, total sessions and your streak. Every completed session is also kept
-in a **Session log** (**Setup → Settings → Session log**), newest first, so the
+in a **Session log** (**Setup → More → Session log**), newest first, so the
 streak counter becomes a real training journal. The log lives on your device and
 travels in the **.coach** backup.
 
@@ -113,7 +113,7 @@ between rounds, and a **“ten seconds”** call with a shout of motivation in t
 final stretch (the phrase is picked at random, so it stays fresh). On longer
 rounds the **fatigue shaping** eases the pace through the back half, then digs in
 for that last push. The clips are cached for offline use, and **Voice speed**
-(Setup → Settings) sets how fast the corner calls. See
+(Setup → More) sets how fast the corner calls. See
 [VOICE_PACKS.md](VOICE_PACKS.md) to regenerate the voice with your own
 ElevenLabs voice.
 
