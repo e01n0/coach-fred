@@ -134,7 +134,7 @@ sixth row of a format `<select>`.
 
 ---
 
-## Session 6 — Modes II + personal workouts
+## Session 6 — Modes II + personal workouts ✅ done (v24)
 
 - **Save my workout:** name and save the current timer + coaching config as a
   chip in the Quick start grid; rides in the `.coach` backup; shareable like
@@ -153,7 +153,7 @@ sixth row of a format `<select>`.
 
 ---
 
-## Session 7 — Audio-only reaction + polish
+## Session 7 — Audio-only reaction + polish ✅ done (v25)
 
 - **Reaction calls without the camera:** random single calls ("slip!",
   "roll!", "2!") at unpredictable intervals with a pace dial — the reaction
@@ -166,7 +166,7 @@ sixth row of a format `<select>`.
 
 ---
 
-## Session 8 — Camera I: the camera serves the caller
+## Session 8 — Camera I: the camera serves the caller ✅ done (v26)
 
 **Goal:** camera stops being a lab demo two pages away; sessions get measured.
 Uses only shipped detectors (pose, guard, punch-thrown, bag-contact optical
@@ -184,7 +184,7 @@ flow) — no ML training.
 
 ---
 
-## Session 9 — Camera II: live cues + verified drilling
+## Session 9 — Camera II: live cues + verified drilling ✅ done (v27)
 
 - **Live "hands up" cue** in main sessions using recorded clips (guard drop
   between combos → "hands up"; repeated overreach → "don't reach"), throttled
@@ -203,7 +203,7 @@ flow) — no ML training.
 
 ---
 
-## Session 10 — Program ("career mode") + second voice
+## Session 10 — Program ("career mode") + second voice ✅ done (v28)
 
 - **Multi-week program:** a C25K-style plan (e.g. 4-week beginner → club
   fighter) that suggests the next session from history — "Week 2, day 3:

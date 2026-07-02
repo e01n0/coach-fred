@@ -113,8 +113,14 @@ Coach Fred keeps a tally on your device — rounds, sessions, minutes on the bag
 and your current day streak. See it under **Setup → More → Your record**; it
 rides along in your **.coach** backup.
 
+A **4-week program** (Setup → Workout → 4-week program) takes you from first
+bag session to club distance, three sessions a week — load the next one and
+finishing it ticks it off. A **weekly goal** (rounds per week, under Your
+record) tracks alongside the day streak.
+
 When you finish a session a **summary card** sums up the work — rounds, minutes
-on the bag, total sessions and your streak. Every completed session is also kept
+on the bag, total sessions, your streak, and a breakdown of what the corner
+called (~punches, top shot, defensive moves). Every completed session is also kept
 in a **Session log** (**Setup → More → Session log**), newest first, so the
 streak counter becomes a real training journal. The log lives on your device and
 travels in the **.coach** backup.
@@ -132,8 +138,9 @@ phrase is picked at random, so it stays fresh). An optional **bell**
 round; off keeps the corner voice-only. A **Warm-up round** toggle adds two
 easy minutes of footwork and light shots before round one. On longer
 rounds the **fatigue shaping** eases the pace through the back half, then digs in
-for that last push. The clips are cached for offline use, and **Voice speed**
-(Setup → More) sets how fast the corner calls. See
+for that last push. The clips are cached for offline use; **Coach voice** (Setup → More) picks
+who works your corner — Coach Fred, or Coach Cal's gravel — and **Voice
+speed** sets how fast the corner calls. See
 [VOICE_PACKS.md](VOICE_PACKS.md) to regenerate the voice with your own
 ElevenLabs voice.
 

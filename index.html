@@ -535,6 +535,18 @@
         </div>
       </details>
 
+      <details class="acc" id="planAcc">
+        <summary><span class="acc-t">4-week program</span><span class="cnt" id="planState"></span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;">From first bag session to club distance in four weeks, three sessions a week. Load the next one and hit start &mdash; finishing it ticks it off.</div>
+          <div class="prog-card" id="planCard" style="margin-top:10px;"></div>
+          <div class="backup-row">
+            <button id="planLoad">Load next session</button>
+            <button id="planReset">Restart program</button>
+          </div>
+        </div>
+      </details>
+
       <div class="field">
         <div class="field-label"><span>Level</span></div>
         <select id="sLevel">
@@ -723,6 +735,11 @@
           <div class="note">Your last sessions on the bag, newest first &mdash; kept on this device and carried in your <b>.coach</b> backup.</div>
         </div>
       </details>
+      <div class="field" id="voiceField" style="display:none;">
+        <div class="field-label"><span>Coach voice</span></div>
+        <select id="sVoice"></select>
+        <div class="note">Pick who works your corner. Clips download once per voice, then play offline.</div>
+      </div>
       <div class="field">
         <div class="field-label"><span>Voice speed</span><span class="val" id="vRate">1.0&times;</span></div>
         <input type="range" id="sRate" min="0.65" max="1.3" step="0.05" value="1">
@@ -1499,7 +1516,8 @@
     warm:   { rate:0.97, vol:1.0 }
   };
   const VOICE_PACKS = [
-    { id:"fred", label:"Coach Fred — recorded (ElevenLabs)" }
+    { id:"fred", label:"Coach Fred — the original" },
+    { id:"cal",  label:"Coach Cal — gravel" }
   ];
   const isPackVal = v => typeof v==="string" && v.startsWith("pack:");
   const packIdOf  = v => isPackVal(v) ? v.slice(5) : null;
@@ -1629,10 +1647,18 @@
       sel.innerHTML = "";
       VOICE_PACKS.forEach(p=>{ const o=document.createElement("option"); o.value="pack:"+p.id; o.textContent=p.label; sel.appendChild(o); });
       sel.value = cfg.voice;
+      const f = $("voiceField"); if(f) f.style.display = VOICE_PACKS.length>1 ? "block" : "none";
     }
     applyVoicePack();
   }
   loadVoices();
+  $("sVoice").addEventListener("change", e=>{
+    cfg.voice = e.target.value; save();
+    clipBuf.clear(); voicePackWant = null;   // clip cache is keyed by slug — flush across packs
+    applyVoicePack();
+    ensureAudio();
+    setTimeout(()=>say("Round one"), 450);   // hear the new corner right away
+  });
 
   /* ---------- combo selection + delivery ---------- */
   const BODYP = { off:0, some:0.25, lots:0.45 };
@@ -2293,6 +2319,11 @@
     playBell(3); buzz([200,100,200,100,400]);
     onSessionComplete();
     recordSession();
+    // a loaded program session, completed, advances the plan
+    if(planActive!=null && planActive===planIdx()){
+      stats.plan = {idx:planActive+1};
+      saveStats(); planActive=null; renderPlan();
+    }
     stateLabel.textContent="Done";
     const streakBit = stats.streak>1 ? `  ·  ${stats.streak}-day streak` : "";
     comboNames.textContent = `That's the session. Nice work.  •  ${totalWork} round${totalWork===1?"":"s"} done${streakBit}`;
@@ -2397,7 +2428,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v27";
+  const APP_VERSION = "v28";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2478,6 +2509,7 @@
       ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p===pane));
     }
     workoutHint();
+    renderPlan();
     sheet.classList.add("open");
   }
   $("openSettings").addEventListener("click", ()=> openSetup());
@@ -2757,6 +2789,57 @@
     save();
   });
   function touchWorkout(){ if(activeWorkout){ activeWorkout=null; renderWorkouts(); } }
+
+  /* ---------- 4-week program (career mode) ----------
+     A fixed C25K-style plan from first bag session to club distance. The
+     pointer lives in stats (rides the .coach backup); loading the next
+     session applies its config, and finishing that loaded session advances. */
+  const PLAN_SESSIONS = [
+    {w:1,d:1,label:"First bell",     cfg:{mode:"uniform",rounds:3,work:90, rest:60,level:"beginner",    uniformFocus:"all",uniformMoveFocus:"none",format:"combos", pace:"relaxed",moveMix:"light",bodyMix:"some",callStyle:"both"}},
+    {w:1,d:2,label:"Find the rhythm",cfg:{mode:"uniform",rounds:3,work:120,rest:60,level:"beginner",    uniformFocus:"all",uniformMoveFocus:"none",format:"combos", pace:"relaxed"}},
+    {w:1,d:3,label:"Add the body",   cfg:{mode:"uniform",rounds:4,work:90, rest:60,level:"beginner",    uniformFocus:"all",uniformMoveFocus:"body",format:"combos", pace:"relaxed"}},
+    {w:2,d:1,label:"Step it up",     cfg:{mode:"uniform",rounds:4,work:120,rest:60,level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",format:"combos", pace:"steady"}},
+    {w:2,d:2,label:"On the minute",  cfg:{mode:"uniform",rounds:8,work:60, rest:0, level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",format:"emom",   pace:"steady"}},
+    {w:2,d:3,label:"Body work",      cfg:{mode:"uniform",rounds:4,work:120,rest:60,level:"intermediate",uniformFocus:"all",uniformMoveFocus:"body",format:"combos", pace:"steady"}},
+    {w:3,d:1,label:"Longer rounds",  cfg:{mode:"uniform",rounds:5,work:120,rest:60,level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",format:"combos", pace:"steady"}},
+    {w:3,d:2,label:"React",          cfg:{mode:"uniform",rounds:4,work:90, rest:45,level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",format:"reaction",pace:"steady"}},
+    {w:3,d:3,label:"Slip and move",  cfg:{mode:"uniform",rounds:5,work:150,rest:60,level:"intermediate",uniformFocus:"all",uniformMoveFocus:"slip",format:"combos", pace:"steady",moveMix:"heavy"}},
+    {w:4,d:1,label:"Build it",       cfg:{mode:"uniform",rounds:5,work:180,rest:60,level:"build",       uniformFocus:"all",uniformMoveFocus:"none",format:"combos", pace:"steady"}},
+    {w:4,d:2,label:"Pyramid",        cfg:{mode:"uniform",rounds:4,work:180,rest:60,level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",format:"pyramid",pace:"steady"}},
+    {w:4,d:3,label:"Club distance",  cfg:{mode:"uniform",rounds:6,work:180,rest:60,level:"build",       uniformFocus:"all",uniformMoveFocus:"none",format:"combos", pace:"steady"}}
+  ];
+  let planActive = null;   // plan index loaded for this run; cleared on completion
+  function planIdx(){ return (stats.plan && stats.plan.idx) || 0; }
+  function planSub(c){
+    const f = c.format && c.format!=="combos" ? " · "+(FORMAT_LABEL[c.format]||"").split(" (")[0] : "";
+    return `${c.rounds} × ${fmtS(c.work)}${f}`;
+  }
+  function renderPlan(){
+    const el=$("planCard"); if(!el) return;
+    const i=planIdx();
+    $("planState").textContent = `${Math.min(i,PLAN_SESSIONS.length)}/${PLAN_SESSIONS.length}`;
+    if(i>=PLAN_SESSIONS.length){
+      el.innerHTML = `<div style="font-weight:700;">Program complete — that's club distance. Nice work.</div>`+
+        `<div style="color:var(--steel);font-size:13px;margin-top:4px;">Restart it, or live on Quick start and your saved workouts.</div>`;
+      $("planLoad").disabled = true;
+      return;
+    }
+    const s=PLAN_SESSIONS[i];
+    el.innerHTML = `<div style="font-family:'Anton';font-size:18px;letter-spacing:.04em;">Week ${s.w} · Day ${s.d} — ${s.label}</div>`+
+      `<div style="color:var(--steel);font-size:13px;margin-top:4px;">${planSub(s.cfg)}</div>`;
+    $("planLoad").disabled = false;
+  }
+  $("planLoad").addEventListener("click", ()=>{
+    const i=planIdx(); if(i>=PLAN_SESSIONS.length) return;
+    const s=PLAN_SESSIONS[i];
+    cfg.prep = 10;
+    Object.assign(cfg, JSON.parse(JSON.stringify(s.cfg)));
+    activeWorkout=null; planActive=i;
+    save(); initUI();
+    if(phase==="idle") reset();
+    showWkToast({label:`Week ${s.w} · Day ${s.d} — ${s.label}`, sub:planSub(s.cfg)});
+  });
+  $("planReset").addEventListener("click", ()=>{ stats.plan={idx:0}; saveStats(); planActive=null; renderPlan(); });
   $("segMode").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
     [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on");
@@ -3084,7 +3167,7 @@
     $("sRate").value=cfg.speed; $("vRate").textContent = showSpeed(cfg.speed);
     renderThemes();
     buildPunchPad(); renderMovePad(); renderStage();
-    initHelpPoppers(); renderStats();
+    initHelpPoppers(); renderStats(); renderPlan();
   }
 
   /* ---------- your record ---------- */
@@ -3144,6 +3227,8 @@
     let line = sk>1 ? `${sk}-day streak — keep it going`
       : (sk===1 ? "Day one of a new streak — back tomorrow?" : "");
     if(stats.weekGoal) line += `${line?"  ·  ":""}${weekRounds()}/${stats.weekGoal} rounds this week`;
+    if(stats.plan && stats.plan.idx>0 && stats.plan.idx<=PLAN_SESSIONS.length)
+      line += `${line?"  ·  ":""}program ${stats.plan.idx}/${PLAN_SESSIONS.length}`;
     $("sumStreak").textContent = line;
     $("summary").classList.add("show");
   }

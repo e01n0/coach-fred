@@ -91,3 +91,11 @@ const VOICE_PACKS = [
 Clips are generated against **your** ElevenLabs account and count toward your
 character quota. Make sure your plan's licensing permits redistributing the
 rendered audio in a deployed app, and don't commit your API key.
+
+## Shipped packs
+
+- **`voice/fred/`** — Coach Fred, the original (voice `766NdLzxBMJanRvWXtkt`).
+- **`voice/cal/`** — Coach Cal, gravel (ElevenLabs premade "Callum", `N2lVS1w4EtoT3dr4eOWO`).
+
+Both packs render from the same `voice/phrases.json`; pick the corner under
+**Setup → More → Coach voice**.
