@@ -1584,7 +1584,9 @@
         (m.slugs||[]).forEach(s=>{ try{ loadClip(s); }catch(e){} });   // warm the cache
       })
       .catch(()=>{ if(voicePackWant === id){ voicePack=null; voicePackWant=null;
-        console.warn(`Voice pack "${id}" not found — run gen_voice.py to generate it.`); } });
+        console.warn(`Voice pack "${id}" failed to load — retrying.`);
+        // one timed retry, plus speak() retries on every call
+        setTimeout(()=>{ if(!voicePack && packIdOf(cfg.voice)===id) applyVoicePack(); }, 4000); } });
   }
   // Play the given clip slugs back-to-back through one gain node, then onend().
   // onend MUST fire exactly once on every path — it drives the round scheduler,
@@ -1615,6 +1617,9 @@
   // Speak a list of spoken atoms by playing their clips in order. (text is kept
   // in the signature for readable call sites; the on-screen display uses it.)
   function speak(text, atoms, tone, onend){
+    // Self-heal: if the pack manifest failed to load (flaky signal, upgrade
+    // race), retry it on every speak attempt instead of staying silent.
+    if(!voicePack && isPackVal(cfg.voice)) applyVoicePack();
     atoms = (atoms && atoms.length ? atoms : [text]).map(String).map(s=>s.trim()).filter(Boolean);
     const slugs = voicePack ? atoms.map(slugify).filter(s=>voicePack.slugs.has(s)) : [];
     playClipSeq(slugs, tone, onend);
@@ -2428,7 +2433,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v28";
+  const APP_VERSION = "v29";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();

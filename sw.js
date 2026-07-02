@@ -1,6 +1,6 @@
 /* Coach Fred service worker — offline app shell.
    Bump CACHE when shipping changes so clients pick them up. */
-const CACHE = "coachfred-v29";
+const CACHE = "coachfred-v30";
 const ASSETS = [
   "./",
   "./index.html",
@@ -19,11 +19,27 @@ self.addEventListener("install", e => {
 });
 
 self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    const old = keys.filter(k => k !== CACHE);
+    // Carry the recorded voice clips forward before dropping old caches.
+    // They're immutable content — wiping them on upgrade left an offline
+    // device with a silent coach until it could re-download the whole pack.
+    const cur = await caches.open(CACHE);
+    for (const k of old) {
+      try {
+        const c = await caches.open(k);
+        for (const req of await c.keys()) {
+          if (req.url.includes("/voice/") && !(await cur.match(req))) {
+            const res = await c.match(req);
+            if (res) await cur.put(req, res);
+          }
+        }
+      } catch (e) { /* a broken old cache must not block activation */ }
+    }
+    await Promise.all(old.map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener("fetch", e => {
