@@ -254,6 +254,19 @@
   .timer-grid .stepper .sv{flex:1;cursor:pointer;min-height:40px;display:flex;align-items:center;justify-content:center;}
   .timer-grid .stepper .sv input{width:100%;background:transparent;border:none;color:var(--tape);font-family:"Anton";font-size:18px;text-align:center;outline:none;}
 
+  /* first-run sound check */
+  #audioCheck{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(8,6,5,.74);}
+  #audioCheck.show{display:flex;}
+  .ac-line{font-size:14.5px;color:var(--steel);margin:6px 0 16px;line-height:1.45;}
+  .ac-tips{text-align:left;font-size:14px;line-height:1.6;color:var(--tape);background:var(--canvas);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:none;}
+  .ac-tips.show{display:block;}
+  .ac-tips b{color:var(--prep);}
+
+  /* one-time contextual hints */
+  .hint-bar{display:flex;align-items:flex-start;gap:10px;background:color-mix(in srgb, var(--prep) 12%, transparent);border:1px solid color-mix(in srgb, var(--prep) 45%, var(--line));border-radius:12px;padding:11px 12px;margin:10px 0 2px;font-size:13.5px;line-height:1.45;color:var(--tape);text-align:left;}
+  .hint-bar b{color:var(--prep);}
+  .hint-bar .hx{flex:0 0 auto;width:28px;height:28px;margin:-4px -4px 0 0;border:none;background:none;color:var(--steel);font-size:20px;line-height:1;cursor:pointer;}
+
   /* quick-start confirmation toast */
   .wk-toast{position:fixed;left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:25;display:none;align-items:center;gap:10px;background:var(--canvas-2);border:1px solid var(--prep);border-radius:14px;padding:12px 14px;box-shadow:0 12px 40px rgba(0,0,0,.5);}
   .wk-toast.show{display:flex;}
@@ -692,6 +705,28 @@
     <div class="sum-actions">
       <button id="sumLog">Session log</button>
       <button id="sumDone" class="pri">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIRST-RUN SOUND CHECK -->
+<div id="audioCheck">
+  <div class="sum-card">
+    <div class="sum-eyebrow">Sound check</div>
+    <div class="sum-title">Did you hear the coach?</div>
+    <div class="ac-line">You should have just heard <b>&ldquo;Coach Fred, ready to work.&rdquo;</b> Every combo gets called out loud like that.</div>
+    <div class="ac-tips" id="acTips">
+      <b>No sound? Usual suspects:</b><br>
+      &bull; Flip the phone&rsquo;s <b>silent / mute switch off</b> &mdash; iPhones stay quiet on silent.<br>
+      &bull; Turn the <b>volume up</b>.<br>
+      &bull; <b>Bluetooth headphones</b> paired? The coach is talking to them.<br>
+      <div class="sum-actions" style="margin-top:12px;">
+        <button id="acAgain">Play it again</button>
+      </div>
+    </div>
+    <div class="sum-actions">
+      <button id="acNo">No</button>
+      <button id="acYes" class="pri">Yes &mdash; start</button>
     </div>
   </div>
 </div>
@@ -1168,16 +1203,19 @@
   }
 
   /* ---------- state ---------- */
+  // Cold-open default is the Beginner session (3 x 2:00, spoken numbers AND
+  // names) — a first-timer's first round shouldn't be championship distance.
+  // Regulars land on Quick start either way.
   const DEFAULTS = {
     mode:"uniform",
-    rounds:6, work:180, rest:60, prep:10, uniformFocus:"all",
+    rounds:3, work:120, rest:60, prep:10, uniformFocus:"all",
     program:[
       {label:"Round 1", work:180, rest:60, focus:"all"},
       {label:"Round 2", work:180, rest:60, focus:"all"},
       {label:"Round 3", work:180, rest:0,  focus:"all"}
     ],
-    pace:"relaxed", moveMix:"light", level:"build", bodyMix:"some", voice:"pack:fred",
-    stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"numbers", speed:1,
+    pace:"relaxed", moveMix:"light", level:"beginner", bodyMix:"some", voice:"pack:fred",
+    stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
     format:"combos", fatigueOn:true,
     drillComboId:null, drillInterval:8,
     theme:"fred",
@@ -1886,9 +1924,34 @@
   }
 
   /* ---------- primary controls ---------- */
+  /* ---------- first-run sound check ----------
+     The most likely first-run failure is silence (mute switch, volume,
+     bluetooth). Before the very first session ever, play a line inside the
+     Start tap and ask — with rescue tips on "No". Never shown again after. */
+  const audioChecked = ()=> !!store.get("coachfred.audioOk") || (stats.sessions||0) > 0;
+  function runAudioCheck(){
+    ensureAudio();
+    say("Coach Fred, ready to work.");
+    $("audioCheck").classList.add("show");
+  }
+  function endAudioCheck(start){
+    try{ store.set("coachfred.audioOk","1"); }catch(e){}
+    $("audioCheck").classList.remove("show");
+    cancelSpeech();
+    if(start){ reset(); segIndex=0; loadSegment(0); run(); }
+  }
+  $("acYes").addEventListener("click", ()=> endAudioCheck(true));
+  $("acNo").addEventListener("click", ()=>{
+    const tips=$("acTips");
+    if(!tips.classList.contains("show")){ tips.classList.add("show"); $("acNo").textContent="Start anyway"; }
+    else endAudioCheck(true);
+  });
+  $("acAgain").addEventListener("click", ()=>{ ensureAudio(); say("Coach Fred, ready to work."); });
+
   startBtn.addEventListener("click", ()=>{
     const starting = (phase==="idle" || phase==="done");
     if(starting) primeSpeech();   // must fire inside the user gesture so iOS unlocks speech
+    if(starting && !audioChecked()){ runAudioCheck(); return; }
     // Duck other audio inside the user gesture before the first segment, so the
     // round-one call lands clean — but never hang the session if it stalls.
     let went=false;
@@ -1902,7 +1965,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v20";
+  const APP_VERSION = "v21";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -1937,12 +2000,29 @@
   });
 
   /* ---------- sheet + tabs ---------- */
+  /* one-time contextual hints — replace the old tour steps 6-10 with
+     callouts that appear the first time you actually reach each screen */
+  function maybeHint(key, hostId, html){
+    if(store.get("coachfred.hint."+key)) return;
+    const host=$(hostId); if(!host || host.querySelector(`[data-hint="${key}"]`)) return;
+    const bar=document.createElement("div");
+    bar.className="hint-bar"; bar.dataset.hint=key;
+    bar.innerHTML = `<span>${html}</span><button class="hx" aria-label="Dismiss">&times;</button>`;
+    bar.querySelector(".hx").addEventListener("click", ()=>{ try{ store.set("coachfred.hint."+key,"1"); }catch(e){} bar.remove(); });
+    host.prepend(bar);
+  }
+  function workoutHint(){ maybeHint("workout","pane-workout",
+    "Your timer lives up top &mdash; <b>hold</b> a +/&minus; to move fast, or tap a value to type it. <b>Quick start</b> loads a ready-made session."); }
+  function combosHint(){ maybeHint("combos","pane-combos",
+    "Tick combos to put them in the pool &mdash; the corner calls from ticked ones at random. Build your own under <b>Build a combo</b>."); }
+
   function openSetup(pane){
     renderLibrary(); renderMovement(); renderProgram(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats();
     if(pane){
       [...$("tabs").children].forEach(x=> x.classList.toggle("on", x.dataset.pane===pane));
       ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p===pane));
     }
+    workoutHint();
     sheet.classList.add("open");
   }
   $("openSettings").addEventListener("click", ()=> openSetup());
@@ -1952,6 +2032,7 @@
     const b=e.target.closest("button"); if(!b) return;
     [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on");
     ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p===b.dataset.pane));
+    if(b.dataset.pane==="combos") combosHint();
   });
 
   /* ---------- tutorial ---------- */
@@ -1992,16 +2073,23 @@
     {h:"Turn the sound on", b:"The coach is a recorded human voice, so flip your phone off silent and turn it up. Set <b>Voice speed</b> here, then hit <b>Test voice</b> to check it. On iPhone the coach only speaks <b>after you tap Start</b>.", at:()=>{ tutOpenPane("more"); return $("testVoice").closest(".field"); }},
     {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
+  // First run auto-opens a 3-step intro; the full 12-step tour lives behind "?".
+  const TUT_INTRO = [
+    TUT_STEPS[0],
+    TUT_STEPS[1],
+    Object.assign({}, TUT_STEPS[2], {b: TUT_STEPS[2].b + "<br><br>Rounds, combos and everything else live behind the <b>&#9881;</b> gear. Replay the full tour any time with the <b>?</b> up top."})
+  ];
+  let tutList = TUT_STEPS;
   let tutIdx = 0, tutTarget = null, tutTimer = null;
   const tut = $("tut");
   function renderTutContent(){
-    const s = TUT_STEPS[tutIdx];
-    $("tutStep").textContent = `Step ${tutIdx+1} of ${TUT_STEPS.length}`;
+    const s = tutList[tutIdx];
+    $("tutStep").textContent = `Step ${tutIdx+1} of ${tutList.length}`;
     $("tutTitle").textContent = s.h;
     $("tutBody").innerHTML = s.b;
-    $("tutDots").innerHTML = TUT_STEPS.map((_,i)=>`<div class="d ${i===tutIdx?"on":""}"></div>`).join("");
+    $("tutDots").innerHTML = tutList.map((_,i)=>`<div class="d ${i===tutIdx?"on":""}"></div>`).join("");
     $("tutBack").style.visibility = tutIdx===0 ? "hidden" : "visible";
-    $("tutNext").textContent = tutIdx===TUT_STEPS.length-1 ? "Got it" : "Next";
+    $("tutNext").textContent = tutIdx===tutList.length-1 ? "Got it" : "Next";
   }
   function tutVisible(el){ if(!el || !document.body.contains(el)) return false; const r=el.getBoundingClientRect(); return r.width>0 && r.height>0; }
   function positionTour(target){
@@ -2029,7 +2117,7 @@
   function showStep(){
     tutClearStance();
     renderTutContent();
-    const s = TUT_STEPS[tutIdx];
+    const s = tutList[tutIdx];
     const target = s.at ? s.at() : null;
     tutTarget = target;
     if(tutTimer){ clearTimeout(tutTimer); tutTimer=null; }
@@ -2037,7 +2125,7 @@
     requestAnimationFrame(()=> requestAnimationFrame(place));
     tutTimer = setTimeout(place, 380);   // settle after sheet / pane transitions
   }
-  function openTut(){ tutIdx=0; tut.classList.add("open"); showStep(); }
+  function openTut(list){ tutList = Array.isArray(list) ? list : TUT_STEPS; tutIdx=0; tut.classList.add("open"); showStep(); }
   function closeTut(){
     tut.classList.remove("open","spot","centered");
     tutClearStance(); sheet.classList.remove("open"); tutTarget=null;
@@ -2047,10 +2135,10 @@
     if(tutTimer){ clearTimeout(tutTimer); tutTimer=null; }
     try{ store.set("coachfred.tutSeen","1"); }catch(e){}
   }
-  $("openTutorial").addEventListener("click", openTut);
+  $("openTutorial").addEventListener("click", ()=> openTut(TUT_STEPS));
   $("tutSkip").addEventListener("click", closeTut);
   $("tutBack").addEventListener("click", ()=>{ if(tutIdx>0){ tutIdx--; showStep(); } });
-  $("tutNext").addEventListener("click", ()=>{ if(tutIdx<TUT_STEPS.length-1){ tutIdx++; showStep(); } else { closeTut(); } });
+  $("tutNext").addEventListener("click", ()=>{ if(tutIdx<tutList.length-1){ tutIdx++; showStep(); } else { closeTut(); } });
   tut.addEventListener("click", e=>{ if(e.target===tut) closeTut(); });
   window.addEventListener("resize", ()=>{ if(tut.classList.contains("open")) positionTour(tutTarget); });
 
@@ -2657,7 +2745,7 @@
 
   initUI();
   reset();
-  if(!store.get("coachfred.tutSeen")) openTut();
+  if(!store.get("coachfred.tutSeen")) openTut(TUT_INTRO);
 
   /* ---------- PWA: register service worker for offline / installable ---------- */
   if("serviceWorker" in navigator){

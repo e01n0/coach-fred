@@ -79,7 +79,7 @@ rounds, time, rest — becomes the first thing the sheet shows.
 
 ---
 
-## Session 3 — First-run flow: audio check + slim tour
+## Session 3 — First-run flow: audio check + slim tour ✅ done (v21)
 
 **Goal:** a new user hears the coach and starts a round inside a minute.
 
