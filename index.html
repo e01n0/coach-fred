@@ -1595,7 +1595,10 @@
       .then(m=>{
         if(voicePackWant !== id) return;  // user switched away mid-fetch
         voicePack = { id, slugs:new Set(m.slugs||[]) };
-        (m.slugs||[]).forEach(s=>{ try{ loadClip(s); }catch(e){} });   // warm the cache
+        // Warm the atom/cue clips only. Whole-combo "seq-" clips (400+) load
+        // on first use — eagerly decoding all of them would cost 100MB+ of
+        // audio-buffer RAM on a phone.
+        (m.slugs||[]).forEach(s=>{ if(s.startsWith("seq-")) return; try{ loadClip(s); }catch(e){} });
       })
       .catch(()=>{ if(voicePackWant === id){ voicePack=null; voicePackWant=null;
         console.warn(`Voice pack "${id}" failed to load — retrying.`);
@@ -1625,7 +1628,7 @@
     trimCache.set(buf, t);
     return t;
   }
-  function playClipSeq(slugs, tone, onend){
+  function playClipSeq(slugs, tone, onend, fallback){
     let ended = false;
     const finish = ()=>{ if(ended) return; ended = true; if(onend) onend(); };
     const c = ensureCtx(); if(!c || !slugs.length){ finish(); return; }
@@ -1651,7 +1654,12 @@
       });
       if(last) last.onended = finish;
       else finish();
-    }).catch(finish);   // keep timing if a clip can't load
+    }).catch(()=>{
+      // a clip failed to load: retry once with the stitched-atom fallback
+      // (e.g. a whole-combo clip not yet cached, offline), else keep timing
+      if(fallback && fallback.length && !ended){ ended = true; playClipSeq(fallback, tone, onend); }
+      else finish();
+    });
   }
   // Speak a list of spoken atoms by playing their clips in order. (text is kept
   // in the signature for readable call sites; the on-screen display uses it.)
@@ -1660,15 +1668,23 @@
     // race), retry it on every speak attempt instead of staying silent.
     if(!voicePack && isPackVal(cfg.voice)) applyVoicePack();
     atoms = (atoms && atoms.length ? atoms : [text]).map(String).map(s=>s.trim()).filter(Boolean);
-    // Combos use the "medial" (mid-sentence) take for every atom but the last,
-    // so the call carries one prosodic arc — level through the middle, the
-    // corner's emphasis saved for the finishing shot.
-    const slugs = voicePack ? atoms.map((a,i)=>{
+    if(!voicePack){ playClipSeq([], tone, onend); return; }
+    // Stitching path: the "medial" (mid-sentence) take for every atom but the
+    // last, so the call carries one prosodic arc with the corner's emphasis
+    // saved for the finishing shot.
+    const atomSlugs = atoms.map((a,i)=>{
       const s = slugify(a);
       if(tone==="combo" && i<atoms.length-1 && voicePack.slugs.has(s+"-m")) return s+"-m";
       return s;
-    }).filter(s=>voicePack.slugs.has(s)) : [];
-    playClipSeq(slugs, tone, onend);
+    }).filter(s=>voicePack.slugs.has(s));
+    // Best case: the whole call exists as ONE rendered utterance — genuinely
+    // connected speech, coarticulated across the words. Stitched atoms remain
+    // the fallback (unrendered sequences, or the clip can't load offline).
+    if(tone==="combo" && atoms.length>1){
+      const whole = "seq-" + atoms.map(slugify).join("-");
+      if(voicePack.slugs.has(whole)){ playClipSeq([whole], tone, onend, atomSlugs); return; }
+    }
+    playClipSeq(atomSlugs, tone, onend);
   }
   // Bell cues are written as ". "-joined clauses; each clause is one clip atom.
   const cueAtoms = text => text.split(". ").map(s=>s.replace(/\.\s*$/,"").trim()).filter(Boolean);
@@ -2480,7 +2496,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v31";
+  const APP_VERSION = "v32";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();

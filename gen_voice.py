@@ -36,6 +36,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # (--stability/--similarity/--style), if passed, override these for every style.
 STYLE_SETTINGS = {
     "combo": {"stability": 0.70, "similarity": 0.85, "style": 0.0},
+    "seq":   {"stability": 0.50, "similarity": 0.85, "style": 0.15},
     "cue":   {"stability": 0.55, "similarity": 0.80, "style": 0.10},
     "line":  {"stability": 0.40, "similarity": 0.80, "style": 0.25},
     "test":  {"stability": 0.50, "similarity": 0.80, "style": 0.10},
@@ -43,7 +44,7 @@ STYLE_SETTINGS = {
 
 
 def render(text, voice_id, model, key, stability, similarity, style_exag,
-           prev_text=None, next_text=None):
+           prev_text=None, next_text=None, prev_ids=None):
     payload = {
         "text": text,
         "model_id": model,
@@ -59,13 +60,16 @@ def render(text, voice_id, model, key, stability, similarity, style_exag,
     # like a row of isolated shouts.
     if prev_text: payload["previous_text"] = prev_text
     if next_text: payload["next_text"] = next_text
+    # Request stitching: condition on the previous renders' audio so a batch
+    # sounds like one continuous recording session, not N separate takes.
+    if prev_ids: payload["previous_request_ids"] = prev_ids[-3:]
     body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         API.format(vid=voice_id), data=body, method="POST",
         headers={"xi-api-key": key, "Content-Type": "application/json",
                  "Accept": "audio/mpeg"})
     with urllib.request.urlopen(req, timeout=60) as r:
-        return r.read()
+        return r.read(), r.headers.get("request-id")
 
 
 def main():
@@ -84,6 +88,8 @@ def main():
     ap.add_argument("--force", action="store_true", help="re-render clips that already exist")
     ap.add_argument("--sleep", type=float, default=0.3, help="pause between calls (seconds)")
     ap.add_argument("--only", default="", help="comma list of slugs to render (subset of --styles); blank = all")
+    ap.add_argument("--stitch", action="store_true",
+                    help="chain renders with previous_request_ids for one-session consistency")
     args = ap.parse_args()
 
     key = os.environ.get("ELEVENLABS_API_KEY")
@@ -101,6 +107,7 @@ def main():
 
     print(f"{len(todo)} clips in styles {sorted(want)} -> voice/{args.pack}/")
     made = skipped = failed = 0
+    recent_ids = []
     for i, p in enumerate(todo, 1):
         dest = os.path.join(outdir, p["slug"] + ".mp3")
         if os.path.exists(dest) and not args.force:
@@ -112,9 +119,11 @@ def main():
         style_x    = args.style      if args.style      is not None else st["style"]
         for attempt in range(4):
             try:
-                audio = render(p["text"], args.voice_id, args.model, key,
+                audio, rid = render(p["text"], args.voice_id, args.model, key,
                                stability, similarity, style_x,
-                               p.get("prev"), p.get("next"))
+                               p.get("prev"), p.get("next"),
+                               recent_ids if args.stitch else None)
+                if args.stitch and rid: recent_ids.append(rid)
                 with open(dest, "wb") as out:
                     out.write(audio)
                 made += 1
