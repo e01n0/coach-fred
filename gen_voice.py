@@ -42,8 +42,9 @@ STYLE_SETTINGS = {
 }
 
 
-def render(text, voice_id, model, key, stability, similarity, style_exag):
-    body = json.dumps({
+def render(text, voice_id, model, key, stability, similarity, style_exag,
+           prev_text=None, next_text=None):
+    payload = {
         "text": text,
         "model_id": model,
         "voice_settings": {
@@ -52,7 +53,13 @@ def render(text, voice_id, model, key, stability, similarity, style_exag):
             "style": style_exag,
             "use_speaker_boost": True,
         },
-    }).encode("utf-8")
+    }
+    # Sentence context: rendering an atom "as if mid-sentence" gives it level,
+    # non-terminal prosody, so concatenated combos flow instead of sounding
+    # like a row of isolated shouts.
+    if prev_text: payload["previous_text"] = prev_text
+    if next_text: payload["next_text"] = next_text
+    body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         API.format(vid=voice_id), data=body, method="POST",
         headers={"xi-api-key": key, "Content-Type": "application/json",
@@ -106,7 +113,8 @@ def main():
         for attempt in range(4):
             try:
                 audio = render(p["text"], args.voice_id, args.model, key,
-                               stability, similarity, style_x)
+                               stability, similarity, style_x,
+                               p.get("prev"), p.get("next"))
                 with open(dest, "wb") as out:
                     out.write(audio)
                 made += 1
