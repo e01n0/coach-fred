@@ -623,5 +623,20 @@
   "slug": "speed-ladder",
   "text": "Speed ladder!",
   "style": "cue"
+ },
+ {
+  "slug": "quiet-round",
+  "text": "Quiet round!",
+  "style": "cue"
+ },
+ {
+  "slug": "again",
+  "text": "Again!",
+  "style": "combo"
+ },
+ {
+  "slug": "reaction-calls",
+  "text": "Reaction calls!",
+  "style": "cue"
  }
 ]

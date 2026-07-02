@@ -184,6 +184,8 @@
   input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:var(--line);outline:none;}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--tape);border:3px solid var(--canvas);}
   .seg{display:flex;gap:8px;}
+  .seg.tight{gap:5px;}
+  .seg.tight button{font-size:12px;padding:11px 2px;letter-spacing:.03em;}
   .seg button{flex:1;padding:13px 6px;border:1px solid var(--line);background:transparent;color:var(--steel);border-radius:11px;font-family:"Barlow Semi Condensed";font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;}
   .seg button.on{background:var(--tape);color:var(--canvas);border-color:var(--tape);}
   select{width:100%;padding:13px;border-radius:11px;background:var(--canvas-2);color:var(--tape);border:1px solid var(--line);font-family:inherit;font-size:16px;}
@@ -210,6 +212,7 @@
   .sum-cell{background:var(--canvas);border:1px solid var(--line);border-radius:12px;padding:12px 6px;}
   .sum-cell .n{display:block;font-family:"Anton";font-size:26px;color:var(--tape);line-height:1;}
   .sum-cell .l{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--steel);margin-top:5px;}
+  .sum-shots{font-size:12.5px;color:var(--steel);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;min-height:1em;}
   .sum-streak{font-size:13px;color:var(--prep);font-weight:700;margin-bottom:16px;min-height:17px;}
   .sum-actions{display:flex;gap:8px;}
   .sum-actions button{flex:1;padding:13px;border-radius:11px;font-family:inherit;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--canvas);color:var(--tape);}
@@ -232,6 +235,8 @@
   .workouts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .wk{position:relative;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--canvas-2);color:var(--tape);cursor:pointer;font-family:inherit;transition:border-color .15s,box-shadow .15s;}
   .wk.on{border-color:var(--work);box-shadow:0 0 0 1px var(--work);}
+  .wk.mine{border-style:dashed;padding-right:30px;}
+  .wkdel{position:absolute;top:4px;right:6px;color:var(--steel);font-size:19px;line-height:1;padding:4px 6px;cursor:pointer;}
   .wk .nm{font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:13px;}
   .wk .sub{font-size:12px;color:var(--steel);margin-top:3px;font-variant-numeric:tabular-nums;}
   .toggle-row{display:flex;justify-content:space-between;align-items:center;}
@@ -476,6 +481,7 @@
       <div class="field">
         <div class="field-label"><span>Quick start</span></div>
         <div class="workouts" id="workoutGrid"></div>
+        <div class="add-row"><input id="wkName" placeholder="Save current setup as&hellip;"><button id="wkSave">Save</button></div>
       </div>
 
       <details class="acc" id="drillAcc">
@@ -483,11 +489,12 @@
         <div class="acc-body">
           <div class="note" style="margin-top:0;">Groove one combination for the whole session &mdash; the timer up top sets rounds and rest. <b>Build up</b> starts with the first two pieces and adds one each round, layers defence near the end, then mixes the finished combo into normal calling. <b>Speed</b> repeats it on a beat that tightens every round. <b>Repeat</b> holds a steady beat all the way.</div>
           <div class="field">
-            <div class="seg" id="segDrill">
+            <div class="seg tight" id="segDrill">
               <button data-v="off" class="on">Off</button>
               <button data-v="ladder">Build up</button>
               <button data-v="speed">Speed</button>
               <button data-v="drill">Repeat</button>
+              <button data-v="recall">Recall</button>
             </div>
           </div>
           <div id="drillOpts" style="display:none;">
@@ -524,6 +531,11 @@
         <div class="field" id="uniformFocusField">
           <div class="field-label"><span>Combo pool</span></div>
           <select id="uniformFocus"></select>
+        </div>
+        <div class="field" id="uniformShotField">
+          <div class="field-label"><span>Shot focus</span></div>
+          <select id="uniformShot"></select>
+          <div class="note">Leans most of the round&rsquo;s calls onto one shot or movement family &mdash; announced at the bell.</div>
         </div>
         <div class="field" id="formatField">
           <div class="field-label"><span>Round type</span></div>
@@ -650,6 +662,13 @@
           </div>
           <input type="file" id="importCombosFile" accept=".combo,application/json,.json" hidden>
           <div class="backup-status" id="combosStatus"></div>
+          <div class="note">Saved workouts travel the same way as a <b>.workout</b> file &mdash; importing adds to your Quick start chips.</div>
+          <div class="backup-row">
+            <button id="shareWorkoutsBtn">Share workouts</button>
+            <button id="importWorkoutsBtn">Import workouts</button>
+          </div>
+          <input type="file" id="importWorkoutsFile" accept=".workout,application/json,.json" hidden>
+          <div class="backup-status" id="workoutsStatus"></div>
         </div>
       </details>
     </div>
@@ -659,6 +678,9 @@
       <div class="field" id="statsField">
         <div class="field-label"><span>Your record</span></div>
         <div class="stats-grid" id="statsBox"></div>
+        <div class="field-label" style="margin-top:16px;"><span>Weekly goal</span><span class="val" id="weekProg" style="font-size:15px;"></span></div>
+        <div class="stepper" style="max-width:180px;"><button id="wgMinus">&minus;</button><div class="sv" id="wgVal">Off</div><button id="wgPlus">+</button></div>
+        <div class="note">Rounds per week &mdash; kinder than a day streak; rest days don&rsquo;t break it.</div>
       </div>
 
       <details class="acc" id="logAcc">
@@ -741,6 +763,7 @@
       <div class="sum-cell"><span class="n" id="sumMins">0</span><span class="l">Min on bag</span></div>
       <div class="sum-cell"><span class="n" id="sumSessions">0</span><span class="l">Sessions</span></div>
     </div>
+    <div class="sum-shots" id="sumShots"></div>
     <div class="sum-streak" id="sumStreak"></div>
     <div class="sum-actions">
       <button id="sumLog">Session log</button>
@@ -909,14 +932,15 @@
     ["burnout","Burnout punch-out","Non-stop 1-2 straight punches — speed and volume over power."],
     ["footwork","Footwork drills","Called footwork: pivots, shuffles, in-and-out, angles."],
     ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the top, rest the rest."],
+    ["quiet","Quiet round (bell + ten only)","Just the bell, the ten-second shout and the count back in — you freestyle, the corner keeps time."],
     ["drill","Drill (one combo on repeat)","Locks onto a single combo and calls it on a fixed beat — for grooving one combination."]
   ];
   // Drill modes live under "Drill a combo", not the Round type select; ladder
   // and speed are session-arc modes (they progress across rounds), so they are
   // uniform-only. FORMAT_LABEL still needs them for bell calls + the log.
   const FORMAT_LABEL = Object.assign(Object.fromEntries(FORMATS.map(f=>[f[0],f[1]])),
-    {ladder:"Build the combo", speed:"Speed ladder"});
-  const DRILLISH = {drill:1, ladder:1, speed:1};
+    {ladder:"Build the combo", speed:"Speed ladder", recall:"Recall"});
+  const DRILLISH = {drill:1, ladder:1, speed:1, recall:1};
 
   /* ---------- preset workouts (real, web-validated structures) ----------
      Pro boxing is 3-min rounds / 1-min rest; amateur & Olympic men's bouts run
@@ -1262,7 +1286,7 @@
   // Regulars land on Quick start either way.
   const DEFAULTS = {
     mode:"uniform",
-    rounds:3, work:120, rest:60, prep:10, uniformFocus:"all",
+    rounds:3, work:120, rest:60, prep:10, uniformFocus:"all", uniformMoveFocus:"none", myWorkouts:[],
     program:[
       {label:"Round 1", work:180, rest:60, focus:"all"},
       {label:"Round 2", work:180, rest:60, focus:"all"},
@@ -1300,6 +1324,7 @@
       c.speed = (typeof c.rate==="number" && c.rate>0) ? Math.min(1.3, Math.max(0.65, c.rate/1.25)) : 1;
     if(!c.library) c.library = freshLibrary();
     if(!Array.isArray(c.custom)) c.custom = [];
+    if(!Array.isArray(c.myWorkouts)) c.myWorkouts = [];
     if(!c.movement) c.movement = freshMovement();
     if(c.presetsVer !== PRESETS_VER){
       const wasEnabled = {};
@@ -1321,7 +1346,14 @@
   function save(){ try{ store.set("coachfred.v2", JSON.stringify(cfg)); }catch(e){} }
 
   /* ---------- stat / streak memory (gives returning users something to come back to) ---------- */
-  function freshStats(){ return {rounds:0, sessions:0, workSecs:0, streak:0, best:0, lastDay:null, history:[]}; }
+  function freshStats(){ return {rounds:0, sessions:0, workSecs:0, streak:0, best:0, lastDay:null, history:[], weekGoal:0}; }
+  // rounds completed in the current week, Monday-based — kinder than a streak
+  function weekRounds(){
+    const now = new Date();
+    const day = (now.getDay()+6)%7;
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()-day).getTime();
+    return (stats.history||[]).filter(e=>e.t>=start).reduce((a,e)=>a+(e.rounds||0),0);
+  }
   function loadStats(){ try{ const r=store.get("coachfred.stats"); if(r) return Object.assign(freshStats(), JSON.parse(r)); }catch(e){} return freshStats(); }
   function saveStats(){ try{ store.set("coachfred.stats", JSON.stringify(stats)); }catch(e){} }
   let stats = loadStats();
@@ -1351,7 +1383,8 @@
   let delivering = false, deliverTimers = [], deliverSeq = 0;
   let currentFormat = "combos", currentSegSecs = 0, tenSecFired = false, pyrIdx = 0, emomDone = false, drillCallAt = 0;
   let restLeadFired = false, cdNext = 0;   // rest lead-in + 3-2-1 count back in
-  let currentDrillId = null, currentLadder = null, currentSpeedMs = 8000, drillAlt = false;
+  let currentDrillId = null, currentLadder = null, currentSpeedMs = 8000, drillAlt = false, recallRep = 0;
+  let sessionCounts = null;   // per-session tally of what the corner actually called
   let currentMoveFocus = "none";
   let lastTokens = null;
 
@@ -1637,7 +1670,7 @@
   const BREATHER = { relentless:[1.0,2.0], steady:[1.8,3.0], relaxed:[3.0,4.5] };
   function scheduleNext(n){
     if(currentFormat==="warmup"){ nextComboAt = Date.now() + ((n||1)*PERSHOT + rnd(3.5,5))*1000; return; }
-    if(currentFormat==="drill"||currentFormat==="ladder"){
+    if(currentFormat==="drill"||currentFormat==="ladder"||currentFormat==="recall"){
       // Fixed beat measured from the start of the call. If speech overran the
       // interval, this lands in the past and the next call fires immediately.
       nextComboAt = drillCallAt + (cfg.drillInterval||8)*1000;
@@ -1659,6 +1692,13 @@
   function deliver(combo){
     const tokens = combo.tokens;
     lastTokens = tokens.slice();
+    // tally what the corner actually called, for the summary breakdown
+    if(sessionCounts && (phase==="work"||phase==="warmup")){
+      tokens.forEach(t=>{
+        if(isDigit(t)){ sessionCounts.punches++; const nm=SPEAK[t]; sessionCounts.shots[nm]=(sessionCounts.shots[nm]||0)+1; }
+        else if(t!=="again" && t!=="reset") sessionCounts.moves++;
+      });
+    }
     comboNumbers.innerHTML = tokens.map(t=> isDigit(t) ? `<span>${esc(t)}</span>` : `<span class="mv">${esc(orient(t))}</span>`).join("");
     const names = tokens.map(t=> isDigit(t) ? PUNCH[t] : orient(t)).join(" \u00b7 ");
     comboNames.textContent = combo.name ? `${combo.name.toUpperCase()}  \u2014  ${names}` : names;
@@ -1852,8 +1892,19 @@
     return {tokens: pick([["1"],["1","1"],["1","2"],["2"],["3"],["1","2"]]).slice(), name:""};
   }
   function callCombo(){
+    if(currentFormat==="quiet"){ nextComboAt = Date.now()+3600000; return; }   // bell + ten only
     if(currentFormat==="warmup"){ deliver(warmupCall()); return; }
     if(currentFormat==="drill"||currentFormat==="speed"){ drillCallAt = Date.now(); deliver(drillCombo()); return; }
+    if(currentFormat==="recall"){
+      // Call the combo, then just "again" — you throw it from memory. The
+      // full call comes back around every few reps, less often as rounds climb.
+      drillCallAt = Date.now();
+      recallRep++;
+      const p = totalWork<=1 ? 1 : (workCount-1)/(totalWork-1);
+      const fullEvery = 3 + Math.round(p*2);
+      deliver(recallRep % fullEvery === 1 ? drillCombo() : {tokens:["again"], name:""});
+      return;
+    }
     if(currentFormat==="ladder"){
       drillCallAt = Date.now();
       if(currentLadder && currentLadder.mix && Math.random()<0.5){ deliver(selectCombo()); return; }
@@ -1898,7 +1949,7 @@
     if(cfg.warmupOn) seg.push({type:"warmup", secs:120});
     if(cfg.mode==="uniform"){
       for(let i=0;i<cfg.rounds;i++){
-        seg.push({type:"work", secs:cfg.work, label:`Round ${i+1}`, focus:cfg.uniformFocus, format:cfg.format||"combos"});
+        seg.push({type:"work", secs:cfg.work, label:`Round ${i+1}`, focus:cfg.uniformFocus, format:cfg.format||"combos", moveFocus:cfg.uniformMoveFocus||"none"});
         if(cfg.rest>0 && i<cfg.rounds-1) seg.push({type:"rest", secs:cfg.rest});
       }
     } else {
@@ -1933,6 +1984,7 @@
       currentMoveFocus = seg.moveFocus || "none";
       lastTokens = null;
       currentDrillId = seg.drillComboId || null;
+      recallRep = 0;
       if(currentFormat==="ladder"){
         const base = drillBaseCombo();
         currentLadder = base ? ladderForRound(base, workCount, totalWork) : null;
@@ -2047,6 +2099,11 @@
       structure: cfg.mode==="uniform" ? `${totalWork} × ${fmt(cfg.work)}` : `${totalWork} round${totalWork===1?"":"s"}`,
       format: cfg.mode==="uniform" ? (FORMAT_LABEL[fmtId]||"Combos").split(" (")[0] : "Custom"
     };
+    if(sessionCounts && sessionCounts.punches){
+      entry.punches = sessionCounts.punches;
+      entry.moves = sessionCounts.moves;
+      entry.topShot = Object.entries(sessionCounts.shots).sort((a,b)=>b[1]-a[1])[0][0];
+    }
     stats.history = stats.history || [];
     stats.history.unshift(entry);
     if(stats.history.length>60) stats.history.length = 60;   // keep the log bounded
@@ -2061,6 +2118,7 @@
     releaseWake();
     buildSchedule();
     phase="idle"; segIndex=0; workCount=0;
+    sessionCounts = {punches:0, shots:{}, moves:0};
     app.className="";
     stateLabel.textContent="Ready";
     const firstWork = schedule.find(s=>s.type==="work");
@@ -2126,7 +2184,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v23";
+  const APP_VERSION = "v24";
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2330,14 +2388,37 @@
   /* ---------- preset workouts + round format ---------- */
   let activeWorkout = null;
   function renderWorkouts(){
-    $("workoutGrid").innerHTML = WORKOUTS.map(w=>
+    const mine = (cfg.myWorkouts||[]).map(w=>
+      `<button class="wk mine${w.id===activeWorkout?" on":""}" data-wk="${w.id}"><div class="nm">${esc(w.label)}</div><div class="sub">${esc(w.sub)}</div><span class="wkdel" data-wkdel="${w.id}" aria-label="Delete">&times;</span></button>`
+    ).join("");
+    $("workoutGrid").innerHTML = mine + WORKOUTS.map(w=>
       `<button class="wk${w.id===activeWorkout?" on":""}" data-wk="${w.id}"><div class="nm">${w.label}</div><div class="sub">${w.sub}</div></button>`
     ).join("");
   }
+  // Snapshot the whole current setup as a personal Quick start chip. Rides in
+  // the .coach backup (it lives in cfg) and is shareable as a .workout file.
+  const WK_KEYS = ["mode","rounds","work","rest","prep","warmupOn","uniformFocus","uniformMoveFocus","format",
+    "level","pace","moveMix","bodyMix","fatigueOn","callStyle","stanceOn","stanceMode","startStance",
+    "drillComboId","drillComboB","drillInterval"];
+  function snapshotWorkout(label){
+    const c={}; WK_KEYS.forEach(k=>c[k]=cfg[k]);
+    c.program = JSON.parse(JSON.stringify(cfg.program));
+    const sub = cfg.mode==="custom" ? `${cfg.program.length} rds · custom` : `${cfg.rounds} × ${fmtS(cfg.work)}`;
+    return {id:"w"+Date.now(), label, sub, cfg:c};
+  }
+  $("wkSave").addEventListener("click", ()=>{
+    const label = $("wkName").value.trim() || `My workout ${cfg.myWorkouts.length+1}`;
+    const w = snapshotWorkout(label);
+    cfg.myWorkouts.push(w);
+    activeWorkout = w.id;
+    $("wkName").value="";
+    save(); renderWorkouts();
+  });
   function applyWorkout(id){
-    const w = WORKOUTS.find(x=>x.id===id); if(!w) return;
+    const w = WORKOUTS.find(x=>x.id===id) || (cfg.myWorkouts||[]).find(x=>x.id===id);
+    if(!w) return;
     cfg.prep = 10; // reset to default; presets that want it set it below
-    Object.assign(cfg, w.cfg);
+    Object.assign(cfg, JSON.parse(JSON.stringify(w.cfg)));
     activeWorkout = id;
     save(); initUI();
     if(phase==="idle") reset();
@@ -2383,15 +2464,18 @@
     const drillish = !!DRILLISH[fmt];
     // EMOM still calls from the pool, so the pool picker stays visible for it.
     $("uniformFocusField").style.display = (fmt==="combos"||fmt==="emom") ? "block" : "none";
+    $("uniformShotField").style.display = (fmt==="combos"||fmt==="emom") ? "block" : "none";
     $("formatField").style.display = drillish ? "none" : "block";   // a drill overrides the round type
     $("drillOpts").style.display = drillish ? "block" : "none";
-    $("drillBField").style.display = (fmt==="drill"||fmt==="speed") ? "block" : "none";
+    $("drillBField").style.display = (fmt==="drill"||fmt==="speed"||fmt==="recall") ? "block" : "none";
     [...$("segDrill").children].forEach(x=>x.classList.toggle("on", x.dataset.v===(drillish?fmt:"off")));
-    $("drillState").textContent = drillish ? ({ladder:"build up", speed:"speed", drill:"repeat"})[fmt] : "";
+    $("drillState").textContent = drillish ? ({ladder:"build up", speed:"speed", drill:"repeat", recall:"recall"})[fmt] : "";
     if(drillish){ $("drillAcc").open = true; renderDrillPicker(); }
     else $("sFormat").value = fmt;
     $("drillBeatNote").textContent = fmt==="speed"
       ? "The starting beat — it tightens every round, down to 3s by the last."
+      : fmt==="recall"
+      ? "He calls it once, then just “again” — throw it from memory. The full call comes back every few reps, less often as rounds climb."
       : "One rep per call on a steady beat. If a call runs long, the next waits.";
     const f = FORMATS.find(x=>x[0]===fmt);
     $("formatNote").textContent = f ? f[2] : "";
@@ -2403,7 +2487,17 @@
     syncFormatUI(); save(); if(phase==="idle") reset();
   });
   $("sDrillComboB").addEventListener("change", e=>{ cfg.drillComboB = e.target.value || null; save(); });
-  $("workoutGrid").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) applyWorkout(b.dataset.wk); });
+  $("workoutGrid").addEventListener("click", e=>{
+    const del=e.target.closest("[data-wkdel]");
+    if(del){
+      e.preventDefault(); e.stopPropagation();
+      cfg.myWorkouts = cfg.myWorkouts.filter(w=>w.id!==del.dataset.wkdel);
+      if(activeWorkout===del.dataset.wkdel) activeWorkout=null;
+      save(); renderWorkouts();
+      return;
+    }
+    const b=e.target.closest("button"); if(b) applyWorkout(b.dataset.wk);
+  });
   $("sFormat").addEventListener("change", e=>{ cfg.format=e.target.value; activeWorkout=null; renderWorkouts(); syncFormatUI(); save(); if(phase==="idle") reset(); });
   $("sDrillCombo").addEventListener("change", e=>{ cfg.drillComboId=e.target.value; save(); if(phase==="idle") reset(); });
   $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
@@ -2503,6 +2597,7 @@
     inp.addEventListener("keydown", ev=>{ if(ev.key==="Enter") inp.blur(); });
   });
   $("uniformFocus").addEventListener("change",e=>{ cfg.uniformFocus=e.target.value; touchWorkout(); save(); });
+  $("uniformShot").addEventListener("change",e=>{ cfg.uniformMoveFocus=e.target.value; touchWorkout(); save(); if(phase==="idle") reset(); });
   $("sLevel").addEventListener("change",e=>{ cfg.level=e.target.value; touchWorkout(); save(); if(phase==="idle") reset(); });
   function syncStanceUI(){ $("startStanceBox").style.display = (cfg.stanceOn && cfg.stanceMode==="alternate") ? "block" : "none"; }
   $("sStance").addEventListener("change",e=>{ cfg.stanceOn=e.target.checked; syncStanceUI(); save(); });
@@ -2721,6 +2816,8 @@
     syncModeUI();
     refreshTimerUI();
     buildFocusSelect($("uniformFocus"), cfg.uniformFocus);
+    $("uniformShot").innerHTML = SHOT_FOCUS.map(o=>`<option value="${o.id}">${o.name}</option>`).join("");
+    $("uniformShot").value = cfg.uniformMoveFocus||"none";
     $("sFormat").innerHTML = FORMATS.filter(f=>f[0]!=="drill").map(f=>`<option value="${f[0]}">${f[1]}</option>`).join("");
     syncFormatUI();
     renderWorkouts();
@@ -2752,8 +2849,12 @@
       [Math.round((stats.workSecs||0)/60), "Mins on bag"]
     ];
     el.innerHTML = cells.map(c=>`<div class="stat"><span class="snum">${c[0]}</span><span class="slbl">${c[1]}</span></div>`).join("");
+    $("wgVal").textContent = stats.weekGoal ? stats.weekGoal+" rds" : "Off";
+    $("weekProg").textContent = stats.weekGoal ? `${weekRounds()}/${stats.weekGoal} this week` : "";
     renderHistory();
   }
+  $("wgMinus").addEventListener("click", ()=>{ stats.weekGoal = Math.max(0,(stats.weekGoal||0)-3); saveStats(); renderStats(); });
+  $("wgPlus").addEventListener("click",  ()=>{ stats.weekGoal = Math.min(60,(stats.weekGoal||0)+3); saveStats(); renderStats(); });
 
   function histWhen(t){
     const d=new Date(t), now=Date.now();
@@ -2769,8 +2870,9 @@
     if(!h.length){ el.innerHTML='<div class="log-empty">No sessions yet — finish a round set and it lands here.</div>'; return; }
     el.innerHTML = h.slice(0,30).map(e=>{
       const mins=Math.max(1,Math.round((e.workSecs||0)/60));
+      const shots = e.punches ? ` · ~${e.punches} punches` : "";
       return `<div class="log-row"><div><div class="when">${histWhen(e.t)}</div>`+
-        `<div class="meta">${e.structure} · ${e.format}</div></div>`+
+        `<div class="meta">${e.structure} · ${e.format}${shots}</div></div>`+
         `<div class="big">${e.rounds}<small>rounds · ${mins} min</small></div></div>`;
     }).join("");
   }
@@ -2780,9 +2882,14 @@
     $("sumMins").textContent = Math.max(1,Math.round((entry.workSecs||0)/60));
     $("sumSessions").textContent = stats.sessions||0;
     $("sumSub").textContent = `${entry.structure} · ${entry.format}`;
+    $("sumShots").textContent = entry.punches
+      ? `~${entry.punches} punches called · mostly ${entry.topShot}${entry.moves?` · ${entry.moves} defensive moves`:""}`
+      : "";
     const sk=stats.streak||0;
-    $("sumStreak").textContent = sk>1 ? `${sk}-day streak — keep it going`
+    let line = sk>1 ? `${sk}-day streak — keep it going`
       : (sk===1 ? "Day one of a new streak — back tomorrow?" : "");
+    if(stats.weekGoal) line += `${line?"  ·  ":""}${weekRounds()}/${stats.weekGoal} rounds this week`;
+    $("sumStreak").textContent = line;
     $("summary").classList.add("show");
   }
   $("sumDone").addEventListener("click", ()=> $("summary").classList.remove("show"));
@@ -2941,6 +3048,59 @@
       }
     };
     reader.onerror = ()=>{ setCombosStatus("Couldn't read that file.", "err"); e.target.value=""; };
+    reader.readAsText(file);
+  });
+
+  /* ---------- share / import saved workouts ---------- */
+  function setWorkoutsStatus(msg, kind){
+    const el=$("workoutsStatus"); if(!el) return;
+    el.textContent = msg || "";
+    el.className = "backup-status" + (kind ? " "+kind : "");
+  }
+  $("shareWorkoutsBtn").addEventListener("click", ()=>{
+    if(!cfg.myWorkouts || !cfg.myWorkouts.length){ setWorkoutsStatus("You haven't saved any workouts yet.", "err"); return; }
+    try{
+      const payload = { app:"coach-fred", type:"workouts", version:1, exportedAt:new Date().toISOString(),
+        data: cfg.myWorkouts.map(w=>({label:w.label, sub:w.sub, cfg:w.cfg})) };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `coach-fred-workouts-${new Date().toISOString().slice(0,10)}.workout`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+      setWorkoutsStatus(`Shared ${cfg.myWorkouts.length} workout${cfg.myWorkouts.length>1?"s":""} to your downloads.`, "ok");
+    }catch(e){ setWorkoutsStatus("Couldn't create the file.", "err"); }
+  });
+  $("importWorkoutsBtn").addEventListener("click", ()=> $("importWorkoutsFile").click());
+  $("importWorkoutsFile").addEventListener("change", e=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file){ return; }
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const obj = JSON.parse(reader.result);
+        const list = (obj && Array.isArray(obj.data)) ? obj.data : (Array.isArray(obj) ? obj : null);
+        if(!list) throw new Error("shape");
+        const valid = list.filter(w=> w && typeof w==="object" && typeof w.label==="string" && w.cfg && typeof w.cfg==="object");
+        if(!valid.length) throw new Error("empty");
+        const have = new Set(cfg.myWorkouts.map(w=>w.label.toLowerCase()));
+        let added=0, skipped=0;
+        valid.forEach((w,i)=>{
+          if(have.has(w.label.toLowerCase())){ skipped++; return; }
+          have.add(w.label.toLowerCase());
+          cfg.myWorkouts.push({id:"w"+Date.now()+"-"+i, label:w.label, sub:(typeof w.sub==="string"?w.sub:""), cfg:JSON.parse(JSON.stringify(w.cfg))});
+          added++;
+        });
+        save(); renderWorkouts();
+        if(added){
+          let msg=`Added ${added} workout${added>1?"s":""}`;
+          if(skipped) msg += `, skipped ${skipped} you already had`;
+          setWorkoutsStatus(msg+".", "ok");
+        } else setWorkoutsStatus("Those workouts are already saved here.", "err");
+      }catch(err){ setWorkoutsStatus("That file doesn't contain Coach Fred workouts.", "err"); }
+      finally{ e.target.value = ""; }
+    };
+    reader.onerror = ()=>{ setWorkoutsStatus("Couldn't read that file.", "err"); e.target.value=""; };
     reader.readAsText(file);
   });
 
