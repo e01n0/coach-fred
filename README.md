@@ -172,7 +172,9 @@ Drago's Soviet red, Ali's white-with-black-trim, Goku's orange gi, Scorpion's
 The choice is saved on your device.
 
 ## Notes
-- iOS only speaks after you tap Start, and the silent switch must be off.
+- iOS only speaks after you tap Start. The coach plays through the mute
+  switch by default (Setup → More → Play on silent); turning that off makes it
+  duck under your music instead, but then the mute switch must be off.
 - "Add to Home Screen" in Safari for fullscreen app behaviour.
 - Offline support and install require the page to be served over HTTPS or
   `localhost` (not opened as a `file://` URL).
