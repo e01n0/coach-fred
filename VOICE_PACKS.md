@@ -99,3 +99,24 @@ rendered audio in a deployed app, and don't commit your API key.
 
 Both packs render from the same `voice/phrases.json`; pick the corner under
 **Setup → More → Coach voice**.
+
+## Whole-combo renders + flow (v32)
+
+Stitched single-word clips can't coarticulate across word boundaries, so every
+fixed sequence the caller can produce is ALSO rendered as one connected
+utterance ("One, two, body jab!"):
+
+1. `node gen_sequences.js` — extracts every fixed sequence from index.html
+   (library combos, freestyle pool, focus setups, pyramid rungs, footwork
+   drills + southpaw flips) into `voice/phrases.json` as `seq-…` entries,
+   in both number and name call styles.
+2. `python3 gen_voice.py --voice-id <ID> --pack <pack> --styles seq --stitch`
+   — `--stitch` chains renders with `previous_request_ids` so the whole batch
+   sounds like one recording session.
+
+Playback prefers the whole-combo clip and falls back to stitched atoms
+(dynamic/reactive calls, or a clip that can't load offline). Atom stitching
+itself uses `-m` "medial" takes (mid-sentence prosody via
+`previous_text`/`next_text`) for all but the final atom, plus silence-trim and
+tight gaps at playback. `seq-` clips are lazy-loaded (not pre-decoded) to keep
+phone RAM sane.
