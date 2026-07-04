@@ -131,6 +131,17 @@ Recommended order:
 
 ### 5a. Fix Round by round in place (the complaint — do this first)
 
+> **Status: shipped in v33** (same branch). All eight items below are
+> implemented and verified with a fresh-profile Playwright pass: toggle
+> pinned above the content (0 px movement on switch), `N rds · total`
+> header, program seeds from the uniform timer until first touched
+> (`cfg.progTouched`), collapsed one-line rows with single-open expansion
+> (5 rounds fit one screenful), duplicate + copy-last Add round with
+> generic-label renumbering, drill accordion hidden in custom mode with a
+> pointer to the per-round Drill type, preset/plan toast appends
+> "· same every round" when it flips the mode, idle line reads
+> `5 rounds · 12:10 · round by round`.
+
 1. **Pin the context header.** Keep a compact, always-visible summary at the
    top of custom mode: `4 rounds · 15:00 total` (reuse `vTotal`). The timer
    block may hide; the *totals* must not.
