@@ -166,6 +166,16 @@ Recommended order:
 
 ### 5b. Then thin the Workout pane (the "lost in settings" feeling)
 
+> **Status: shipped in v33** (same branch, items 1–2; item 3 not needed).
+> The Coaching accordion moved to the More pane (Workout pane: 104 → 44
+> controls, now single-purpose "what am I doing today"); tour and
+> cross-reference copy updated. The preset confirmation bar now names
+> every below-the-fold change — "Tabata loaded — 8 × 20/10 · Intermediate ·
+> relentless pace", plus round type and call style when they change — for
+> Quick start chips and 4-week program loads alike. Turning on a drill
+> shows a note explaining it stands in for Round type / Combo pool / Shot
+> focus instead of silently hiding the fields (finding 10).
+
 1. **One system for "what kind of workout."** Quick start chips stay the
    entry point for *sessions*; Round type stays the knob for *round content*.
    Kill the duplication by making the chips visibly set the same controls

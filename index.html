@@ -571,7 +571,7 @@
           <option value="advanced">Advanced</option>
           <option value="build">Build up over rounds</option>
         </select>
-        <div class="note help">Beginner keeps it simple; each level unlocks more and mixes in more defence and body work. <b>How scaling works:</b> Defence &amp; movement and Body shots set the ceiling &mdash; your Level scales it down, so Beginner stays sparse and Advanced fills it in. Build up ramps beginner&rarr;advanced across the rounds (per stance when alternating), layering defence then counters onto the same combos as it climbs &mdash; e.g. round 1 calls 1-2-3, later rounds 1-2-3 slip, then 1-2-3 slip 2.</div>
+        <div class="note help">Beginner keeps it simple; each level unlocks more and mixes in more defence and body work. <b>How scaling works:</b> Defence &amp; movement and Body shots (under More &rarr; Coaching) set the ceiling &mdash; your Level scales it down, so Beginner stays sparse and Advanced fills it in. Build up ramps beginner&rarr;advanced across the rounds (per stance when alternating), layering defence then counters onto the same combos as it climbs &mdash; e.g. round 1 calls 1-2-3, later rounds 1-2-3 slip, then 1-2-3 slip 2.</div>
       </div>
 
       <div id="uniformBox2">
@@ -589,8 +589,82 @@
           <select id="sFormat"></select>
           <div class="note" id="formatNote"></div>
         </div>
+        <div class="note" id="drillOverrideNote" style="display:none;">This session drills one combination &mdash; the drill stands in for Round type, Combo pool and Shot focus while it&rsquo;s on. Turn it off under <b>Drill a combo</b>.</div>
       </div>
 
+    </div>
+
+    <!-- COMBOS PANE -->
+    <div class="pane" id="pane-combos">
+      <div class="note" style="margin-top:6px;">Tick the combos you want in the pool. The caller picks from ticked ones at random. Add your own at the bottom.</div>
+      <div id="library"></div>
+
+      <details class="acc">
+        <summary><span class="acc-t">Build a combo</span></summary>
+        <div class="acc-body builder">
+          <div class="stage" id="stage"><span class="ph">Tap punches and movement below to build a multi-phase combo.</span></div>
+          <div class="stage-actions">
+            <button id="stageBack">&#9003;&nbsp; Back</button>
+            <button id="stageClear">Clear</button>
+          </div>
+          <div class="pad-title">Punches</div>
+          <div class="pad" id="punchPad"></div>
+          <div class="pad-title">Movement &middot; your ticked calls</div>
+          <div class="chips" id="movePad"></div>
+          <div class="save-row">
+            <input id="comboName" placeholder="Name (optional)">
+            <button id="saveCombo" disabled>Save</button>
+          </div>
+          <div class="note">1 jab, 2 cross, 3 lead hook, 4 rear hook, 5/6 uppercuts. Body shots use a b: 1b/2b to the body, 3b/4b body hooks. Drop a slip or roll mid-combo to make it multi-phase, e.g. 1&nbsp;2 &middot; slip right &middot; 3&nbsp;2. Build directions as orthodox &mdash; left/right flip automatically on southpaw rounds.</div>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary><span class="acc-t">Movement</span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;">Slips, rolls, steps, pivots and guard work. Ticked ones get woven between your punches, with the punch each slip loads. Directions are shown orthodox and flip automatically on southpaw rounds.</div>
+          <div id="moveLibrary"></div>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary><span class="acc-t">Share combos</span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;">Send just your own combos to a training partner as a <b>.combo</b> file, or pull theirs in. Importing <b>adds</b> to your list &mdash; it won&rsquo;t touch your settings or wipe what you&rsquo;ve already built.</div>
+          <div class="backup-row">
+            <button id="shareCombosBtn">Share mine</button>
+            <button id="importCombosBtn">Import combos</button>
+          </div>
+          <input type="file" id="importCombosFile" accept=".combo,application/json,.json" hidden>
+          <div class="backup-status" id="combosStatus"></div>
+          <div class="note">Saved workouts travel the same way as a <b>.workout</b> file &mdash; importing adds to your Quick start chips.</div>
+          <div class="backup-row">
+            <button id="shareWorkoutsBtn">Share workouts</button>
+            <button id="importWorkoutsBtn">Import workouts</button>
+          </div>
+          <input type="file" id="importWorkoutsFile" accept=".workout,application/json,.json" hidden>
+          <div class="backup-status" id="workoutsStatus"></div>
+        </div>
+      </details>
+    </div>
+
+    <!-- SETTINGS PANE -->
+    <div class="pane" id="pane-more">
+      <div class="field" id="statsField">
+        <div class="field-label"><span>Your record</span></div>
+        <div class="stats-grid" id="statsBox"></div>
+        <div class="field-label" style="margin-top:16px;"><span>Weekly goal</span><span class="val" id="weekProg" style="font-size:15px;"></span></div>
+        <div class="stepper" style="max-width:180px;"><button id="wgMinus">&minus;</button><div class="sv" id="wgVal">Off</div><button id="wgPlus">+</button></div>
+        <div class="note">Rounds per week &mdash; kinder than a day streak; rest days don&rsquo;t break it.</div>
+      </div>
+
+      <details class="acc" id="logAcc">
+        <summary><span class="acc-t">Session log</span></summary>
+        <div class="acc-body">
+          <div class="log-list" id="logList"></div>
+          <div class="note">Your last sessions on the bag, newest first &mdash; kept on this device and carried in your <b>.coach</b> backup.</div>
+        </div>
+      </details>
       <details class="acc">
         <summary><span class="acc-t">Coaching</span></summary>
         <div class="acc-body">
@@ -665,7 +739,7 @@
               <button data-v="light" class="on">Light</button>
               <button data-v="heavy">Heavy</button>
             </div>
-            <div class="note help">Sets the ceiling for defence woven between punches: slips, rolls, steps, pivots. Your Level scales it down &mdash; see <b>How scaling works</b> under Level. Pick which moves are in play under Combos &rarr; Movement.</div>
+            <div class="note help">Sets the ceiling for defence woven between punches: slips, rolls, steps, pivots. Your Level (Workout tab) scales it down &mdash; see <b>How scaling works</b> there. Pick which moves are in play under Combos &rarr; Movement.</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Body shots</span></div>
@@ -676,79 +750,6 @@
             </div>
             <div class="note">How many body shots get mixed into freestyle combos &mdash; your Level scales it. Named body combos live in Combos &rarr; Body.</div>
           </div>
-        </div>
-      </details>
-    </div>
-
-    <!-- COMBOS PANE -->
-    <div class="pane" id="pane-combos">
-      <div class="note" style="margin-top:6px;">Tick the combos you want in the pool. The caller picks from ticked ones at random. Add your own at the bottom.</div>
-      <div id="library"></div>
-
-      <details class="acc">
-        <summary><span class="acc-t">Build a combo</span></summary>
-        <div class="acc-body builder">
-          <div class="stage" id="stage"><span class="ph">Tap punches and movement below to build a multi-phase combo.</span></div>
-          <div class="stage-actions">
-            <button id="stageBack">&#9003;&nbsp; Back</button>
-            <button id="stageClear">Clear</button>
-          </div>
-          <div class="pad-title">Punches</div>
-          <div class="pad" id="punchPad"></div>
-          <div class="pad-title">Movement &middot; your ticked calls</div>
-          <div class="chips" id="movePad"></div>
-          <div class="save-row">
-            <input id="comboName" placeholder="Name (optional)">
-            <button id="saveCombo" disabled>Save</button>
-          </div>
-          <div class="note">1 jab, 2 cross, 3 lead hook, 4 rear hook, 5/6 uppercuts. Body shots use a b: 1b/2b to the body, 3b/4b body hooks. Drop a slip or roll mid-combo to make it multi-phase, e.g. 1&nbsp;2 &middot; slip right &middot; 3&nbsp;2. Build directions as orthodox &mdash; left/right flip automatically on southpaw rounds.</div>
-        </div>
-      </details>
-
-      <details class="acc">
-        <summary><span class="acc-t">Movement</span></summary>
-        <div class="acc-body">
-          <div class="note" style="margin-top:0;">Slips, rolls, steps, pivots and guard work. Ticked ones get woven between your punches, with the punch each slip loads. Directions are shown orthodox and flip automatically on southpaw rounds.</div>
-          <div id="moveLibrary"></div>
-        </div>
-      </details>
-
-      <details class="acc">
-        <summary><span class="acc-t">Share combos</span></summary>
-        <div class="acc-body">
-          <div class="note" style="margin-top:0;">Send just your own combos to a training partner as a <b>.combo</b> file, or pull theirs in. Importing <b>adds</b> to your list &mdash; it won&rsquo;t touch your settings or wipe what you&rsquo;ve already built.</div>
-          <div class="backup-row">
-            <button id="shareCombosBtn">Share mine</button>
-            <button id="importCombosBtn">Import combos</button>
-          </div>
-          <input type="file" id="importCombosFile" accept=".combo,application/json,.json" hidden>
-          <div class="backup-status" id="combosStatus"></div>
-          <div class="note">Saved workouts travel the same way as a <b>.workout</b> file &mdash; importing adds to your Quick start chips.</div>
-          <div class="backup-row">
-            <button id="shareWorkoutsBtn">Share workouts</button>
-            <button id="importWorkoutsBtn">Import workouts</button>
-          </div>
-          <input type="file" id="importWorkoutsFile" accept=".workout,application/json,.json" hidden>
-          <div class="backup-status" id="workoutsStatus"></div>
-        </div>
-      </details>
-    </div>
-
-    <!-- SETTINGS PANE -->
-    <div class="pane" id="pane-more">
-      <div class="field" id="statsField">
-        <div class="field-label"><span>Your record</span></div>
-        <div class="stats-grid" id="statsBox"></div>
-        <div class="field-label" style="margin-top:16px;"><span>Weekly goal</span><span class="val" id="weekProg" style="font-size:15px;"></span></div>
-        <div class="stepper" style="max-width:180px;"><button id="wgMinus">&minus;</button><div class="sv" id="wgVal">Off</div><button id="wgPlus">+</button></div>
-        <div class="note">Rounds per week &mdash; kinder than a day streak; rest days don&rsquo;t break it.</div>
-      </div>
-
-      <details class="acc" id="logAcc">
-        <summary><span class="acc-t">Session log</span></summary>
-        <div class="acc-body">
-          <div class="log-list" id="logList"></div>
-          <div class="note">Your last sessions on the bag, newest first &mdash; kept on this device and carried in your <b>.coach</b> backup.</div>
         </div>
       </details>
       <div class="field" id="voiceField" style="display:none;">
@@ -803,7 +804,7 @@
       <details class="acc">
         <summary><span class="acc-t">Camera (beta)</span></summary>
         <div class="acc-body">
-          <div class="note" style="margin-top:0;"><b>Camera Coach</b> &mdash; on-device pose tracking that watches you train. The video never leaves your phone and nothing is recorded. For punch counting <b>inside your normal timer sessions</b>, flip on <b>Workout &rarr; Coaching &rarr; Camera scoring</b>. The two standalone drills below each want the phone in a different spot:</div>
+          <div class="note" style="margin-top:0;"><b>Camera Coach</b> &mdash; on-device pose tracking that watches you train. The video never leaves your phone and nothing is recorded. For punch counting <b>inside your normal timer sessions</b>, flip on <b>Coaching &rarr; Camera scoring</b> up on this tab. The two standalone drills below each want the phone in a different spot:</div>
           <div class="note" style="margin-top:8px;"><b>Bag Coach</b> &mdash; prop the phone <b>side-on</b> (~90&deg;) to you at the bag. Watches your form: guard up, balance, punch type, and whether you actually <b>landed</b> the shot.</div>
           <div class="backup-row">
             <a id="cameraCoachBtn" class="exp-launch" href="./camera-coach.html">Open Bag Coach</a>
@@ -2641,8 +2642,8 @@
     {h:"Read the calls", b:"Combos flash up here and get spoken: <b>1</b> jab, <b>2</b> cross, <b>3</b> lead hook, <b>4</b> rear hook, <b>5</b>/<b>6</b> uppercuts. A <b>b</b> means to the body. Slips and rolls get woven in between.", at:()=>{ tutCloseSheet(); return document.querySelector(".combo"); }},
     {h:"Switch stance", b:"This badge shows your stance and it&rsquo;s called at the top of each round. <b>Tap it</b> to flip mid-session &mdash; left/right directions flip with you.", at:()=> tutShowStance() },
     {h:"Set up your session", b:"Everything else lives behind the <b>gear</b>. Tap it for workouts, your combo pool, the builder, voice and themes &mdash; I&rsquo;ll open it up next.", at:()=>{ tutCloseSheet(); return $("openSettings"); }},
-    {h:"Three tabs", b:"Setup splits into three. <b>Workout</b>: your rounds and timing up top, level and how the corner calls. <b>Combos</b>: pick your pool or build your own. <b>More</b>: voice, themes and your record.", at:()=>{ tutOpenPane("workout"); return $("tabs"); }},
-    {h:"Pick a workout", b:"Your <b>rounds, timing and rest</b> sit right at the top. <b>Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Open <b>Coaching</b> to shape stance, pace, movement and body work.", at:()=>{ tutOpenPane("workout"); return $("workoutGrid"); }},
+    {h:"Three tabs", b:"Setup splits into three. <b>Workout</b>: today&rsquo;s session &mdash; rounds, timing, level and ready-made sessions. <b>Combos</b>: pick your pool or build your own. <b>More</b>: coaching style, voice, themes and your record.", at:()=>{ tutOpenPane("workout"); return $("tabs"); }},
+    {h:"Pick a workout", b:"Your <b>rounds, timing and rest</b> sit right at the top. <b>Quick start</b> loads ring-standard sessions in a tap &mdash; <b>Beginner</b>, <b>Amateur 3&times;3</b>, <b>Pro 12&times;3</b>, plus <b>Tabata</b>, <b>HIIT</b> and <b>EMOM</b>. Stance, pace and how the corner calls live under <b>More &rarr; Coaching</b>.", at:()=>{ tutOpenPane("workout"); return $("workoutGrid"); }},
     {h:"Pick your combos", b:"Over in <b>Combos</b>, tick the combos you want in the pool &mdash; the caller pulls from the ticked ones at random. They&rsquo;re grouped by style, with a level badge on each. Tap a group to open it.", at:()=> tutPickCombos() },
     {h:"Build your own", b:"Open <b>Build a combo</b> and tap <b>Punches</b> and <b>Movement</b> &mdash; each one stacks into the box at the top so you can see the combo take shape. Name it, hit <b>Save</b>, and it joins your pool.", at:()=>{ tutOpenPane("combos"); return tutOpenAcc($("stage")).closest(".builder"); }},
     {h:"Pick your fighter", b:"In <b>More &rarr; Theme</b>, reskin the whole app. Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Tap one and the whole corner changes.", at:()=>{ tutOpenPane("more"); return tutOpenAcc($("themeGrid")); }},
@@ -2784,18 +2785,33 @@
     $("wkName").value="";
     save(); renderWorkouts();
   });
+  // Presets rewrite more than timing (level, pace, call style, round type) —
+  // those controls sit below the fold, so the confirmation bar names every
+  // change the user can't see happen. Call with the pre-assign snapshot.
+  const CALL_LABEL = {numbers:"number calls", names:"name calls", both:"number + name calls"};
+  function cfgChangeNote(newCfg, before, modeFlip){
+    const bits = [];
+    if(modeFlip) bits.push("same every round");
+    if(newCfg.level && newCfg.level!==before.level) bits.push(LEVEL_LABEL[cfg.level]||cfg.level);
+    if(newCfg.pace && newCfg.pace!==before.pace) bits.push(cfg.pace+" pace");
+    if(newCfg.format && newCfg.format!==before.format && cfg.format!=="combos")
+      bits.push((FORMAT_LABEL[cfg.format]||"").split(" (")[0]+" rounds");
+    if(newCfg.callStyle && newCfg.callStyle!==before.callStyle) bits.push(CALL_LABEL[cfg.callStyle]||cfg.callStyle);
+    return bits.length ? " · "+bits.join(" · ") : "";
+  }
   function applyWorkout(id){
     const w = WORKOUTS.find(x=>x.id===id) || (cfg.myWorkouts||[]).find(x=>x.id===id);
     if(!w) return;
     // Loading a preset from Round-by-round silently flips the mode back —
     // say so on the confirmation instead of letting the cards just vanish.
     const modeFlip = cfg.mode==="custom" && (w.cfg.mode||"uniform")==="uniform";
+    const before = {level:cfg.level, pace:cfg.pace, format:cfg.format, callStyle:cfg.callStyle};
     cfg.prep = 10; // reset to default; presets that want it set it below
     Object.assign(cfg, JSON.parse(JSON.stringify(w.cfg)));
     activeWorkout = id;
     save(); initUI(); renderProgram();
     if(phase==="idle") reset();
-    showWkToast(w, modeFlip ? " · same every round" : "");
+    showWkToast(w, cfgChangeNote(w.cfg, before, modeFlip));
   }
   /* quick-start confirmation: visible feedback + a one-tap start */
   let wkToastT=null;
@@ -2839,6 +2855,7 @@
     $("uniformFocusField").style.display = (fmt==="combos"||fmt==="emom") ? "block" : "none";
     $("uniformShotField").style.display = (fmt==="combos"||fmt==="emom") ? "block" : "none";
     $("formatField").style.display = drillish ? "none" : "block";   // a drill overrides the round type
+    $("drillOverrideNote").style.display = drillish ? "block" : "none";   // ...and says so instead of just vanishing fields
     $("drillOpts").style.display = drillish ? "block" : "none";
     $("drillBField").style.display = (fmt==="drill"||fmt==="speed"||fmt==="recall") ? "block" : "none";
     [...$("segDrill").children].forEach(x=>x.classList.toggle("on", x.dataset.v===(drillish?fmt:"off")));
@@ -2943,12 +2960,15 @@
     const i=planIdx(); if(i>=PLAN_SESSIONS.length) return;
     const s=PLAN_SESSIONS[i];
     const modeFlip = cfg.mode==="custom";   // plan sessions are all uniform
+    const before = {level:cfg.level, pace:cfg.pace, format:cfg.format, callStyle:cfg.callStyle};
     cfg.prep = 10;
     Object.assign(cfg, JSON.parse(JSON.stringify(s.cfg)));
     activeWorkout=null; planActive=i;
     save(); initUI();
     if(phase==="idle") reset();
-    showWkToast({label:`Week ${s.w} · Day ${s.d} — ${s.label}`, sub:planSub(s.cfg)}, modeFlip ? " · same every round" : "");
+    // planSub already names the round type, so don't repeat it in the note
+    showWkToast({label:`Week ${s.w} · Day ${s.d} — ${s.label}`, sub:planSub(s.cfg)},
+      cfgChangeNote(Object.assign({}, s.cfg, {format:null}), before, modeFlip));
   });
   $("planReset").addEventListener("click", ()=>{ stats.plan={idx:0}; saveStats(); planActive=null; renderPlan(); });
   $("segMode").addEventListener("click", e=>{
