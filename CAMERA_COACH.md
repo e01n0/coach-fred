@@ -200,7 +200,12 @@ plan: pretrain/borrow elsewhere, fine-tune on self-recorded clips).
 
 **This split is now baked into the UI:** the two placements are **separate
 pages**, so the user never has to discover mid-session that a mode wants a
-different camera angle. Bag Coach (`camera-coach.html`) is side-on only — punch
+different camera angle. The **main timer's camera scoring** (index.html) is
+placement-aware instead of gated: **side-on** it counts punches + guard drops;
+**front-on** (the phone where it already sits for the timer, a little off the
+bag) it degrades gracefully to a **guard-only watch** — sustained hands-down
+between combos still counts a drop and triggers the live "hands up" cue, punch
+counting just switches off (HUD shows `CAM · GUARD WATCH`). Bag Coach (`camera-coach.html`) is side-on only — punch
 detection only counts when a ~90° side view is detected (shoulder span small vs
 torso height), with an on-screen SIDE-ON / TURN SIDE-ON badge. Reaction
 (`reaction-drill.html`) is front-on only. Detection itself is a retract→extend

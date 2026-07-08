@@ -729,7 +729,7 @@
               <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Camera scoring (beta)</span>
               <label class="switch"><input type="checkbox" id="sCam"><span class="slider"></span></label>
             </div>
-            <div class="note">Prop the phone <b>side-on</b> at the bag and the camera counts <b>punches thrown</b> and <b>guard drops</b> per round &mdash; into rest screens, the summary and your record. All on-device, nothing recorded. First use downloads the pose model (~17&nbsp;MB, then offline); the camera only runs during work rounds to save battery.</div>
+            <div class="note">The camera scores your rounds &mdash; into rest screens, the summary and your record. Phone <b>in front of you</b> (where it sits for the timer, a touch left or right of the bag): watches your <b>guard</b> and calls <b>&ldquo;hands up&rdquo;</b> when your hands stay down between combos. Phone <b>side-on</b> (~90&deg;): also counts <b>punches thrown</b>. All on-device, nothing recorded. First use downloads the pose model (~17&nbsp;MB, then offline); the camera only runs during work rounds to save battery.</div>
           </div>
           <div class="field">
             <div class="field-label"><span>Call style</span></div>
@@ -2190,15 +2190,17 @@
   }
 
   /* ---------- camera scoring (beta) ----------
-     Side-on punch counting + guard-drop flags during work rounds, feeding the
+     Guard-drop flags at ANY placement (front-on, by the timer, is the best
+     guard view) + punch counting when side-on, during work rounds, feeding the
      summary and Your record. Fully lazy: nothing loads unless the toggle is on
      and a session starts. Reuses the self-hosted pose runtime the camera pages
      ship under ./vendor (~17 MB, one time, service-worker cached). Detection
      runs only during work segments — duty-cycled for heat and battery. */
   const camS = {
     boot:null, lm:null, video:null, stream:null, raf:0, lastT:-1,
-    round:{thrown:0, drops:0}, total:{thrown:0, drops:0}, rounds:[],
-    state:{l:"ready", r:"ready"}, ema:{l:0, r:0}, refr:0, guardBad:0
+    round:{thrown:0, drops:0, seen:0}, total:{thrown:0, drops:0}, rounds:[],
+    state:{l:"ready", r:"ready"}, ema:{l:0, r:0}, refr:0, guardBad:0,
+    guardOnly:false, sawSide:false
   };
   const CAM_I = {NOSE:0, L_SH:11, R_SH:12, L_EL:13, R_EL:14, L_WR:15, R_WR:16, L_HIP:23, R_HIP:24};
   const CAM_HI=1.65, CAM_LO=1.20;   // same retract->extend hysteresis as Bag Coach
@@ -2213,31 +2215,41 @@
     const el=$("camHud"); if(!el) return;
     if(!cfg.camOn || phase==="idle" || phase==="done"){ el.style.display="none"; return; }
     el.style.display="block";
-    el.textContent = msg || `CAM ${camS.round.thrown} THROWN${camS.round.drops?` · ${camS.round.drops} GUARD`:``}`;
+    el.textContent = msg || (camS.guardOnly
+      ? `CAM · GUARD WATCH${camS.round.drops?` · ${camS.round.drops} DROPPED`:``}`
+      : `CAM ${camS.round.thrown} THROWN${camS.round.drops?` · ${camS.round.drops} GUARD`:``}`);
   }
   function camResetSession(){
-    camS.round={thrown:0,drops:0}; camS.total={thrown:0,drops:0}; camS.rounds=[];
+    camS.round={thrown:0,drops:0,seen:0}; camS.total={thrown:0,drops:0}; camS.rounds=[];
     camS.state={l:"ready",r:"ready"}; camS.ema={l:0,r:0}; camS.refr=0; camS.guardBad=0;
+    camS.guardOnly=false; camS.sawSide=false;
   }
   const CAM_LADDER_REPS = 10;   // landed-count gate to earn the next ladder rung
   let camLadderStage = 0, camGateMsg = "";
   function camBank(){
     if(!cfg.camOn) return;
-    // rep-gated ladder: the rung is earned, not scheduled
+    // rep-gated ladder: the rung is earned, not scheduled — but only when the
+    // camera can actually count (side-on). A front-on guard-only placement
+    // can't see punches, so rungs advance by the clock like camera-off.
     if(cfg.format==="ladder"){
-      if(camS.round.thrown >= CAM_LADDER_REPS){
+      if(!camS.sawSide){
+        camLadderStage++; camGateMsg = "";
+      } else if(camS.round.thrown >= CAM_LADDER_REPS){
         camLadderStage++;
         camGateMsg = "that earns the next piece";
       } else {
         camGateMsg = `${CAM_LADDER_REPS} thrown earns the next piece`;
       }
     } else camGateMsg = "";
-    if(camS.round.thrown || camS.round.drops){
-      camS.rounds.push({thrown:camS.round.thrown, drops:camS.round.drops});
+    // bank the round if anything was counted, or the camera genuinely watched
+    // (~5s of tracked frames) — so a clean guard-only round still gets its due
+    if(camS.round.thrown || camS.round.drops || camS.round.seen>=150){
+      camS.rounds.push({thrown:camS.round.thrown, drops:camS.round.drops, sideOn:camS.sawSide});
       camS.total.thrown += camS.round.thrown;
       camS.total.drops  += camS.round.drops;
     }
-    camS.round={thrown:0,drops:0};
+    camS.round={thrown:0,drops:0,seen:0};
+    camS.sawSide=false;
   }
   async function camBoot(){
     if(camS.boot) return camS.boot;
@@ -2265,13 +2277,42 @@
   }
   function camDetect(lm){
     const I=CAM_I;
-    // side-on gate (front-on, a straight foreshortens to nothing)
-    if(camVis(lm,I.L_HIP)<0.3 || camVis(lm,I.R_HIP)<0.3){ updateCamHud("CAM · STEP BACK"); return; }
-    const shCx=(lm[I.L_SH].x+lm[I.R_SH].x)/2, shCy=(lm[I.L_SH].y+lm[I.R_SH].y)/2;
-    const hipCx=(lm[I.L_HIP].x+lm[I.R_HIP].x)/2, hipCy=(lm[I.L_HIP].y+lm[I.R_HIP].y)/2;
-    const torso=Math.hypot(shCx-hipCx,shCy-hipCy)||0.2;
-    if(Math.abs(lm[I.L_SH].x-lm[I.R_SH].x)/torso >= 0.5){
-      camS.state.l=camS.state.r="ready"; updateCamHud("CAM · TURN SIDE-ON"); return;
+    camS.round.seen++;
+    // Orientation first. Side-on, the shoulders stack in x (small spread vs
+    // torso height); null = hips out of frame, can't tell.
+    let side=null;
+    if(camVis(lm,I.L_HIP)>=0.3 && camVis(lm,I.R_HIP)>=0.3){
+      const shCx=(lm[I.L_SH].x+lm[I.R_SH].x)/2, shCy=(lm[I.L_SH].y+lm[I.R_SH].y)/2;
+      const hipCx=(lm[I.L_HIP].x+lm[I.R_HIP].x)/2, hipCy=(lm[I.L_HIP].y+lm[I.R_HIP].y)/2;
+      const torso=Math.hypot(shCx-hipCx,shCy-hipCy)||0.2;
+      side = Math.abs(lm[I.L_SH].x-lm[I.R_SH].x)/torso < 0.5;
+    }
+    camS.guardOnly = side!==true;
+    if(side===true) camS.sawSide = true;
+    // GUARD — any placement. Front-on (the phone where it sits for the timer,
+    // a little left or right of the bag) is actually the BEST guard view; a
+    // punch is only ~5 frames so it can't trip the dwell below — this only
+    // catches hands that STAY down between combos. Off the side view, both
+    // wrists must be clearly seen: an arm hidden behind the bag is not a drop.
+    const seeGuard = side===true ||
+      (camVis(lm,I.NOSE)>0.5 && camVis(lm,I.L_SH)>0.5 && camVis(lm,I.R_SH)>0.5 &&
+       camVis(lm,I.L_WR)>0.5 && camVis(lm,I.R_WR)>0.5);
+    if(seeGuard){
+      // both hands below the shoulder line for ~0.6s = a guard drop
+      const headY=lm[I.NOSE].y, shY=(lm[I.L_SH].y+lm[I.R_SH].y)/2, span=Math.abs(shY-headY)||0.1;
+      const up=w=>(shY-lm[w].y)/span;
+      const bad=(up(I.L_WR)<-0.3)&&(up(I.R_WR)<-0.3);
+      camS.guardBad = bad ? camS.guardBad+1 : 0;
+      if(camS.guardBad===18){ camS.round.drops++; updateCamHud(); camCue(); }
+    } else camS.guardBad=0;
+    // PUNCH COUNT — still side-on only (front-on, a straight punch points at
+    // the lens and foreshortens to nothing). A front-on phone is not an error
+    // anymore: the round just scores guard-only.
+    if(side!==true){
+      camS.state.l=camS.state.r="ready";
+      if(side===null && !seeGuard) updateCamHud("CAM · STEP BACK");
+      else updateCamHud();
+      return;
     }
     if(camS.refr>0) camS.refr--;
     const shW=camDist(lm[I.L_SH],lm[I.R_SH])||0.2;
@@ -2283,12 +2324,6 @@
         camS.state[k]="out"; camS.refr=5; camS.round.thrown++; updateCamHud();
       } else if(camS.state[k]==="out" && camS.ema[k]<CAM_LO) camS.state[k]="ready";
     }
-    // both hands below the shoulder line for ~0.6s = a guard drop
-    const headY=lm[I.NOSE].y, shY=(lm[I.L_SH].y+lm[I.R_SH].y)/2, span=Math.abs(shY-headY)||0.1;
-    const up=w=>(shY-lm[w].y)/span;
-    const bad=(up(I.L_WR)<-0.3)&&(up(I.R_WR)<-0.3);
-    camS.guardBad = bad ? camS.guardBad+1 : 0;
-    if(camS.guardBad===18){ camS.round.drops++; updateCamHud(); camCue(); }
   }
   // Live corner cue on a guard drop — recorded voice, hard-throttled so it
   // coaches instead of nagging, and never talks over a combo call.
@@ -2400,8 +2435,14 @@
       // between rounds, put the camera's read where the combos usually sit
       if(cfg.camOn && camS.rounds.length){
         const last = camS.rounds[camS.rounds.length-1];
-        const tail = camGateMsg || "beat it next round";
-        comboNames.textContent = `Camera: ${last.thrown} thrown${last.drops?` · guard dropped ${last.drops}×`:""} — ${tail}`;
+        if(last.sideOn){
+          const tail = camGateMsg || "beat it next round";
+          comboNames.textContent = `Camera: ${last.thrown} thrown${last.drops?` · guard dropped ${last.drops}×`:""} — ${tail}`;
+        } else if(last.drops){   // front-on guard watch: no punch count to report
+          comboNames.textContent = `Camera: guard dropped ${last.drops}× — hands up next round`;
+        } else {
+          comboNames.textContent = "Camera: guard stayed up all round — good work";
+        }
       }
       playBell(1); buzz(120);
       say("Rest", "calm");
