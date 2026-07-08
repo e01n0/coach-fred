@@ -1,5 +1,11 @@
 # Coach Fred — next ideas & gap analysis (post-v33)
 
+> **Status (v35):** gaps 1, 2, 3, 5, 8, 9, 10 (rollups), 12 (partly — Bag Coach
+> now records; in-timer reaction scoring still open) and 13 (reduced-motion)
+> are fixed; hygiene items 24–27 shipped; ideas 1–5 (records, trend,
+> milestones, bests, graduation) and 9 (Shadowbox) are in. Everything else
+> below is still open.
+
 All ten PLAN.md sessions are shipped. This is the follow-up pass: what's left
 hanging in the code as of v33, and where the app can go next. Grounded in a
 full code read of `index.html` (v33), `sw.js`, the voice pipeline and the two

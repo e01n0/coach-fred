@@ -46,6 +46,7 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
 - **Tabata** — 8 × 20s/10s, **HIIT** — 10 × 40s/20s
 - **EMOM** — 10 × 1:00, one combo at the top of each minute
 - **Pyramid**, **Burnout**, **Footwork** — drill formats (below)
+- **Shadowbox** — 4 × 2:00, no bag needed (below)
 
 ## Round types
 **Setup → Workout → Round type** changes what the corner calls during work:
@@ -55,6 +56,8 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
 - **Burnout** — non-stop 1-2 punch-out; speed and volume over power
 - **Footwork** — real called footwork drills (pivots, shuffles, in-and-out,
   circling, L-step, cut-the-angle), which flip left/right on southpaw rounds
+- **Shadowbox** — no bag needed: movement-first calling where footwork, feints
+  and head movement carry the round, with crisp combos stitched between them
 - **EMOM** — every minute on the minute: one combo at the top, rest the rest
 
 In **Round by round** mode each round can use a different type.
@@ -109,9 +112,15 @@ round's combo focus — so head movement and feints get drilled even on a Power
 or Basics round, from the first round on.
 
 ## Your record
-Coach Fred keeps a tally on your device — rounds, sessions, minutes on the bag
-and your current day streak. See it under **Setup → More → Your record**; it
-rides along in your **.coach** backup.
+Coach Fred keeps a tally on your device — rounds, sessions, minutes on the bag,
+your current and best day streaks, plus **lifetime totals** that survive the
+session-log cap: punches called, your favourite shot, and what the camera has
+seen. A **rounds-per-week trend strip** shows the last eight weeks at a glance,
+a **Best session** line tracks your personal bests (most rounds, longest
+session, most punches called), and **milestones** (first session, 100 rounds,
+1,000 punches called, 7-day streak, program graduate…) light up as you earn
+them — new ones are celebrated on the session summary card. See it all under
+**Setup → More → Your record**; it rides along in your **.coach** backup.
 
 A **4-week program** (Setup → Workout → 4-week program) takes you from first
 bag session to club distance, three sessions a week — load the next one and
@@ -138,7 +147,9 @@ phrase is picked at random, so it stays fresh). An optional **bell**
 round; off keeps the corner voice-only. A **Warm-up round** toggle adds two
 easy minutes of footwork and light shots before round one. On longer
 rounds the **fatigue shaping** eases the pace through the back half, then digs in
-for that last push. The clips are cached for offline use; **Coach voice** (Setup → More) picks
+for that last push. The clips are cached for offline use as they play — or grab them all at once
+with **Take the coach offline** (Setup → More) before training somewhere with
+no signal. **Coach voice** (Setup → More) picks
 who works your corner — Coach Fred, or Coach Cal's gravel — and **Voice
 speed** sets how fast the corner calls. See
 [VOICE_PACKS.md](VOICE_PACKS.md) to regenerate the voice with your own

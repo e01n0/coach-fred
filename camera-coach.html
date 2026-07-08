@@ -503,6 +503,7 @@ function detectPunch(lm){
       if(mode==='watch'){
         punches++; rcV.textContent=punches;
         tagPunch(classifyPunch(k), lm[wr]);
+        ccCount('thrown');
       } else if(mode==='form'){ evaluatePunch(lm, k, dist(lm[wr],lm[sh])); }
     } else if(punchState[k]==='out' && e<EXT_LO){
       punchState[k]='ready';                              // arm came back; ready again
@@ -517,7 +518,8 @@ const speechOK='speechSynthesis' in window;
 let voiceOn=true, voiceCfg={voice:null, rate:1.25};
 try{ voiceOn = localStorage.getItem('coachfred.cc.voice')!=='0'; }catch(e){}
 try{ const c=JSON.parse(localStorage.getItem('coachfred.v2')||'null');
-     if(c){ voiceCfg.voice=c.voice||null; voiceCfg.rate=c.rate||1.25; } }catch(e){}
+     // cfg.speed is the app's multiplier (1 = neutral); very old profiles stored rate (1.25 = neutral)
+     if(c){ voiceCfg.voice=c.voice||null; voiceCfg.rate = c.speed ? 1.25*c.speed : (c.rate||1.25); } }catch(e){}
 if(speechOK){ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }
 
 function primeSpeech(){ if(!speechOK) return; const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }
@@ -543,6 +545,42 @@ function announceFaults(flags){
   lastCueAt=now; lastCueText=text;
   speak(text);
 }
+
+// ---------- shared record (same-origin Coach Fred stats) ----------
+// Bag Coach work lands in the main app's session log and lifetime camera
+// totals — same pattern as the Reaction drill: one session, one record.
+// The entry is created once real work shows up (a stray wave at the camera
+// isn't a session) and updated in place as the counts climb.
+let ccEntry=null, ccT0=0, ccSaveT=null, ccBank={thrown:0, landed:0};
+function ccCount(kind){
+  ccBank[kind]++;
+  if(!ccT0) ccT0=Date.now();
+  clearTimeout(ccSaveT); ccSaveT=setTimeout(saveCcStats, 1500);
+}
+function saveCcStats(){
+  if(ccBank.thrown<5) return;
+  try{
+    const s = JSON.parse(localStorage.getItem('coachfred.stats')||'{}');
+    s.history = s.history||[];
+    if(!ccEntry){
+      ccEntry = {t:ccT0, rounds:0, workSecs:0, structure:'Bag Coach', format:'Camera', camera:{thrown:0, landed:0}};
+      s.history.unshift(ccEntry);
+    } else {
+      const i = s.history.findIndex(e=>e.t===ccEntry.t && e.structure==='Bag Coach');
+      if(i>=0) s.history[i]=ccEntry; else s.history.unshift(ccEntry);
+    }
+    if(s.history.length>60) s.history.length=60;
+    s.totals = s.totals||{punches:0, moves:0, shots:{}, camThrown:0, camDrops:0};
+    s.totals.camThrown = (s.totals.camThrown||0) + (ccBank.thrown - ccEntry.camera.thrown);
+    ccEntry.camera.thrown = ccBank.thrown;
+    ccEntry.camera.landed = ccBank.landed;
+    ccEntry.workSecs = Math.round((Date.now()-ccT0)/1000);
+    localStorage.setItem('coachfred.stats', JSON.stringify(s));
+  }catch(e){}
+}
+// test/dev hook (?dev or localhost only): feed counts without a camera
+if(/[?&]dev\b/.test(location.search) || location.hostname==='localhost')
+  window.__ccSim = ccCount;
 
 // ---------- form check: grade each thrown punch ----------
 let form={reps:0, clean:0, landed:0};
@@ -591,11 +629,11 @@ function evaluatePunch(lm, hand, reach){
 
   const ptype=classifyPunch(hand);
   const punchT=performance.now();
-  form.reps++;
+  form.reps++; ccCount('thrown');
   // wait a beat for the bag to react, then judge contact + render the verdict
   setTimeout(()=>{
     const landed = bag.armed && bag.lastSpike>punchT-120 && bag.lastSpike<punchT+170;
-    if(landed) form.landed++;
+    if(landed){ form.landed++; ccCount('landed'); }
     const ok = flags.length===0;
     if(ok && (landed || !bag.armed)) form.clean++;
     rcV.textContent=form.clean;

@@ -152,7 +152,14 @@
     .clock{animation:hud-flick calc(7s / (var(--hud-fx) + 0.0001)) steps(1) infinite;}
     @keyframes hud-flick{0%,97%,100%{opacity:1;}98%{opacity:.82;}99%{opacity:.94;}}
   }
-  @media (prefers-reduced-motion: reduce){ .clock{animation:none;} }
+  @media (prefers-reduced-motion: reduce){
+    .clock{animation:none;}
+    .combo-numbers.hit,.padbtn.pressed,.chipbtn.pressed,.stage.bump,
+    .stage .tk.just,.stage .tkm.just{animation:none;}
+    /* keep the tutorial's dimming overlay (it lives in the keyframes), drop the pulse */
+    .tut.spot .tut-spot{animation:none;box-shadow:0 0 0 9999px rgba(11,9,8,.82);}
+    .tut-spot{transition:none;}
+  }
 
   /* buy me a coffee — discreet, on every surface */
   .coffee{display:inline-flex;align-items:center;gap:7px;font-family:"Barlow Semi Condensed",sans-serif;font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb, var(--tape) 48%, transparent);text-decoration:none;padding:7px 15px;border-radius:999px;border:1px solid color-mix(in srgb, var(--tape) 16%, transparent);background:rgba(0,0,0,.16);transition:color .2s,border-color .2s,transform .08s;}
@@ -200,6 +207,18 @@
   .stat{background:var(--canvas-2);border:1px solid var(--line);border-radius:12px;padding:11px 6px;text-align:center;}
   .stat .snum{display:block;font-family:"Anton";font-size:24px;color:var(--tape);line-height:1;}
   .stat .slbl{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel);margin-top:5px;}
+  .stat .snum.word{font-size:16px;line-height:24px;letter-spacing:.03em;}
+  .trend-bars{display:flex;align-items:flex-end;gap:6px;height:64px;padding-top:14px;}
+  .trend-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;}
+  .trend-col .tv{font-size:10px;color:var(--steel);letter-spacing:.04em;}
+  .trend-bar{width:100%;max-width:26px;background:color-mix(in srgb,var(--prep) 55%,var(--canvas-2));border-radius:4px 4px 0 0;}
+  .trend-bar.cur{background:var(--prep);}
+  .trend-cap{font-size:11px;color:var(--steel);letter-spacing:.05em;text-transform:uppercase;margin-top:6px;text-align:center;}
+  .badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .badge{font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:5px 9px;border-radius:999px;border:1px solid var(--line);color:var(--steel);opacity:.5;}
+  .badge.on{color:var(--tape);border-color:color-mix(in srgb,var(--prep) 60%,var(--line));background:color-mix(in srgb,var(--prep) 16%,var(--canvas-2));opacity:1;}
+  .sum-badge{display:none;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;}
+  .sum-badge span{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--canvas);background:var(--prep);border-radius:999px;padding:5px 10px;font-weight:700;}
 
   /* session summary card */
   #summary{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(8,6,5,.74);}
@@ -653,6 +672,10 @@
       <div class="field" id="statsField">
         <div class="field-label"><span>Your record</span></div>
         <div class="stats-grid" id="statsBox"></div>
+        <div id="trendStrip" style="display:none;"></div>
+        <div class="note" id="pbLine" style="display:none;"></div>
+        <div class="field-label" style="margin-top:16px;"><span>Milestones</span></div>
+        <div class="badge-row" id="badgeRow"></div>
         <div class="field-label" style="margin-top:16px;"><span>Weekly goal</span><span class="val" id="weekProg" style="font-size:15px;"></span></div>
         <div class="stepper" style="max-width:180px;"><button id="wgMinus">&minus;</button><div class="sv" id="wgVal">Off</div><button id="wgPlus">+</button></div>
         <div class="note">Rounds per week &mdash; kinder than a day streak; rest days don&rsquo;t break it.</div>
@@ -778,6 +801,16 @@
         </div>
         <div class="note help">Tap to hear the coach right now &mdash; handy for checking your volume and that audio is working. iOS only allows sound after a tap.</div>
       </div>
+      <div class="field">
+        <div class="toggle-row">
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Take the coach offline</span>
+          <span style="display:flex;gap:8px;">
+            <button type="button" class="testbtn" id="dlVoice">Download</button>
+          </span>
+        </div>
+        <div class="backup-status" id="dlStatus"></div>
+        <div class="note">Normally clips are saved as they first play, so a fresh install needs a signal to speak. This fetches every clip for the current coach in one go &mdash; do it before training somewhere with no reception.</div>
+      </div>
       <div class="note">Add to Home Screen from Safari&rsquo;s share menu for fullscreen, or install from your browser. Works offline once loaded; your combos and program are saved on this device.</div>
 
       <details class="acc">
@@ -838,6 +871,7 @@
       <div class="sum-cell"><span class="n" id="sumSessions">0</span><span class="l">Sessions</span></div>
     </div>
     <div class="sum-shots" id="sumShots"></div>
+    <div class="sum-badge" id="sumBadge"></div>
     <div class="sum-streak" id="sumStreak"></div>
     <div class="sum-actions">
       <button id="sumLog">Session log</button>
@@ -1019,6 +1053,7 @@
     ["pyramid","Pyramid ladder","Climb the punch count 1→6 and back down, over and over."],
     ["burnout","Burnout punch-out","Non-stop 1-2 straight punches — speed and volume over power."],
     ["footwork","Footwork drills","Called footwork: pivots, shuffles, in-and-out, angles."],
+    ["shadow","Shadowbox (no bag)","Movement-first calling for shadowboxing — footwork, feints and head movement stitched around crisp combos."],
     ["emom","EMOM (one combo / min)","Every minute on the minute: one combo at the top, rest the rest."],
     ["quiet","Quiet round (bell + ten only)","Just the bell, the ten-second shout and the count back in — you freestyle, the corner keeps time."],
     ["reaction","Reaction calls (random)","Single random calls — a punch, a slip, a roll — at unpredictable gaps. React, don't think."],
@@ -1046,7 +1081,8 @@
     {id:"emom",     label:"EMOM",      sub:"10 × 1:00", cfg:{mode:"uniform",rounds:10,work:60,rest:0,level:"intermediate",uniformFocus:"all",format:"emom",pace:"steady"}},
     {id:"pyramid",  label:"Pyramid",   sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"pyramid",pace:"steady"}},
     {id:"burnout",  label:"Burnout",   sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:45,format:"burnout",pace:"relentless"}},
-    {id:"footwork", label:"Footwork",  sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"footwork",level:"intermediate",pace:"steady"}}
+    {id:"footwork", label:"Footwork",  sub:"5 × 3:00",  cfg:{mode:"uniform",rounds:5,work:180,rest:60,format:"footwork",level:"intermediate",pace:"steady"}},
+    {id:"shadow",   label:"Shadowbox", sub:"4 × 2:00",  cfg:{mode:"uniform",rounds:4,work:120,rest:45,format:"shadow",level:"intermediate",uniformFocus:"all",pace:"steady",moveMix:"heavy"}}
   ];
   const PRESETS_VER = 12;
   const MOVE_VER = 4;
@@ -1448,7 +1484,29 @@
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()-day).getTime();
     return (stats.history||[]).filter(e=>e.t>=start).reduce((a,e)=>a+(e.rounds||0),0);
   }
-  function loadStats(){ try{ const r=store.get("coachfred.stats"); if(r) return Object.assign(freshStats(), JSON.parse(r)); }catch(e){} return freshStats(); }
+  function loadStats(){
+    try{
+      const r=store.get("coachfred.stats");
+      if(r){
+        const s = Object.assign(freshStats(), JSON.parse(r));
+        // One-time seed for profiles that predate lifetime totals: rebuild what
+        // the capped log still remembers. Per-shot counts aren't in old entries
+        // (only each session's top shot), so credit the session's punches to it —
+        // a rough favourite-shot estimate that self-corrects as new sessions land.
+        if(!s.totals && (s.history||[]).length){
+          s.totals = {punches:0, moves:0, shots:{}, camThrown:0, camDrops:0};
+          s.history.forEach(e=>{
+            s.totals.punches += e.punches||0;
+            s.totals.moves   += e.moves||0;
+            if(e.topShot && e.punches) s.totals.shots[e.topShot] = (s.totals.shots[e.topShot]||0) + e.punches;
+            if(e.camera){ s.totals.camThrown += e.camera.thrown||0; s.totals.camDrops += e.camera.drops||0; }
+          });
+        }
+        return s;
+      }
+    }catch(e){}
+    return freshStats();
+  }
   function saveStats(){ try{ store.set("coachfred.stats", JSON.stringify(stats)); }catch(e){} }
   let stats = loadStats();
   const dayKey = d => `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
@@ -1985,6 +2043,16 @@
     return freestyleCombo();
   }
   function footworkCall(){ return {tokens: pick(FOOT_DRILLS).slice(), name:""}; }
+  // Shadowbox: no bag to lean on, so the corner keeps you moving — footwork,
+  // feints and head movement carry the round, with crisp combos stitched in.
+  function shadowCall(){
+    const r = Math.random();
+    if(r < 0.30) return footworkCall();
+    if(r < 0.50){ const d = defensiveBeat(); if(d) return d; }
+    if(r < 0.64){ const m = movementCall(); if(m) return m; }
+    if(Math.random() < 0.35){ const rc = reactiveCall(); if(rc) return rc; }
+    return selectCombo();
+  }
   function hasShotFocus(){ return currentMoveFocus && currentMoveFocus!=="none"; }
   // Names available for a movement-group focus: the ticked moves in that group,
   // or — if the user has none ticked — the group's presets, so picking a focus
@@ -2097,6 +2165,7 @@
     if(currentFormat==="pyramid"){ deliver({tokens: PYRAMID[pyrIdx++ % PYRAMID.length].slice(), name:""}); return; }
     if(currentFormat==="burnout"){ deliver({tokens:["1","2"], name:""}); return; }
     if(currentFormat==="footwork"){ deliver(footworkCall()); return; }
+    if(currentFormat==="shadow"){ deliver(shadowCall()); return; }
     if(currentFormat==="emom"){
       if(emomDone){ nextComboAt = Date.now()+3600000; return; }
       emomDone = true; deliver((hasShotFocus() && focusedCall()) || selectCombo()); return;
@@ -2246,8 +2315,9 @@
     camBoot().then(()=>{ if(!camS.raf) camFrame(); updateCamHud(); })
       .catch(err=>{ console.warn("camera scoring unavailable:", err); camS.boot=null; updateCamHud("CAM UNAVAILABLE"); });
   }
-  // test/dev hook: inject synthetic detections without a camera
-  window.__camSim = (thrown, drops)=>{ camS.round.thrown+=thrown||0; camS.round.drops+=drops||0; updateCamHud(); };
+  // test/dev hook: inject synthetic detections without a camera (?dev or localhost only)
+  if(/[?&]dev\b/.test(location.search) || location.hostname==="localhost")
+    window.__camSim = (thrown, drops)=>{ camS.round.thrown+=thrown||0; camS.round.drops+=drops||0; updateCamHud(); };
 
   /* ---------- wake lock ---------- */
   async function acquireWake(){ try{ if("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen"); }catch(e){} }
@@ -2408,12 +2478,14 @@
     updateCamHud();
     playBell(3); buzz([200,100,200,100,400]);
     onSessionComplete();
-    recordSession();
-    // a loaded program session, completed, advances the plan
+    // a loaded program session, completed, advances the plan — before the
+    // session is recorded, so finishing week 4 lands the "Program graduate"
+    // milestone on this session's summary card
     if(planActive!=null && planActive===planIdx()){
       stats.plan = {idx:planActive+1};
       saveStats(); planActive=null; renderPlan();
     }
+    recordSession();
     stateLabel.textContent="Done";
     const streakBit = stats.streak>1 ? `  ·  ${stats.streak}-day streak` : "";
     comboNames.textContent = `That's the session. Nice work.  •  ${totalWork} round${totalWork===1?"":"s"} done${streakBit}`;
@@ -2423,12 +2495,19 @@
   // Log this session to the on-device history and return the new entry.
   function recordSession(){
     const sessWork = schedule.filter(s=>s.type==="work").reduce((a,s)=>a+s.secs,0);
-    const fmtId = cfg.format||"combos";
-    const entry = {
-      t: Date.now(), rounds: totalWork, workSecs: sessWork,
-      structure: cfg.mode==="uniform" ? `${totalWork} × ${fmt(cfg.work)}` : `${totalWork} round${totalWork===1?"":"s"}`,
-      format: cfg.mode==="uniform" ? (FORMAT_LABEL[fmtId]||"Combos").split(" (")[0] : "Custom"
-    };
+    const fmtName = id => (FORMAT_LABEL[id]||"Combos").split(" (")[0];
+    // Round-by-round sessions keep their shape in the log — the total time and
+    // the round types actually run, not a flat "Custom".
+    let structure, format;
+    if(cfg.mode==="uniform"){
+      structure = `${totalWork} × ${fmt(cfg.work)}`;
+      format = fmtName(cfg.format||"combos");
+    } else {
+      structure = `${totalWork} rd${totalWork===1?"":"s"} · ${fmtS(sessWork)}`;
+      const kinds = [...new Set(schedule.filter(s=>s.type==="work").map(s=>fmtName(s.format||"combos")))];
+      format = kinds.length<=2 ? kinds.join(" + ") : "Mixed";
+    }
+    const entry = { t: Date.now(), rounds: totalWork, workSecs: sessWork, structure, format };
     if(sessionCounts && sessionCounts.punches){
       entry.punches = sessionCounts.punches;
       entry.moves = sessionCounts.moves;
@@ -2439,8 +2518,74 @@
     stats.history = stats.history || [];
     stats.history.unshift(entry);
     if(stats.history.length>60) stats.history.length = 60;   // keep the log bounded
+    bankAggregates(entry);
+    entry.pb = updateBests(entry);
+    entry.badges = awardBadges();
     saveStats();
     return entry;
+  }
+
+  /* ---------- lifetime totals, weekly rollups, bests, milestones ----------
+     The per-session tallies used to live only in the last-60 log entries, so
+     nothing survived the cap. These running counters do, and they're what
+     Your record's lifetime numbers, trend strip and milestones read. */
+  function weekStart(ts){
+    const d = new Date(ts);
+    const day = (d.getDay()+6)%7;                       // Monday-based
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()-day);
+  }
+  const weekKey = ts => { const d=weekStart(ts); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
+  function bankAggregates(e){
+    const t = stats.totals = stats.totals || {punches:0, moves:0, shots:{}, camThrown:0, camDrops:0};
+    if(e.punches) t.punches += e.punches;
+    if(e.moves) t.moves += e.moves;
+    if(sessionCounts) Object.entries(sessionCounts.shots).forEach(([k,v])=>{ t.shots[k]=(t.shots[k]||0)+v; });
+    if(e.camera){ t.camThrown += e.camera.thrown||0; t.camDrops += e.camera.drops||0; }
+    const wk = stats.weeks = stats.weeks || {};
+    const k = weekKey(e.t);
+    const w = wk[k] = wk[k] || {rounds:0, secs:0, sessions:0};
+    w.rounds += e.rounds||0; w.secs += e.workSecs||0; w.sessions++;
+    const keys = Object.keys(wk).sort();                // "YYYY-MM-DD" sorts right
+    while(keys.length>26) delete wk[keys.shift()];      // ~6 months of weekly buckets
+  }
+  const PB_DEFS = [
+    ["rounds",  e=>e.rounds||0,                     "most rounds in a session"],
+    ["mins",    e=>Math.round((e.workSecs||0)/60),  "longest session"],
+    ["punches", e=>e.punches||0,                    "most punches called"]
+  ];
+  function updateBests(e){
+    const pb = stats.pb = stats.pb || {};
+    const beaten = [];
+    PB_DEFS.forEach(([k, val, label])=>{
+      const v = val(e);
+      if(v > (pb[k]||0)){
+        if(pb[k]) beaten.push(label);   // the first session sets baselines quietly
+        pb[k] = v;
+      }
+    });
+    return beaten;
+  }
+  const MILESTONES = [
+    ["first", "First session",         s=>(s.sessions||0)>=1],
+    ["s10",   "10 sessions",           s=>(s.sessions||0)>=10],
+    ["s50",   "50 sessions",           s=>(s.sessions||0)>=50],
+    ["r100",  "100 rounds",            s=>(s.rounds||0)>=100],
+    ["r500",  "500 rounds",            s=>(s.rounds||0)>=500],
+    ["r1000", "1,000 rounds",          s=>(s.rounds||0)>=1000],
+    ["p1k",   "1,000 punches called",  s=>((s.totals&&s.totals.punches)||0)>=1000],
+    ["p10k",  "10,000 punches called", s=>((s.totals&&s.totals.punches)||0)>=10000],
+    ["h10",   "10 hours on the bag",   s=>(s.workSecs||0)>=36000],
+    ["k7",    "7-day streak",          s=>(s.best||0)>=7],
+    ["goal",  "Weekly goal hit",       s=>!!s.weekGoal && weekRounds()>=s.weekGoal],
+    ["grad",  "Program graduate",      s=>((s.plan&&s.plan.idx)||0)>=PLAN_SESSIONS.length]
+  ];
+  function awardBadges(){
+    const have = new Set(stats.badges = stats.badges || []);
+    const fresh = [];
+    MILESTONES.forEach(([id,label,test])=>{
+      if(!have.has(id) && test(stats)){ stats.badges.push(id); fresh.push(label); }
+    });
+    return fresh;
   }
 
   function reset(){
@@ -2518,7 +2663,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v33";
+  const APP_VERSION = "v35";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -3364,19 +3509,65 @@
   }
 
   /* ---------- your record ---------- */
+  function favShot(){
+    const shots = (stats.totals && stats.totals.shots) || {};
+    const top = Object.entries(shots).sort((a,b)=>b[1]-a[1])[0];
+    return top ? top[0].replace(/^./,c=>c.toUpperCase()) : null;
+  }
   function renderStats(){
     const el = $("statsBox"); if(!el) return;
+    const t = stats.totals || {};
     const cells = [
       [stats.rounds||0, "Rounds"],
       [stats.sessions||0, "Sessions"],
       [stats.streak||0, "Day streak"],
       [Math.round((stats.workSecs||0)/60), "Mins on bag"]
     ];
+    if(t.punches) cells.push([t.punches>=10000 ? Math.round(t.punches/1000)+"k" : t.punches, "Punches called"]);
+    const fav = favShot(); if(fav) cells.push([fav, "Favourite shot", "word"]);
+    if((stats.best||0)>1) cells.push([stats.best, "Best streak"]);
+    if(t.camThrown) cells.push([t.camThrown, "Camera saw"]);
     if(stats.reaction && stats.reaction.best) cells.push([stats.reaction.best+"ms", "Best slip"]);
-    el.innerHTML = cells.map(c=>`<div class="stat"><span class="snum">${c[0]}</span><span class="slbl">${c[1]}</span></div>`).join("");
+    el.innerHTML = cells.map(c=>`<div class="stat"><span class="snum${c[2]?" "+c[2]:""}">${c[0]}</span><span class="slbl">${c[1]}</span></div>`).join("");
+    renderTrend(); renderBests(); renderBadges();
     $("wgVal").textContent = stats.weekGoal ? stats.weekGoal+" rds" : "Off";
     $("weekProg").textContent = stats.weekGoal ? `${weekRounds()}/${stats.weekGoal} this week` : "";
     renderHistory();
+  }
+  // Last-8-weeks rounds strip: one hue, current week solid, labels only where
+  // they earn their place (the max and the current week).
+  function renderTrend(){
+    const el = $("trendStrip"); if(!el) return;
+    const wk = stats.weeks || {}, MS_WK = 7*86400000, now = Date.now();
+    const weeks = [];
+    for(let i=7;i>=0;i--){
+      const k = weekKey(now - i*MS_WK);
+      weeks.push({rounds:(wk[k]&&wk[k].rounds)||0, cur:i===0});
+    }
+    const max = Math.max(...weeks.map(w=>w.rounds));
+    if(!max){ el.style.display="none"; return; }
+    el.style.display="block";
+    el.innerHTML = `<div class="trend-bars">` + weeks.map(w=>{
+      const h = w.rounds ? Math.max(8, Math.round(w.rounds/max*44)) : 2;
+      const lab = (w.rounds && (w.cur || w.rounds===max)) ? `<span class="tv">${w.rounds}</span>` : "";
+      return `<div class="trend-col" title="${w.rounds} rounds">${lab}<div class="trend-bar${w.cur?" cur":""}" style="height:${h}px"></div></div>`;
+    }).join("") + `</div><div class="trend-cap">Rounds per week · last 8</div>`;
+  }
+  function renderBests(){
+    const el = $("pbLine"); if(!el) return;
+    const pb = stats.pb || {};
+    const bits = [];
+    if(pb.rounds) bits.push(`${pb.rounds} round${pb.rounds===1?"":"s"}`);
+    if(pb.mins) bits.push(`${pb.mins} min`);
+    if(pb.punches) bits.push(`${pb.punches} punches`);
+    el.style.display = bits.length ? "block" : "none";
+    if(bits.length) el.innerHTML = `<b>Best session:</b> ${bits.join(" &middot; ")}`;
+  }
+  function renderBadges(){
+    const el = $("badgeRow"); if(!el) return;
+    const have = new Set(stats.badges||[]);
+    el.innerHTML = MILESTONES.map(([id,label])=>
+      `<span class="badge${have.has(id)?" on":""}">${label}</span>`).join("");
   }
   $("wgMinus").addEventListener("click", ()=>{ stats.weekGoal = Math.max(0,(stats.weekGoal||0)-3); saveStats(); renderStats(); });
   $("wgPlus").addEventListener("click",  ()=>{ stats.weekGoal = Math.min(60,(stats.weekGoal||0)+3); saveStats(); renderStats(); });
@@ -3396,9 +3587,11 @@
     el.innerHTML = h.slice(0,30).map(e=>{
       const mins=Math.max(1,Math.round((e.workSecs||0)/60));
       const shots = e.punches ? ` · ~${e.punches} punches` : "";
-      const cam = e.camera ? ` · saw ${e.camera.thrown}` : "";
+      const cam = (e.camera && e.rounds) ? ` · saw ${e.camera.thrown}` : "";
       const big = e.reaction
         ? `${e.reaction.best}<small>ms best · ${e.reaction.reps} slips</small>`
+        : (!e.rounds && e.camera)
+        ? `${e.camera.thrown}<small>thrown${e.camera.landed?` · ${e.camera.landed} landed`:""}</small>`
         : `${e.rounds}<small>rounds · ${mins} min</small>`;
       return `<div class="log-row"><div><div class="when">${histWhen(e.t)}</div>`+
         `<div class="meta">${e.structure} · ${e.format}${shots}${cam}</div></div>`+
@@ -3416,6 +3609,11 @@
       : "";
     if(entry.camera) shotsLine += `${shotsLine?" · ":""}camera saw ${entry.camera.thrown} thrown${entry.camera.drops?`, ${entry.camera.drops} guard drops`:""}`;
     $("sumShots").textContent = shotsLine;
+    // milestones and personal bests earned by THIS session, front and centre
+    const wins = (entry.badges||[]).map(b=>`Milestone — ${b}`)
+      .concat((entry.pb||[]).map(p=>`New best — ${p}`));
+    $("sumBadge").innerHTML = wins.map(w=>`<span>${esc(w)}</span>`).join("");
+    $("sumBadge").style.display = wins.length ? "flex" : "none";
     const sk=stats.streak||0;
     let line = sk>1 ? `${sk}-day streak — keep it going`
       : (sk===1 ? "Day one of a new streak — back tomorrow?" : "");
@@ -3454,6 +3652,41 @@
       });
     });
   }
+
+  /* ---------- take the coach offline: prefetch the whole voice pack ----------
+     The app shell precaches on install, but the ~800 clips are only cached as
+     they first play — a fresh install in a no-signal gym is a silent coach.
+     This pulls every clip for the active pack through the service worker now. */
+  let dlBusy = false;
+  $("dlVoice").addEventListener("click", async ()=>{
+    if(dlBusy) return;
+    const status = $("dlStatus");
+    const sayStatus = (msg,kind)=>{ status.textContent=msg; status.className="backup-status"+(kind?" "+kind:""); };
+    const id = packIdOf(cfg.voice);
+    if(!id){ sayStatus("No voice pack selected.","err"); return; }
+    dlBusy = true; $("dlVoice").disabled = true;
+    try{
+      const m = await fetch(`voice/${id}/manifest.json`).then(r=>{ if(!r.ok) throw 0; return r.json(); });
+      const queue = (m.slugs||[]).slice(), total = queue.length;
+      let done=0, failed=0;
+      sayStatus(`Downloading the coach… 0/${total}`);
+      const worker = async ()=>{
+        while(queue.length){
+          const s = queue.shift();
+          try{
+            const r = await fetch(`voice/${id}/${s}.mp3`);
+            if(r.ok) await r.arrayBuffer(); else failed++;
+          }catch(e){ failed++; }
+          done++;
+          if(done%20===0 || done===total) sayStatus(`Downloading the coach… ${done}/${total}`);
+        }
+      };
+      await Promise.all(Array.from({length:6}, worker));
+      if(failed) sayStatus(`Got ${total-failed} of ${total} clips — run it again on a better connection to fetch the rest.`,"err");
+      else sayStatus(`All ${total} clips saved — the coach works offline now.`,"ok");
+    }catch(e){ sayStatus("Couldn't reach the voice files — check your connection.","err"); }
+    dlBusy = false; $("dlVoice").disabled = false;
+  });
 
   /* ---------- backup & restore ---------- */
   function refreshAllFromCfg(){
