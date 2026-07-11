@@ -1,10 +1,14 @@
 # Coach Fred — next ideas & gap analysis (post-v33)
 
-> **Status (v35):** gaps 1, 2, 3, 5, 8, 9, 10 (rollups), 12 (partly — Bag Coach
+> **Status (v36):** gaps 1, 2, 3, 5, 8, 9, 10 (rollups), 12 (partly — Bag Coach
 > now records; in-timer reaction scoring still open) and 13 (reduced-motion)
 > are fixed; hygiene items 24–27 shipped; ideas 1–5 (records, trend,
-> milestones, bests, graduation) and 9 (Shadowbox) are in. Everything else
-> below is still open.
+> milestones, bests, graduation) and 9 (Shadowbox) are in. v36 added the
+> **front-on guard watch** to the main timer (guard drops + spoken "hands up"
+> at any camera angle; punch counting stays side-on), which opens the
+> guard-data ideas in §4 below. Everything else in §§1–2 is still open.
+> **§4 is the post-v36 pass** — new ideas grounded in the current code,
+> numbered on from this doc (29+), with a merged sequencing table in §5.
 
 All ten PLAN.md sessions are shipped. This is the follow-up pass: what's left
 hanging in the code as of v33, and where the app can go next. Grounded in a
@@ -162,3 +166,120 @@ bundle, M = one session, L = multi-session or new asset spend).
 Ideas 14 (themed voices), 21–23 (sharing, CSV, heart rate) and 20
 (classifier) stay on the shelf until the above land — they're the expensive
 or platform-constrained ones, and nothing below depends on them.
+
+---
+
+## 4. Post-v36 pass — new ideas (July 2026)
+
+What changed since §2 was written: the app now *knows things* (lifetime
+totals, weekly rollups, PBs, per-session shape — `index.html:2569–2630`) and
+the camera now *works where the phone already is* (front-on guard watch,
+v36). Most of the ideas below cash in one of those two facts. Numbering
+continues from §2; same effort scale (S/M/L).
+
+### H. Gloves-on interaction (the hands problem)
+
+The user is wearing wraps or bag gloves for the entire session, yet pause,
+skip and end are all touch targets. Nothing in §2 addresses this.
+
+29. **Gesture pause — both hands overhead** *(M)* — with the camera on, the
+    pose runtime is already tracking wrists every frame for the guard watch.
+    Holding both wrists above the head for ~1s (a posture that never occurs
+    while working the bag) toggles pause; same dwell-gating trick as the
+    guard-drop detector, so a punch can't trip it. Zero new runtime, huge
+    quality-of-life. Announce it once at the first bell ("hands overhead to
+    pause").
+30. **The clacker** *(S)* — boxing's iconic wooden 10-second warning clack,
+    as a sound effect alongside (or under) the spoken "last ten". One audio
+    asset; also gives beep-only mode (§2 idea 16) an authentic warning cue
+    instead of another beep.
+
+### I. Session flow (fewer taps to the bell)
+
+31. **"Run it back" — repeat last session** *(S)* — the summary card and the
+    idle screen offer one tap to re-run the exact session just finished.
+    Since v35 the history entry stores the real round-by-round shape
+    (`recordSession`, index.html:2559), so this is a config-restore plus a
+    chip. The single cheapest tap-saver left in the app.
+32. **PWA manifest shortcuts** *(S)* — `manifest.webmanifest` has no
+    `shortcuts` array today. Long-press the home-screen icon →
+    "Repeat last session" / "Club bag" / "Your record". Pure manifest JSON
+    plus a `?start=` query handler.
+33. **Partner mode — "I go, you go"** *(M, ~3 clips)* — two people sharing
+    one bag alternate: A works while B rests, the bell swaps them. It's a
+    structure variant (work = partner's rest) plus a spoken "switch!" and a
+    HUD tag for whose round it is. Real gym pattern, and no app in this
+    space does it.
+
+### J. Own combos (the library becomes yours)
+
+34. **Custom combo builder** *(M)* — the combo pool is a fixed generated
+    library (`gen_sequences.js`); users can tick combos off but never add
+    one. Every callable token already has a recorded atom clip, so *any*
+    user-built sequence is speakable today via atom playback (whole-combo
+    renders stay a library luxury). A small picker — tap tokens in order,
+    name it, it joins the pool and the Drill-a-combo picker. This turns the
+    app from "Fred's combos" into "my coach". Pairs naturally with
+    My-workouts save/share, which already round-trips JSON
+    (index.html:3868–3898) — shared workouts could carry their custom combos.
+35. **Combo of the day** *(S)* — a deterministic date-seeded pick from the
+    library (bias toward combos the user's level has earned but their ticks
+    ignore), surfaced as one idle-screen line. Costs a hash function;
+    surfaces library breadth that ticks currently bury.
+
+### K. The coach gets opinions (the data exists now)
+
+36. **Coach's notes on the summary** *(S–M, text only)* — one generated
+    sentence from data the session already tallied: "Two in five calls were
+    jabs — we'll drill hooks next." / "Guard held all six rounds." (camera
+    drops are banked per round since v36). Rendered text on the summary
+    card, no new clips; the cheapest way to make the corner feel like it
+    *watched*.
+37. **Coach's suggestion chip** *(M)* — an idle-screen nudge driven by
+    `stats.weeks`/`totals`/`pb`: "Twelve club sessions clean — try 8 rounds";
+    "Two rounds short of your week goal"; "You haven't done a footwork day
+    in three weeks." One rule table over aggregates that already render in
+    Your record. This is the payoff for Session 11's plumbing.
+38. **Guard grade per round** *(M)* — the front-on guard watch counts drops
+    but only banks a total. Grade each round (clean / a drop / leaky), show
+    the letter on the rest screen, trend it in Your record, add a
+    "clean-guard streak" milestone to `MILESTONES` (index.html:2609). Turns
+    v36's watcher into a progression loop.
+39. **Rest-day-aware streak ("scheduled rest")** *(S)* — one designated rest
+    day per week doesn't break `stats.streak`. Honest for a boxing app —
+    rest is training — and removes the perverse incentive to do a junk
+    session to keep a number alive.
+
+### L. Reach & surfaces
+
+40. **Training-day reminders** *(S for .ics, L for push)* — cheap version:
+    "Add my training days to calendar" exports a recurring-event `.ics`
+    (pure client-side, offline-friendly, works everywhere). Real push
+    notifications need a push server, which breaks the static-site
+    architecture — shelve that half unless a backend ever appears.
+41. **Gym-tablet / landscape layout** *(M, CSS-heavy)* — a wall-mounted
+    phone or tablet is a natural home for this app, but the layout is
+    portrait-only. A landscape mode with an oversized clock and round tag
+    (coaching text secondary) makes it a gym-wall timer. No engine work.
+42. **Profiles on a shared device** *(M)* — two boxers, one tablet: a
+    profile switcher that namespaces the storage keys. The `.coach`
+    backup/restore already proves the state serializes cleanly; this is a
+    key-prefix refactor plus a picker in More.
+
+---
+
+## 5. Revised sequencing (Sessions 12–15)
+
+Supersedes §3 for what's left. §3's Session 11 shipped as v35; v36 banked
+part of old Session 14 (guard watch) out of order.
+
+| Session | Scope | Why this order |
+|---|---|---|
+| **12 — Quick wins bundle** | 31, 32, 30, 35, 39 + §2's 12 (Surprise me), 22 (CSV) | Seven S-sized items, zero new engine, one small clip/sfx batch; every one is felt on the next session |
+| **13 — Programs II + coach opinions** | §2's 6, 7, 8 + new 36, 37 | The career-mode system plus the suggestion layer that makes records actionable — both feed retention |
+| **14 — Camera pays off** | §2's 18, 19 + new 29, 38 | In-timer reaction scoring, count verification, gesture pause, guard grades — all on runtime already shipped; closes gap 12 fully |
+| **15 — Make it yours** | 34, 33, 42 + §2's 13 (switch drill) | Custom combos, partner mode, profiles — the "my coach, my gym" release |
+
+Still shelved, unchanged: §2's 14 (themed voices), 20 (classifier), 21
+(share card — worth revisiting after 36 makes the summary richer), 23
+(heart rate), and the push half of 40. Nothing above depends on them.
