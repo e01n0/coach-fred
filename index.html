@@ -2198,9 +2198,9 @@
      runs only during work segments — duty-cycled for heat and battery. */
   const camS = {
     boot:null, lm:null, video:null, stream:null, raf:0, lastT:-1,
-    round:{thrown:0, drops:0, seen:0}, total:{thrown:0, drops:0}, rounds:[],
+    round:{thrown:0, drops:0, seen:0, sideFrames:0}, total:{thrown:0, drops:0}, rounds:[],
     state:{l:"ready", r:"ready"}, ema:{l:0, r:0}, refr:0, guardBad:0,
-    guardOnly:false, sawSide:false
+    guardOnly:false, orient:null, isSide:false
   };
   const CAM_I = {NOSE:0, L_SH:11, R_SH:12, L_EL:13, R_EL:14, L_WR:15, R_WR:16, L_HIP:23, R_HIP:24};
   const CAM_HI=1.65, CAM_LO=1.20;   // same retract->extend hysteresis as Bag Coach
@@ -2220,21 +2220,29 @@
       : `CAM ${camS.round.thrown} THROWN${camS.round.drops?` · ${camS.round.drops} GUARD`:``}`);
   }
   function camResetSession(){
-    camS.round={thrown:0,drops:0,seen:0}; camS.total={thrown:0,drops:0}; camS.rounds=[];
+    camS.round={thrown:0,drops:0,seen:0,sideFrames:0}; camS.total={thrown:0,drops:0}; camS.rounds=[];
     camS.state={l:"ready",r:"ready"}; camS.ema={l:0,r:0}; camS.refr=0; camS.guardBad=0;
-    camS.guardOnly=false; camS.sawSide=false;
+    camS.guardOnly=false; camS.orient=null; camS.isSide=false;
   }
   const CAM_LADDER_REPS = 10;   // landed-count gate to earn the next ladder rung
   let camLadderStage = 0, camGateMsg = "";
   function camBank(){
     if(!cfg.camOn) return;
+    // A round only scores as "counted" when it was side-on for most of its
+    // tracked frames (and at least ~5s of them). A bladed front-on stance
+    // rotates through the side-on read for a few frames of every punch, and a
+    // single sticky flag would bless that handful of accidental counts as the
+    // round's punch count — they're noise, so a guard-only round drops them.
+    const r = camS.round;
+    const sideOn = r.sideFrames>=150 && r.sideFrames >= r.seen*0.5;
+    if(!sideOn) r.thrown = 0;
     // rep-gated ladder: the rung is earned, not scheduled — but only when the
-    // camera can actually count (side-on). A front-on guard-only placement
+    // camera could actually count (side-on). A front-on guard-only placement
     // can't see punches, so rungs advance by the clock like camera-off.
     if(cfg.format==="ladder"){
-      if(!camS.sawSide){
+      if(!sideOn){
         camLadderStage++; camGateMsg = "";
-      } else if(camS.round.thrown >= CAM_LADDER_REPS){
+      } else if(r.thrown >= CAM_LADDER_REPS){
         camLadderStage++;
         camGateMsg = "that earns the next piece";
       } else {
@@ -2243,13 +2251,12 @@
     } else camGateMsg = "";
     // bank the round if anything was counted, or the camera genuinely watched
     // (~5s of tracked frames) — so a clean guard-only round still gets its due
-    if(camS.round.thrown || camS.round.drops || camS.round.seen>=150){
-      camS.rounds.push({thrown:camS.round.thrown, drops:camS.round.drops, sideOn:camS.sawSide});
-      camS.total.thrown += camS.round.thrown;
-      camS.total.drops  += camS.round.drops;
+    if(r.thrown || r.drops || r.seen>=150){
+      camS.rounds.push({thrown:r.thrown, drops:r.drops, sideOn});
+      camS.total.thrown += r.thrown;
+      camS.total.drops  += r.drops;
     }
-    camS.round={thrown:0,drops:0,seen:0};
-    camS.sawSide=false;
+    camS.round={thrown:0,drops:0,seen:0,sideFrames:0};
   }
   async function camBoot(){
     if(camS.boot) return camS.boot;
@@ -2279,16 +2286,23 @@
     const I=CAM_I;
     camS.round.seen++;
     // Orientation first. Side-on, the shoulders stack in x (small spread vs
-    // torso height); null = hips out of frame, can't tell.
+    // torso height); null = hips out of frame, can't tell. The raw read is
+    // smoothed with hysteresis: a bladed boxing stance hovers right at the
+    // old hard 0.5 cut front-on and rotates below it for the few frames of
+    // every punch — exactly when an extended arm would miscount — so only a
+    // HELD side-on placement may enable punch counting.
     let side=null;
     if(camVis(lm,I.L_HIP)>=0.3 && camVis(lm,I.R_HIP)>=0.3){
       const shCx=(lm[I.L_SH].x+lm[I.R_SH].x)/2, shCy=(lm[I.L_SH].y+lm[I.R_SH].y)/2;
       const hipCx=(lm[I.L_HIP].x+lm[I.R_HIP].x)/2, hipCy=(lm[I.L_HIP].y+lm[I.R_HIP].y)/2;
       const torso=Math.hypot(shCx-hipCx,shCy-hipCy)||0.2;
-      side = Math.abs(lm[I.L_SH].x-lm[I.R_SH].x)/torso < 0.5;
+      const ratio = Math.abs(lm[I.L_SH].x-lm[I.R_SH].x)/torso;
+      camS.orient = camS.orient==null ? ratio : camS.orient*0.9 + ratio*0.1;
+      if(camS.isSide ? camS.orient>0.55 : camS.orient<0.40) camS.isSide = !camS.isSide;
+      side = camS.isSide;
     }
+    if(side===true) camS.round.sideFrames++;
     camS.guardOnly = side!==true;
-    if(side===true) camS.sawSide = true;
     // GUARD — any placement. Front-on (the phone where it sits for the timer,
     // a little left or right of the bag) is actually the BEST guard view; a
     // punch is only ~5 frames so it can't trip the dwell below — this only
@@ -2704,7 +2718,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v36";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v37";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();

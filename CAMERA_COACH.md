@@ -205,7 +205,13 @@ placement-aware instead of gated: **side-on** it counts punches + guard drops;
 **front-on** (the phone where it already sits for the timer, a little off the
 bag) it degrades gracefully to a **guard-only watch** — sustained hands-down
 between combos still counts a drop and triggers the live "hands up" cue, punch
-counting just switches off (HUD shows `CAM · GUARD WATCH`). Bag Coach (`camera-coach.html`) is side-on only — punch
+counting just switches off (HUD shows `CAM · GUARD WATCH`). The orientation
+read is **smoothed with hysteresis** (EMA of shoulder-span/torso, enter side-on
+< 0.40 / leave > 0.55) and a round only *reports* a punch count when it was
+side-on for the **majority** of its tracked frames — a bladed front-on stance
+hovers at the raw threshold and rotates past it on every punch, which used to
+bank a dozen accidental counts as the round's score and starve the rep-gated
+ladder. Bag Coach (`camera-coach.html`) is side-on only — punch
 detection only counts when a ~90° side view is detected (shoulder span small vs
 torso height), with an on-screen SIDE-ON / TURN SIDE-ON badge. Reaction
 (`reaction-drill.html`) is front-on only. Detection itself is a retract→extend
