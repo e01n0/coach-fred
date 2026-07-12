@@ -200,20 +200,19 @@ plan: pretrain/borrow elsewhere, fine-tune on self-recorded clips).
 
 **This split is now baked into the UI:** the two placements are **separate
 pages**, so the user never has to discover mid-session that a mode wants a
-different camera angle. The **main timer's camera scoring** (index.html) is
-placement-aware instead of gated: **side-on** it counts punches + guard drops;
-**front-on** (the phone where it already sits for the timer, a little off the
-bag) it degrades gracefully to a **guard-only watch** — sustained hands-down
-between combos still counts a drop and triggers the live "hands up" cue, punch
-counting just switches off (HUD shows `CAM · GUARD WATCH`). The orientation
-read is **smoothed with hysteresis** (EMA of shoulder-span/torso, enter side-on
-< 0.40 / leave > 0.55) and a round only *reports* a punch count when it was
-side-on for the **majority** of its tracked frames — a bladed front-on stance
-hovers at the raw threshold and rotates past it on every punch, which used to
-bank a dozen accidental counts as the round's score and starve the rep-gated
-ladder. Bag Coach (`camera-coach.html`) is side-on only — punch
-detection only counts when a ~90° side view is detected (shoulder span small vs
-torso height), with an on-screen SIDE-ON / TURN SIDE-ON badge. Reaction
+different camera angle. The **main timer's camera** (index.html) is a pure
+**guard watch** — front-on, where the phone already sits for the timer:
+sustained hands-down between combos counts a drop and triggers the live
+"hands up" cue (HUD shows `CAM · GUARD WATCH`), and both wrists must be
+clearly visible so an arm hidden behind the bag never reads as a drop. It
+does **no punch counting at all**: the timer placement is front-on, where a
+straight punch foreshortens toward the lens, and an orientation heuristic
+that tried to detect "actually side-on, count away" banked garbage counts —
+a bladed stance hovers at the shoulder-span threshold and rotates past it on
+every punch (the v36 "only threw 12" bug). Punch counting lives only in
+Bag Coach (`camera-coach.html`), which is side-on only — detection counts
+when a ~90° side view is detected (shoulder span small vs torso height),
+with an on-screen SIDE-ON / TURN SIDE-ON badge. Reaction
 (`reaction-drill.html`) is front-on only. Detection itself is a retract→extend
 hysteresis (not a single-frame delta) with joint-visibility gating, so a still
 guard no longer phantom-fires punches.
