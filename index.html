@@ -856,7 +856,7 @@
   <div class="wk-toast" id="wkToast"><span class="msg" id="wkToastMsg"></span><button id="wkToastGo">Start now</button></div>
   <div class="sheet-foot">
     <a class="coffee" href="https://buymeacoffee.com/coachfred" target="_blank" rel="noopener noreferrer"><span class="cup">&#9749;</span> Buy me a coffee</a>
-    <a class="coffee" href="https://instagram.com/tir.na.n.ai" target="_blank" rel="noopener noreferrer"><span class="cup">&#128172;</span> Feedback &mdash; @tir.na.n.ai</a>
+    <a class="coffee" href="https://instagram.com/tir.na.n.ai" target="_blank" rel="noopener noreferrer">Feedback &mdash; @tir.na.n.ai</a>
     <span class="ver" id="appVersion"></span>
   </div>
 </div>
@@ -2750,7 +2750,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v46";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v47";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
