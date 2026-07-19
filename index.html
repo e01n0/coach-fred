@@ -2731,7 +2731,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v40";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v41";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -3535,6 +3535,7 @@
         row.innerHTML = `
           <button class="chk ${m.enabled?'on':''}" data-mid="${m.id}">${m.enabled?'&#10003;':''}</button>
           <div class="meta"><div class="nm" style="font-size:15px;color:var(--tape);">${m.name}</div></div>
+          <button class="hear" data-hearmove="${m.name.toLowerCase()}" aria-label="Hear it">&#128266;</button>
         `;
         wrap.appendChild(row);
       });
@@ -3542,6 +3543,13 @@
     renderMovePad();
   }
   $("moveLibrary").addEventListener("click", e=>{
+    const hear=e.target.closest(".hear");
+    if(hear){
+      const t = hear.dataset.hearmove;
+      ensureAudio(); cancelSpeech();
+      speak(t, comboAtoms([t]), "combo");
+      return;
+    }
     const chk=e.target.closest(".chk");
     if(chk){ const m=cfg.movement.find(x=>x.id===chk.dataset.mid); if(m){ m.enabled=!m.enabled; save(); renderMovement(); } }
   });
