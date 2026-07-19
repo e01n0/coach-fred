@@ -1666,12 +1666,30 @@
     normCache.set(buf, g);
     return g;
   }
+  // Voice pack revision — bump whenever clips are re-rendered. The service
+  // worker serves voice clips cache-first and deliberately carries them across
+  // app upgrades (so an offline device never loses its coach), which means a
+  // re-rendered clip would otherwise play one stale take before its background
+  // refresh lands. On the first load after a bump, evict every cached voice
+  // clip so the pack refetches clean. Safe offline: a new rev only ever
+  // arrives with a fresh (network-served) index.html.
+  const VOICE_REV = "2026-07-19a";
+  const voiceFresh = (()=>{
+    try{
+      if(typeof caches==="undefined" || localStorage.getItem("voiceRev")===VOICE_REV)
+        return Promise.resolve();
+      return caches.keys().then(keys=>Promise.all(keys.map(k=>caches.open(k).then(async c=>{
+        for(const req of await c.keys()) if(req.url.includes("/voice/")) await c.delete(req);
+      })))).then(()=>{ localStorage.setItem("voiceRev", VOICE_REV); }).catch(()=>{});
+    }catch(e){ return Promise.resolve(); }
+  })();
   function applyVoicePack(){
     const id = packIdOf(cfg.voice);
     if(!id){ voicePackWant = null; voicePack = null; return; }
     if(voicePackWant === id) return;      // already loading or loaded this pack
     voicePackWant = id;
     voicePack = { id, slugs:new Set(), hi:new Set() };  // truthy but empty until the manifest lands
+    voiceFresh.then(()=>
     fetch(`voice/${id}/manifest.json`).then(r=>{ if(!r.ok) throw 0; return r.json(); })
       .then(m=>{
         if(voicePackWant !== id) return;  // user switched away mid-fetch
@@ -1692,7 +1710,7 @@
       .catch(()=>{ if(voicePackWant === id){ voicePack=null; voicePackWant=null;
         console.warn(`Voice pack "${id}" failed to load — retrying.`);
         // one timed retry, plus speak() retries on every call
-        setTimeout(()=>{ if(!voicePack && packIdOf(cfg.voice)===id) applyVoicePack(); }, 4000); } });
+        setTimeout(()=>{ if(!voicePack && packIdOf(cfg.voice)===id) applyVoicePack(); }, 4000); } }));
   }
   // Pitch-preserving time stretch (WSOLA overlap-add). Setting playbackRate on
   // an AudioBufferSourceNode resamples: faster also means higher-pitched, which
@@ -2731,7 +2749,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v41";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v42";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
