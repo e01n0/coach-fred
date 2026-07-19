@@ -1424,12 +1424,12 @@
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
     format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true, camOn:false, playInSilent:true,
     drillComboId:null, drillComboB:null, drillInterval:8,
-    theme:"fred",
+    theme:"apollo",
     library:null, custom:[], movement:null
   };
 
   let cfg = loadCfg();
-  if(!THEMES[cfg.theme]) cfg.theme = "fred";
+  if(!THEMES[cfg.theme]) cfg.theme = "apollo";
   applyTheme(cfg.theme);
   try{ store.set("coachfred.v2", JSON.stringify(cfg)); }catch(e){}
 
@@ -2750,7 +2750,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v45";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v46";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -3799,7 +3799,7 @@
 
   /* ---------- backup & restore ---------- */
   function refreshAllFromCfg(){
-    if(!THEMES[cfg.theme]) cfg.theme="fred";
+    if(!THEMES[cfg.theme]) cfg.theme="apollo";
     applyTheme(cfg.theme);
     loadVoices();
     initUI();
