@@ -162,3 +162,95 @@ bundle, M = one session, L = multi-session or new asset spend).
 Ideas 14 (themed voices), 21–23 (sharing, CSV, heart rate) and 20
 (classifier) stay on the shelf until the above land — they're the expensive
 or platform-constrained ones, and nothing below depends on them.
+
+---
+
+## 4. Bag work — second pass (ideas 29–41)
+
+A follow-up brainstorm focused purely on the core heavy-bag calling
+experience — no camera, sharing or platform items. Same effort scale
+(S/M/L); grounded against the current engine in `index.html`.
+
+### A. New round structures
+
+29. **Split rounds** *(M)* — segments inside a single round: alternating
+    30s power / 30s speed (the classic "30-30"), or "tech-then-tank"
+    (2:00 combos, final 1:00 burnout). The mechanism half-exists —
+    `scheduleNext()` already switches behaviour on `left <= 15` (the tank
+    spike, index.html:2016); generalise it into a per-round segment table
+    that swaps format/pace mid-round with a spoken transition ("speed —
+    go"). The intra-round sibling of gap #4's round-by-round expressiveness.
+30. **Bag sprints** *(S–M, 2–3 clips)* — mid-round 10-second all-out
+    bursts: "sprint — go!" … "time, back to work". One to three per round
+    depending on the Pace dial. A staple conditioning drill; needs only a
+    burst timer plus two clips, and rides burnout's fast-beat delivery
+    (index.html:2007).
+31. **Volume-target rounds** *(S–M, ~3 clips)* — "a hundred punches this
+    round": the corner sets a target at the bell and `deliver()` already
+    tallies every called punch (`sessionCounts`, index.html:2026) — announce
+    "halfway there" and "twenty to go", verdict on the summary card. The
+    camera can later verify thrown-vs-called (pairs with idea 19).
+32. **Phone-booth round (inside work)** *(S–M, few clips)* — short-range:
+    hooks, uppercuts and body digging, no long straights, "stay on him"
+    flavour lines. Mostly a weighting job — the body/uppercut
+    `FOCUS_SETUPS` machinery already exists (index.html:2181) — plus a
+    round-type entry and three or four clips.
+33. **More ladders** *(S)* — `PYRAMID` (index.html:1038) has room for
+    siblings: a **descending punch-out ladder** (10-9-8…1 straights,
+    sprint feel) and a **double-up drill** — every combo called once,
+    thrown twice (the "again" clip already exists, see recall at
+    index.html:2270). Both are pure data/format entries.
+
+### B. Constraint rounds (the classic coaching staples)
+
+34. **Handicap rounds** *(S–M)* — jab-only, lead-hand-only, body-only and
+    no-power ("touch, don't sit") rounds, announced at the bell. The
+    oldest fix for right-hand over-reliance. Engine-wise a token filter
+    over `eligible()`'s pools — jab-only combos already exist in Basics.
+    Best shipped as a per-round *modifier* rather than a format, so it
+    stacks with Combos/EMOM in Round-by-round.
+35. **Exit rule — "punch and get out"** *(S)* — a toggle beside Defence &
+    movement that appends an exit (pivot / step out / circle from
+    `FOOT_DRILLS`, index.html:1044) to a slice of combos so nothing ends
+    flat-footed in front of the bag. Trains the habit coaches nag about
+    most: don't admire your work.
+36. **Intensity marking** *(S–M, few clips)* — the corner occasionally
+    marks a call: "make this one count" (sit down on it), "double it up"
+    (throw it twice), "speed only" (touch it). A prefix clip plus a
+    weighting; reuses the again/repeat grammar.
+
+### C. Session intelligence
+
+37. **Fight-arc sessions** *(M)* — fatigue shaping exists *inside* a round
+    (index.html:2016); do it across the session: round 1 feel-out (jabs
+    and feints, sparse power), middle rounds body investment, championship
+    rounds head-hunting and volume. A session-scale sibling of `fatigueOn`
+    ("Fight arc" toggle) that nudges the existing weightings by round
+    index. Pairs naturally with idea 10 (sparring sim) later.
+38. **Balance my week** *(S–M)* — the lifetime shot tally (idea 1,
+    shipped) knows your favourite shot — which means it also knows your
+    neglected ones. A chip that biases today's calling toward the
+    least-called shots/moves of the last few sessions, with a bell line:
+    "left hook's been quiet — today it eats". The data already exists.
+39. **Big finish** *(S)* — a toggle that turns the last 30s of the final
+    round into an automatic burnout punch-out under a tank line. The
+    final-15s spike already exists; this is that, louder, once per session.
+
+### D. Craft & feel
+
+40. **Breathing cues** *(S, clips only)* — "exhale on every shot",
+    "breathe — sharp out" mixed sparsely into calling and into the rest
+    slot beside `REST_LINES` (index.html:1026). Cheap clips covering a
+    coaching fundamental nothing else touches.
+41. **Broken-rhythm delivery** *(S)* — an option that widens the breather
+    jitter (`BREATHER` in `scheduleNext`, index.html:2011) so call gaps
+    become genuinely unpredictable — you react to the voice instead of
+    anticipating the beat. Reaction rounds have this idea for single
+    calls; this brings it to full combo calling.
+
+### Sequencing
+
+Ideas 34, 35, 36, 39 and 41 are near-config. Ideas 30, 31, 33 and 40 need
+one small clip batch — they fold into the Session 13 render batch from §3.
+Ideas 29, 37 and 38 are about one session each; 29 (split rounds) is the
+natural companion to lifting the uniform-only restriction (idea 8).
