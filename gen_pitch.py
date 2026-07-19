@@ -28,7 +28,15 @@ import argparse, json, os, subprocess, sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SR = 22050
-FLAG_RATIO = 1.55
+# Flag thresholds as multiples of the -m register, by what the app can do
+# about the clip. An atom with an -m twin swaps for free, so anything merely
+# strained (+1.35x, ~5 semitones sharp) is worth swapping; a seq take falls
+# back to stitched atoms, which costs coarticulation, so it must earn it;
+# a clip with no alternative plays regardless, so only true helium is listed
+# (the list doubles as the re-render worklist).
+RATIO_SWAP = 1.35   # clip has an in-register -m twin
+RATIO_SEQ  = 1.45   # whole-combo takes
+RATIO_HARD = 1.55   # no alternative exists
 
 
 def decode(ff, path):
@@ -86,8 +94,15 @@ def main():
     if not mvals:
         sys.exit("No -m takes found — can't establish the voice's register.")
     baseline = mvals[len(mvals) // 2]
-    threshold = baseline * FLAG_RATIO
-    avoid = sorted(k for k, v in f0.items() if v > threshold)
+    threshold = baseline * RATIO_HARD
+
+    def limit(slug):
+        if not slug.endswith("-m") and slug + "-m" in f0:
+            return baseline * RATIO_SWAP
+        if slug.startswith("seq-"):
+            return baseline * RATIO_SEQ
+        return baseline * RATIO_HARD
+    avoid = sorted(k for k, v in f0.items() if v > limit(k))
     # Sanity gate: on a creaky/gravelly voice the tracker can't follow the
     # irregular glottal pulses and reads fry as high pitch — the "cal" pack
     # measures as 80% falsetto, which is mush, not signal. A real helium

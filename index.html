@@ -1673,7 +1673,7 @@
   // refresh lands. On the first load after a bump, evict every cached voice
   // clip so the pack refetches clean. Safe offline: a new rev only ever
   // arrives with a fresh (network-served) index.html.
-  const VOICE_REV = "2026-07-19a";
+  const VOICE_REV = "2026-07-19b";
   const voiceFresh = (()=>{
     try{
       if(typeof caches==="undefined" || localStorage.getItem("voiceRev")===VOICE_REV)
@@ -2749,7 +2749,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v42";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v43";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
