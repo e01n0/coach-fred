@@ -625,6 +625,7 @@
           <div class="stage-actions">
             <button id="stageBack">&#9003;&nbsp; Back</button>
             <button id="stageClear">Clear</button>
+            <button id="stageHear" disabled>&#128266;&nbsp; Hear it</button>
           </div>
           <div class="pad-title">Punches</div>
           <div class="pad" id="punchPad"></div>
@@ -1670,11 +1671,19 @@
     if(!id){ voicePackWant = null; voicePack = null; return; }
     if(voicePackWant === id) return;      // already loading or loaded this pack
     voicePackWant = id;
-    voicePack = { id, slugs:new Set() };  // truthy but empty until the manifest lands
+    voicePack = { id, slugs:new Set(), hi:new Set() };  // truthy but empty until the manifest lands
     fetch(`voice/${id}/manifest.json`).then(r=>{ if(!r.ok) throw 0; return r.json(); })
       .then(m=>{
         if(voicePackWant !== id) return;  // user switched away mid-fetch
-        voicePack = { id, slugs:new Set(m.slugs||[]) };
+        voicePack = { id, slugs:new Set(m.slugs||[]), hi:new Set() };
+        // Some ElevenLabs takes of short isolated shouts ("Jab!") came back an
+        // octave high — a helium coach. gen_pitch.py audits the rendered pack
+        // and ships the out-of-register slugs in pitch.json; speak() then
+        // substitutes in-register takes. Optional: no file, no flagging.
+        fetch(`voice/${id}/pitch.json`).then(r=>r.ok?r.json():null).then(p=>{
+          if(p && voicePackWant===id && voicePack && voicePack.id===id)
+            voicePack.hi = new Set(p.avoid||[]);
+        }).catch(()=>{});
         // Warm the atom/cue clips only. Whole-combo "seq-" clips (400+) load
         // on first use — eagerly decoding all of them would cost 100MB+ of
         // audio-buffer RAM on a phone.
@@ -1805,10 +1814,13 @@
     if(!voicePack){ playClipSeq([], tone, onend); return; }
     // Stitching path: the "medial" (mid-sentence) take for every atom but the
     // last, so the call carries one prosodic arc with the corner's emphasis
-    // saved for the finishing shot.
+    // saved for the finishing shot. The medial take also stands in for any
+    // atom whose standalone take rendered helium-high (pitch.json's list) —
+    // a level read in the coach's register beats a falsetto shout.
     const atomSlugs = atoms.map((a,i)=>{
       const s = slugify(a);
-      if(tone==="combo" && i<atoms.length-1 && voicePack.slugs.has(s+"-m")) return s+"-m";
+      if(tone==="combo" && voicePack.slugs.has(s+"-m") && !voicePack.hi.has(s+"-m")
+         && (i<atoms.length-1 || voicePack.hi.has(s))) return s+"-m";
       return s;
     }).filter(s=>voicePack.slugs.has(s));
     // Best case: the whole call exists as ONE rendered utterance — genuinely
@@ -1816,7 +1828,9 @@
     // the fallback (unrendered sequences, or the clip can't load offline).
     if(tone==="combo" && atoms.length>1){
       const whole = "seq-" + atoms.map(slugify).join("-");
-      if(voicePack.slugs.has(whole)){ playClipSeq([whole], tone, onend, atomSlugs); return; }
+      // ...unless that whole take is one of the helium renders — stitched
+      // in-register atoms sound better than one connected falsetto.
+      if(voicePack.slugs.has(whole) && !voicePack.hi.has(whole)){ playClipSeq([whole], tone, onend, atomSlugs); return; }
     }
     playClipSeq(atomSlugs, tone, onend);
   }
@@ -2717,7 +2731,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v39";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v40";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -3477,6 +3491,7 @@
       return isDigit(t) ? `<span class="tk${j}">${esc(t)}</span>` : `<span class="tkm${j}">${esc(t)}</span>`;
     }).join("");
     $("saveCombo").disabled = stage.length===0;
+    $("stageHear").disabled = stage.length===0;
     el.classList.remove("bump");
     if(justAdd){ void el.offsetWidth; el.classList.add("bump"); }
   }
@@ -3493,6 +3508,12 @@
   $("movePad").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b)return; flashBtn(b); stage.push(b.dataset.m); renderStage(true); });
   $("stageBack").addEventListener("click", ()=>{ stage.pop(); renderStage(); });
   $("stageClear").addEventListener("click", ()=>{ stage=[]; renderStage(); });
+  // Preview the combo being built, exactly as the corner would call it.
+  $("stageHear").addEventListener("click", ()=>{
+    if(!stage.length) return;
+    ensureAudio(); cancelSpeech();
+    speak(spokenFor(stage), comboAtoms(stage), "combo");
+  });
   $("saveCombo").addEventListener("click", ()=>{
     if(!stage.length) return;
     const name = $("comboName").value.trim() || stage.map(t=>isDigit(t)?t:t.split(" ")[0]).join("-");

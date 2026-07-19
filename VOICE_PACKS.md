@@ -120,3 +120,30 @@ itself uses `-m` "medial" takes (mid-sentence prosody via
 `previous_text`/`next_text`) for all but the final atom, plus silence-trim and
 tight gaps at playback. `seq-` clips are lazy-loaded (not pre-decoded) to keep
 phone RAM sane.
+
+## Pitch audit (v40): catching helium takes
+
+ElevenLabs renders short isolated exclamations ("Jab!", "Slip right!")
+unpredictably: some takes land in the voice's true register, others come back
+up to an octave high — a helium coach on exactly those words. The `-m` medial
+takes never do this, because their `previous_text`/`next_text` sentence context
+anchors the register; from v40 the terminal atoms and `seq-` renders in
+`voice/phrases.json` carry a `prev` lead-in too, so future re-renders stay
+anchored the same way.
+
+For the takes already shipped, `gen_pitch.py` measures every clip's median F0
+and writes the out-of-register slugs to `voice/<pack>/pitch.json` (flagged when
+more than ~half an octave above the `-m` register). At runtime the app swaps a
+flagged atom for its in-register `-m` twin and plays a flagged whole-combo take
+as stitched atoms instead. The file is optional — without it nothing is
+flagged — and the script refuses to write one when the tracker can't follow the
+voice (creaky/gravel voices like Cal's read as false falsetto). Re-run it after
+every render session:
+
+```bash
+pip install numpy imageio-ffmpeg   # once; bundles a static ffmpeg
+python3 gen_pitch.py --pack fred   # -> voice/fred/pitch.json
+```
+
+Clips with no `-m` twin (motivation lines) are reported by the script for
+re-rendering with `gen_voice.py --force --only <slugs>` — the real fix.

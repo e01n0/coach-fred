@@ -2,262 +2,314 @@
  {
   "slug": "1",
   "text": "One!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "2",
   "text": "Two!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "3",
   "text": "Three!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "4",
   "text": "Four!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "5",
   "text": "Five!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "6",
   "text": "Six!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "7",
   "text": "Seven!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "8",
   "text": "Eight!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "jab",
   "text": "Jab!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "cross",
   "text": "Cross!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "hook",
   "text": "Hook!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "rear-hook",
   "text": "Rear hook!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "uppercut",
   "text": "Uppercut!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "rear-uppercut",
   "text": "Rear uppercut!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "body-jab",
   "text": "Body jab!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "body-cross",
   "text": "Body cross!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "body-hook",
   "text": "Body hook!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "rear-body-hook",
   "text": "Rear body hook!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "slip-left",
   "text": "Slip left!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "slip-right",
   "text": "Slip right!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "roll-left",
   "text": "Roll left!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "roll-right",
   "text": "Roll right!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "step-in",
   "text": "Step in!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "step-out",
   "text": "Step out!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "step-back",
   "text": "Step back!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "step-left",
   "text": "Step left!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "step-right",
   "text": "Step right!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "pivot-left",
   "text": "Pivot left!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "pivot-right",
   "text": "Pivot right!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "pull-back",
   "text": "Pull back!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "lean-back",
   "text": "Lean back!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "duck",
   "text": "Duck!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "weave",
   "text": "Weave!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "parry",
   "text": "Parry!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "shield",
   "text": "Shield!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "block",
   "text": "Block!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "long-guard",
   "text": "Long guard!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "catch",
   "text": "Catch!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "high-guard",
   "text": "High guard!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "feint-jab",
   "text": "Feint jab!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "feint-cross",
   "text": "Feint cross!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "feint-hook",
   "text": "Feint hook!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "feint-level-change",
   "text": "Feint level change!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "feint",
   "text": "Feint!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "circle-left",
   "text": "Circle left!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "circle-right",
   "text": "Circle right!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "shuffle-left",
   "text": "Shuffle left!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "shuffle-right",
   "text": "Shuffle right!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "pendulum-step",
   "text": "Pendulum step!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "l-step",
   "text": "L step!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "cut-the-angle",
   "text": "Cut the angle!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "step-drag",
   "text": "Step drag!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "round-start",
@@ -632,7 +684,8 @@
  {
   "slug": "again",
   "text": "Again!",
-  "style": "combo"
+  "style": "combo",
+  "prev": "One, two, "
  },
  {
   "slug": "reaction-calls",
@@ -1011,3066 +1064,3679 @@
  {
   "slug": "seq-1-1",
   "text": "One, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab",
   "text": "Jab, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-1",
   "text": "One, one, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-jab",
   "text": "Jab, jab, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2",
   "text": "One, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross",
   "text": "Jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-1",
   "text": "One, two, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-jab",
   "text": "Jab, cross, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-2",
   "text": "One, one, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-cross",
   "text": "Jab, jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-1-2",
   "text": "One, one, one, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-jab-cross",
   "text": "Jab, jab, jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3",
   "text": "One, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook",
   "text": "Jab, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-3-2",
   "text": "One, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-hook-cross",
   "text": "Jab, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-1-2",
   "text": "Three, one, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-jab-cross",
   "text": "Hook, jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-2",
   "text": "Two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-cross",
   "text": "Cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2",
   "text": "One, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross",
   "text": "Jab, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-1-2",
   "text": "One, two, one, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-jab-cross",
   "text": "Jab, cross, jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-2-3",
   "text": "One, one, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-cross-hook",
   "text": "Jab, jab, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-4-2",
   "text": "Three, four, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-rear-hook-cross",
   "text": "Hook, rear hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-4",
   "text": "One, four!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-rear-hook",
   "text": "Jab, rear hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-3",
   "text": "One, two, three, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-hook",
   "text": "Jab, cross, hook, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-2-3-2",
   "text": "One, one, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-cross-hook-cross",
   "text": "Jab, jab, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-1",
   "text": "One, two, three, two, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-jab",
   "text": "Jab, cross, hook, cross, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-4",
   "text": "One, two, three, four!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-rear-hook",
   "text": "Jab, cross, hook, rear hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3",
   "text": "Two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook",
   "text": "Cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-2",
   "text": "Three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-cross",
   "text": "Hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-4",
   "text": "Three, four!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-rear-hook",
   "text": "Hook, rear hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-5-6",
   "text": "Five, six!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-uppercut-rear-uppercut",
   "text": "Uppercut, rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-5-2",
   "text": "Five, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-uppercut-cross",
   "text": "Uppercut, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-3",
   "text": "Six, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-uppercut-hook",
   "text": "Rear uppercut, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-5",
   "text": "One, two, five!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-uppercut",
   "text": "Jab, cross, uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-5-2",
   "text": "One, five, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-uppercut-cross",
   "text": "Jab, uppercut, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-5-2-3",
   "text": "Five, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-uppercut-cross-hook",
   "text": "Uppercut, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-6-3",
   "text": "One, six, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-rear-uppercut-hook",
   "text": "Jab, rear uppercut, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-6",
   "text": "Two, three, six!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-rear-uppercut",
   "text": "Cross, hook, rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-5-3",
   "text": "Six, five, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-uppercut-uppercut-hook",
   "text": "Rear uppercut, uppercut, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-5-2",
   "text": "One, two, five, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-uppercut-cross",
   "text": "Jab, cross, uppercut, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-6-3-2",
   "text": "One, six, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-rear-uppercut-hook-cross",
   "text": "Jab, rear uppercut, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-5-3-2",
   "text": "Two, five, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-uppercut-hook-cross",
   "text": "Cross, uppercut, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-2-3",
   "text": "Two, three, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-cross-hook",
   "text": "Cross, hook, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-5-2-3",
   "text": "One, two, five, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-uppercut-cross-hook",
   "text": "Jab, cross, uppercut, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-6-3-2",
   "text": "One, two, three, six, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-rear-uppercut-hook-cross",
   "text": "Jab, cross, hook, rear uppercut, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-1-2-3",
   "text": "One, two, one, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-jab-cross-hook",
   "text": "Jab, cross, jab, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-4-5-6",
   "text": "Three, four, five, six!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-rear-hook-uppercut-rear-uppercut",
   "text": "Hook, rear hook, uppercut, rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-5-2-1",
   "text": "Six, five, two, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-uppercut-uppercut-cross-jab",
   "text": "Rear uppercut, uppercut, cross, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-2-5-2",
   "text": "One, one, two, five, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-cross-uppercut-cross",
   "text": "Jab, jab, cross, uppercut, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-1",
   "text": "Parry, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-jab",
   "text": "Parry, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-2",
   "text": "Parry, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-cross",
   "text": "Parry, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-2",
   "text": "Catch, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-cross",
   "text": "Catch, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-1",
   "text": "Slip left, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-jab",
   "text": "Slip left, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-1",
   "text": "Slip right, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-jab",
   "text": "Slip right, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-3",
   "text": "Roll left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-hook",
   "text": "Roll left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-3",
   "text": "Roll right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-hook",
   "text": "Roll right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pull-back-1",
   "text": "Pull back, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pull-back-jab",
   "text": "Pull back, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-2",
   "text": "Slip right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-cross",
   "text": "Slip right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-2",
   "text": "Slip left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-cross",
   "text": "Slip left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-3",
   "text": "Slip left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-hook",
   "text": "Slip left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-3",
   "text": "Slip right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-hook",
   "text": "Slip right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-2-3",
   "text": "Slip right, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-cross-hook",
   "text": "Slip right, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-2-3",
   "text": "Slip left, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-cross-hook",
   "text": "Slip left, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-1-2-3",
   "text": "Catch, one, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-jab-cross-hook",
   "text": "Catch, jab, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-2-3-2",
   "text": "Catch, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-cross-hook-cross",
   "text": "Catch, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-block-2-3-2",
   "text": "Block, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-block-cross-hook-cross",
   "text": "Block, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-block-3-2-3",
   "text": "Block, three, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-block-hook-cross-hook",
   "text": "Block, hook, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-3-2-3",
   "text": "Slip left, three, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-hook-cross-hook",
   "text": "Slip left, hook, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-3-2-3",
   "text": "Slip right, three, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-hook-cross-hook",
   "text": "Slip right, hook, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-2-3-2",
   "text": "Slip right, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-cross-hook-cross",
   "text": "Slip right, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-2-3-2",
   "text": "Slip left, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-cross-hook-cross",
   "text": "Slip left, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-2-3-2",
   "text": "Roll right, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-cross-hook-cross",
   "text": "Roll right, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-2-3-2",
   "text": "Roll left, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-cross-hook-cross",
   "text": "Roll left, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pull-back-2-3-2",
   "text": "Pull back, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pull-back-cross-hook-cross",
   "text": "Pull back, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-lean-back-1-2",
   "text": "Lean back, one, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-lean-back-jab-cross",
   "text": "Lean back, jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-duck-5-2",
   "text": "Duck, five, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-duck-uppercut-cross",
   "text": "Duck, uppercut, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-3-2",
   "text": "Roll left, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-hook-cross",
   "text": "Roll left, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-3-2",
   "text": "Roll right, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-hook-cross",
   "text": "Roll right, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-slip-left-3-2",
   "text": "Slip right, slip left, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-slip-left-hook-cross",
   "text": "Slip right, slip left, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-slip-right-3-2",
   "text": "Slip left, slip right, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-slip-right-hook-cross",
   "text": "Slip left, slip right, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-slip-right-2-3-2",
   "text": "Slip left, slip right, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-slip-right-cross-hook-cross",
   "text": "Slip left, slip right, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-slip-left-2-3-2",
   "text": "Slip right, slip left, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-slip-left-cross-hook-cross",
   "text": "Slip right, slip left, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-roll-right-2-3-2",
   "text": "Parry, roll right, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-roll-right-cross-hook-cross",
   "text": "Parry, roll right, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-roll-left-2-3-2",
   "text": "Parry, roll left, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-roll-left-cross-hook-cross",
   "text": "Parry, roll left, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-2",
   "text": "Shield, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-cross",
   "text": "Shield, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-3-2",
   "text": "Shield, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-hook-cross",
   "text": "Shield, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-2-3-2",
   "text": "Shield, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-cross-hook-cross",
   "text": "Shield, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-2-3",
   "text": "Parry, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-cross-hook",
   "text": "Parry, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-body-jab",
   "text": "One, body jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-body-jab",
   "text": "Jab, body jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-jab-2",
   "text": "Body jab, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-jab-cross",
   "text": "Body jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-body-hook",
   "text": "Two, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-body-hook",
   "text": "Cross, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-body-jab-2",
   "text": "One, body jab, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-body-jab-cross",
   "text": "Jab, body jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-body-cross",
   "text": "One, one, body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-body-cross",
   "text": "Jab, jab, body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-rear-body-hook",
   "text": "One, one, rear body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-rear-body-hook",
   "text": "Jab, jab, rear body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-body-cross",
   "text": "One, two, body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-body-cross",
   "text": "Jab, cross, body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-3-body-hook",
   "text": "One, three, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-hook-body-hook",
   "text": "Jab, hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-body-hook",
   "text": "Three, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-body-hook",
   "text": "Hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-body-hook",
   "text": "One, two, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-body-hook",
   "text": "Jab, cross, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-2-body-hook",
   "text": "Three, two, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-cross-body-hook",
   "text": "Hook, cross, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-hook-3",
   "text": "Body hook, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-hook-hook",
   "text": "Body hook, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-jab-2-3",
   "text": "Body jab, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-jab-cross-hook",
   "text": "Body jab, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-body-hook",
   "text": "One, two, three, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-body-hook",
   "text": "Jab, cross, hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-3-body-hook",
   "text": "Six, three, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-uppercut-hook-body-hook",
   "text": "Rear uppercut, hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-2-3-body-hook",
   "text": "Three, two, three, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-cross-hook-body-hook",
   "text": "Hook, cross, hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-hook-rear-body-hook",
   "text": "Body hook, rear body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-5-4-body-hook",
   "text": "Five, four, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-uppercut-rear-hook-body-hook",
   "text": "Uppercut, rear hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-3-body-hook-2",
   "text": "One, three, body hook, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-hook-body-hook-cross",
   "text": "Jab, hook, body hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-body-hook-body-hook-2-1",
   "text": "Rear body hook, body hook, two, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-body-hook-body-hook-cross-jab",
   "text": "Rear body hook, body hook, cross, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-right",
   "text": "One, two, three, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-right",
   "text": "Jab, cross, hook, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-left",
   "text": "One, two, three, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-left",
   "text": "Jab, cross, hook, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-right-2",
   "text": "One, two, three, slip right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-right-cross",
   "text": "Jab, cross, hook, slip right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-left-2",
   "text": "One, two, three, slip left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-left-cross",
   "text": "Jab, cross, hook, slip left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-roll-left",
   "text": "One, two, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-roll-left",
   "text": "Jab, cross, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-roll-right",
   "text": "One, two, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-roll-right",
   "text": "Jab, cross, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-roll-left-3-2",
   "text": "One, two, roll left, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-roll-left-hook-cross",
   "text": "Jab, cross, roll left, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-roll-right-3-2",
   "text": "One, two, roll right, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-roll-right-hook-cross",
   "text": "Jab, cross, roll right, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-2-slip-left",
   "text": "Two, three, two, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-cross-slip-left",
   "text": "Cross, hook, cross, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-2-slip-right",
   "text": "Two, three, two, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-cross-slip-right",
   "text": "Cross, hook, cross, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-2-slip-left-3",
   "text": "Two, three, two, slip left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-cross-slip-left-hook",
   "text": "Cross, hook, cross, slip left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-2-slip-right-3",
   "text": "Two, three, two, slip right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-cross-slip-right-hook",
   "text": "Cross, hook, cross, slip right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-2-slip-right",
   "text": "One, one, two, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-cross-slip-right",
   "text": "Jab, jab, cross, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-2-slip-left",
   "text": "One, one, two, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-cross-slip-left",
   "text": "Jab, jab, cross, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-2-slip-right-2-3",
   "text": "One, one, two, slip right, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-cross-slip-right-cross-hook",
   "text": "Jab, jab, cross, slip right, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-1-2-slip-left-2-3",
   "text": "One, one, two, slip left, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-jab-cross-slip-left-cross-hook",
   "text": "Jab, jab, cross, slip left, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-body-hook-roll-left",
   "text": "One, two, body hook, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-body-hook-roll-left",
   "text": "Jab, cross, body hook, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-body-hook-roll-right",
   "text": "One, two, body hook, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-body-hook-roll-right",
   "text": "Jab, cross, body hook, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-body-hook-roll-left-3-2",
   "text": "One, two, body hook, roll left, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-body-hook-roll-left-hook-cross",
   "text": "Jab, cross, body hook, roll left, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-body-hook-roll-right-3-2",
   "text": "One, two, body hook, roll right, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-body-hook-roll-right-hook-cross",
   "text": "Jab, cross, body hook, roll right, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-pivot-left",
   "text": "One, two, three, two, pivot left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-pivot-left",
   "text": "Jab, cross, hook, cross, pivot left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-pivot-right",
   "text": "One, two, three, two, pivot right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-pivot-right",
   "text": "Jab, cross, hook, cross, pivot right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-pivot-left-3",
   "text": "One, two, three, two, pivot left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-pivot-left-hook",
   "text": "Jab, cross, hook, cross, pivot left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-pivot-right-3",
   "text": "One, two, three, two, pivot right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-pivot-right-hook",
   "text": "Jab, cross, hook, cross, pivot right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-parry-1-2",
   "text": "One, parry, one, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-parry-jab-cross",
   "text": "Jab, parry, jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-step-back-1-2",
   "text": "One, step back, one, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-step-back-jab-cross",
   "text": "Jab, step back, jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-right-2",
   "text": "One, two, slip right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-right-cross",
   "text": "Jab, cross, slip right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-left-2",
   "text": "One, two, slip left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-left-cross",
   "text": "Jab, cross, slip left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-roll-right-2",
   "text": "One, two, roll right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-roll-right-cross",
   "text": "Jab, cross, roll right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-roll-left-2",
   "text": "One, two, roll left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-roll-left-cross",
   "text": "Jab, cross, roll left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-pivot-left-3",
   "text": "One, two, pivot left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-pivot-left-hook",
   "text": "Jab, cross, pivot left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-pivot-right-3",
   "text": "One, two, pivot right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-pivot-right-hook",
   "text": "Jab, cross, pivot right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-roll-right-2",
   "text": "Two, three, roll right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-roll-right-cross",
   "text": "Cross, hook, roll right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-roll-left-2",
   "text": "Two, three, roll left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-roll-left-cross",
   "text": "Cross, hook, roll left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-body-hook-pivot-left-3",
   "text": "Two, body hook, pivot left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-body-hook-pivot-left-hook",
   "text": "Cross, body hook, pivot left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-body-hook-pivot-right-3",
   "text": "Two, body hook, pivot right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-body-hook-pivot-right-hook",
   "text": "Cross, body hook, pivot right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-left-3-2",
   "text": "One, two, slip left, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-left-hook-cross",
   "text": "Jab, cross, slip left, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-right-3-2",
   "text": "One, two, slip right, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-right-hook-cross",
   "text": "Jab, cross, slip right, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-left-body-hook",
   "text": "One, two, three, slip left, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-left-body-hook",
   "text": "Jab, cross, hook, slip left, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-right-body-hook",
   "text": "One, two, three, slip right, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-right-body-hook",
   "text": "Jab, cross, hook, slip right, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-left-5-2",
   "text": "One, two, three, slip left, five, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-left-uppercut-cross",
   "text": "Jab, cross, hook, slip left, uppercut, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-right-5-2",
   "text": "One, two, three, slip right, five, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-right-uppercut-cross",
   "text": "Jab, cross, hook, slip right, uppercut, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-roll-right-2-3-2",
   "text": "One, two, three, roll right, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-roll-right-cross-hook-cross",
   "text": "Jab, cross, hook, roll right, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-roll-left-2-3-2",
   "text": "One, two, three, roll left, two, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-roll-left-cross-hook-cross",
   "text": "Jab, cross, hook, roll left, cross, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-roll-left-3",
   "text": "One, two, three, roll left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-roll-left-hook",
   "text": "Jab, cross, hook, roll left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-roll-right-3",
   "text": "One, two, three, roll right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-roll-right-hook",
   "text": "Jab, cross, hook, roll right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-block-2-3",
   "text": "One, two, block, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-block-cross-hook",
   "text": "Jab, cross, block, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-pull-back-1-2",
   "text": "Two, three, pull back, one, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-pull-back-jab-cross",
   "text": "Cross, hook, pull back, jab, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-step-in-1-1-step-back-6",
   "text": "Step in, one, one, step back, six!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-step-in-jab-jab-step-back-rear-uppercut",
   "text": "Step in, jab, jab, step back, rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-slip-right-2-slip-left-3",
   "text": "One, slip right, two, slip left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-slip-right-cross-slip-left-hook",
   "text": "Jab, slip right, cross, slip left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-slip-left-2-slip-right-3",
   "text": "One, slip left, two, slip right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-slip-left-cross-slip-right-hook",
   "text": "Jab, slip left, cross, slip right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-pivot-left-3-2",
   "text": "One, two, three, pivot left, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-pivot-left-hook-cross",
   "text": "Jab, cross, hook, pivot left, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-pivot-right-3-2",
   "text": "One, two, three, pivot right, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-pivot-right-hook-cross",
   "text": "Jab, cross, hook, pivot right, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-2-duck-2",
   "text": "Two, three, two, duck, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-cross-duck-cross",
   "text": "Cross, hook, cross, duck, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-right-2-roll-left-3",
   "text": "One, two, slip right, two, roll left, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-right-cross-roll-left-hook",
   "text": "Jab, cross, slip right, cross, roll left, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-left-2-roll-right-3",
   "text": "One, two, slip left, two, roll right, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-left-cross-roll-right-hook",
   "text": "Jab, cross, slip left, cross, roll right, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-right-5",
   "text": "One, two, slip right, five!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-right-uppercut",
   "text": "Jab, cross, slip right, uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-left-5",
   "text": "One, two, slip left, five!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-left-uppercut",
   "text": "Jab, cross, slip left, uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-right-2-3",
   "text": "One, two, slip right, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-right-cross-hook",
   "text": "Jab, cross, slip right, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-left-2-3",
   "text": "One, two, slip left, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-left-cross-hook",
   "text": "Jab, cross, slip left, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-slip-left-2",
   "text": "Two, three, slip left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-slip-left-cross",
   "text": "Cross, hook, slip left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-slip-right-2",
   "text": "Two, three, slip right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-slip-right-cross",
   "text": "Cross, hook, slip right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-roll-right-2",
   "text": "One, two, three, roll right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-roll-right-cross",
   "text": "Jab, cross, hook, roll right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-roll-left-2",
   "text": "One, two, three, roll left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-roll-left-cross",
   "text": "Jab, cross, hook, roll left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-roll-right-2",
   "text": "One, two, three, two, roll right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-roll-right-cross",
   "text": "Jab, cross, hook, cross, roll right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-roll-left-2",
   "text": "One, two, three, two, roll left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-roll-left-cross",
   "text": "Jab, cross, hook, cross, roll left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-parry-2-roll-left-3-2",
   "text": "One, parry, two, roll left, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-parry-cross-roll-left-hook-cross",
   "text": "Jab, parry, cross, roll left, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-parry-2-roll-right-3-2",
   "text": "One, parry, two, roll right, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-parry-cross-roll-right-hook-cross",
   "text": "Jab, parry, cross, roll right, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-slip-left-slip-right",
   "text": "One, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-slip-left-slip-right",
   "text": "Jab, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-slip-right-slip-left",
   "text": "One, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-slip-right-slip-left",
   "text": "Jab, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-left-slip-right",
   "text": "One, two, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-left-slip-right",
   "text": "Jab, cross, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-right-slip-left",
   "text": "One, two, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-right-slip-left",
   "text": "Jab, cross, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-right-roll-left",
   "text": "One, two, slip right, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-right-roll-left",
   "text": "Jab, cross, slip right, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-slip-left-roll-right",
   "text": "One, two, slip left, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-slip-left-roll-right",
   "text": "Jab, cross, slip left, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-left-roll-left",
   "text": "One, two, three, slip left, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-left-roll-left",
   "text": "Jab, cross, hook, slip left, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-slip-right-roll-right",
   "text": "One, two, three, slip right, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-slip-right-roll-right",
   "text": "Jab, cross, hook, slip right, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-slip-left-slip-right",
   "text": "One, two, three, two, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-slip-left-slip-right",
   "text": "Jab, cross, hook, cross, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-2-slip-right-slip-left",
   "text": "One, two, three, two, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-cross-slip-right-slip-left",
   "text": "Jab, cross, hook, cross, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-pull-back-2-slip-left-slip-right",
   "text": "One, two, pull back, two, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-pull-back-cross-slip-left-slip-right",
   "text": "Jab, cross, pull back, cross, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-pull-back-2-slip-right-slip-left",
   "text": "One, two, pull back, two, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-pull-back-cross-slip-right-slip-left",
   "text": "Jab, cross, pull back, cross, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-shield-2-3",
   "text": "One, two, shield, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-shield-cross-hook",
   "text": "Jab, cross, shield, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-parry-2-shield-2",
   "text": "One, parry, two, shield, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-parry-cross-shield-cross",
   "text": "Jab, parry, cross, shield, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-shield-slip-body-hook-rear-body-hook",
   "text": "One, two, three, shield, slip, body hook, rear body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-shield-slip-body-hook-rear-body-hook",
   "text": "Jab, cross, hook, shield, slip, body hook, rear body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-2-3",
   "text": "Three, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-hook-cross-hook",
   "text": "Hook, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-3-2-3",
   "text": "One, three, two, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-hook-cross-hook",
   "text": "Jab, hook, cross, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-1",
   "text": "Two, one!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-jab",
   "text": "Cross, jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-3",
   "text": "One, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-hook",
   "text": "Jab, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-3-4",
   "text": "Two, three, four!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-cross-hook-rear-hook",
   "text": "Cross, hook, rear hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-4-3",
   "text": "Four, three!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-hook-hook",
   "text": "Rear hook, hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-5",
   "text": "One, five!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-uppercut",
   "text": "Jab, uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-5",
   "text": "Six, five!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-uppercut-uppercut",
   "text": "Rear uppercut, uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-6",
   "text": "One, six!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-rear-uppercut",
   "text": "Jab, rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-6",
   "text": "One, two, six!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-rear-uppercut",
   "text": "Jab, cross, rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-3-2",
   "text": "Six, three, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-uppercut-hook-cross",
   "text": "Rear uppercut, hook, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-8",
   "text": "One, eight!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-body-cross",
   "text": "Jab, body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-7-2",
   "text": "Seven, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-6-body-hook",
   "text": "One, six, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-rear-uppercut-body-hook",
   "text": "Jab, rear uppercut, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-7-8",
   "text": "Seven, eight!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-jab-body-cross",
   "text": "Body jab, body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-4-5",
   "text": "One, two, three, four, five!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-rear-hook-uppercut",
   "text": "Jab, cross, hook, rear hook, uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-2-3-4-5-6",
   "text": "One, two, three, four, five, six!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-cross-hook-rear-hook-uppercut-rear-uppercut",
   "text": "Jab, cross, hook, rear hook, uppercut, rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-step-in-step-out",
   "text": "Step in, step out!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-step-in-1-step-out",
   "text": "Step in, one, step out!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-step-in-jab-step-out",
   "text": "Step in, jab, step out!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pivot-left-2",
   "text": "Pivot left, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pivot-left-cross",
   "text": "Pivot left, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pivot-right-2",
   "text": "Pivot right, two!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pivot-right-cross",
   "text": "Pivot right, cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-circle-right",
   "text": "One, circle right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-circle-right",
   "text": "Jab, circle right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-circle-left",
   "text": "One, circle left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-jab-circle-left",
   "text": "Jab, circle left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab",
   "text": "One jab, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-1-jab",
   "text": "One jab, one jab, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross",
   "text": "One jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-1-jab",
   "text": "One jab, two cross, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-2-cross",
   "text": "One jab, one jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-1-jab-2-cross",
   "text": "One jab, one jab, one jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook",
   "text": "One jab, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-3-hook-2-cross",
   "text": "One jab, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-1-jab-2-cross",
   "text": "Three hook, one jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-2-cross",
   "text": "Two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross",
   "text": "One jab, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-1-jab-2-cross",
   "text": "One jab, two cross, one jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-2-cross-3-hook",
   "text": "One jab, one jab, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-4-rear-hook-2-cross",
   "text": "Three hook, four rear hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-4-rear-hook",
   "text": "One jab, four rear hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-3-hook",
   "text": "One jab, two cross, three hook, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-2-cross-3-hook-2-cross",
   "text": "One jab, one jab, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-1-jab",
   "text": "One jab, two cross, three hook, two cross, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-4-rear-hook",
   "text": "One jab, two cross, three hook, four rear hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook",
   "text": "Two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-2-cross",
   "text": "Three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-4-rear-hook",
   "text": "Three hook, four rear hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-5-uppercut-6-rear-uppercut",
   "text": "Five uppercut, six rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-5-uppercut-2-cross",
   "text": "Five uppercut, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-rear-uppercut-3-hook",
   "text": "Six rear uppercut, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-5-uppercut",
   "text": "One jab, two cross, five uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-5-uppercut-2-cross",
   "text": "One jab, five uppercut, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-5-uppercut-2-cross-3-hook",
   "text": "Five uppercut, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-6-rear-uppercut-3-hook",
   "text": "One jab, six rear uppercut, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-6-rear-uppercut",
   "text": "Two cross, three hook, six rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-rear-uppercut-5-uppercut-3-hook",
   "text": "Six rear uppercut, five uppercut, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-5-uppercut-2-cross",
   "text": "One jab, two cross, five uppercut, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-6-rear-uppercut-3-hook-2-cross",
   "text": "One jab, six rear uppercut, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-5-uppercut-3-hook-2-cross",
   "text": "Two cross, five uppercut, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-2-cross-3-hook",
   "text": "Two cross, three hook, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-5-uppercut-2-cross-3-hook",
   "text": "One jab, two cross, five uppercut, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-6-rear-uppercut-3-hook-2-cross",
   "text": "One jab, two cross, three hook, six rear uppercut, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-1-jab-2-cross-3-hook",
   "text": "One jab, two cross, one jab, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-4-rear-hook-5-uppercut-6-rear-uppercut",
   "text": "Three hook, four rear hook, five uppercut, six rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-rear-uppercut-5-uppercut-2-cross-1-jab",
   "text": "Six rear uppercut, five uppercut, two cross, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-2-cross-5-uppercut-2-cross",
   "text": "One jab, one jab, two cross, five uppercut, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-1-jab",
   "text": "Parry, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-2-cross",
   "text": "Parry, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-2-cross",
   "text": "Catch, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-1-jab",
   "text": "Slip left, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-1-jab",
   "text": "Slip right, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-3-hook",
   "text": "Roll left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-3-hook",
   "text": "Roll right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pull-back-1-jab",
   "text": "Pull back, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-2-cross",
   "text": "Slip right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-2-cross",
   "text": "Slip left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-3-hook",
   "text": "Slip left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-3-hook",
   "text": "Slip right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-2-cross-3-hook",
   "text": "Slip right, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-2-cross-3-hook",
   "text": "Slip left, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-1-jab-2-cross-3-hook",
   "text": "Catch, one jab, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-catch-2-cross-3-hook-2-cross",
   "text": "Catch, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-block-2-cross-3-hook-2-cross",
   "text": "Block, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-block-3-hook-2-cross-3-hook",
   "text": "Block, three hook, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-3-hook-2-cross-3-hook",
   "text": "Slip left, three hook, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-3-hook-2-cross-3-hook",
   "text": "Slip right, three hook, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-2-cross-3-hook-2-cross",
   "text": "Slip right, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-2-cross-3-hook-2-cross",
   "text": "Slip left, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-2-cross-3-hook-2-cross",
   "text": "Roll right, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-2-cross-3-hook-2-cross",
   "text": "Roll left, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pull-back-2-cross-3-hook-2-cross",
   "text": "Pull back, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-lean-back-1-jab-2-cross",
   "text": "Lean back, one jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-duck-5-uppercut-2-cross",
   "text": "Duck, five uppercut, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-left-3-hook-2-cross",
   "text": "Roll left, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-roll-right-3-hook-2-cross",
   "text": "Roll right, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-slip-left-3-hook-2-cross",
   "text": "Slip right, slip left, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-slip-right-3-hook-2-cross",
   "text": "Slip left, slip right, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-left-slip-right-2-cross-3-hook-2-cross",
   "text": "Slip left, slip right, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-slip-right-slip-left-2-cross-3-hook-2-cross",
   "text": "Slip right, slip left, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-roll-right-2-cross-3-hook-2-cross",
   "text": "Parry, roll right, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-roll-left-2-cross-3-hook-2-cross",
   "text": "Parry, roll left, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-2-cross",
   "text": "Shield, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-3-hook-2-cross",
   "text": "Shield, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-shield-2-cross-3-hook-2-cross",
   "text": "Shield, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-parry-2-cross-3-hook",
   "text": "Parry, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-body-jab",
   "text": "One jab, body jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-jab-2-cross",
   "text": "Body jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-body-hook",
   "text": "Two cross, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-body-jab-2-cross",
   "text": "One jab, body jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-body-cross",
   "text": "One jab, one jab, body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-rear-body-hook",
   "text": "One jab, one jab, rear body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-body-cross",
   "text": "One jab, two cross, body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-3-hook-body-hook",
   "text": "One jab, three hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-body-hook",
   "text": "Three hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-body-hook",
   "text": "One jab, two cross, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-2-cross-body-hook",
   "text": "Three hook, two cross, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-hook-3-hook",
   "text": "Body hook, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-body-jab-2-cross-3-hook",
   "text": "Body jab, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-body-hook",
   "text": "One jab, two cross, three hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-rear-uppercut-3-hook-body-hook",
   "text": "Six rear uppercut, three hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-2-cross-3-hook-body-hook",
   "text": "Three hook, two cross, three hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-5-uppercut-4-rear-hook-body-hook",
   "text": "Five uppercut, four rear hook, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-3-hook-body-hook-2-cross",
   "text": "One jab, three hook, body hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-rear-body-hook-body-hook-2-cross-1-jab",
   "text": "Rear body hook, body hook, two cross, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-right",
   "text": "One jab, two cross, three hook, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-left",
   "text": "One jab, two cross, three hook, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-right-2-cross",
   "text": "One jab, two cross, three hook, slip right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-left-2-cross",
   "text": "One jab, two cross, three hook, slip left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-roll-left",
   "text": "One jab, two cross, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-roll-right",
   "text": "One jab, two cross, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-roll-left-3-hook-2-cross",
   "text": "One jab, two cross, roll left, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-roll-right-3-hook-2-cross",
   "text": "One jab, two cross, roll right, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-2-cross-slip-left",
   "text": "Two cross, three hook, two cross, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-2-cross-slip-right",
   "text": "Two cross, three hook, two cross, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-2-cross-slip-left-3-hook",
   "text": "Two cross, three hook, two cross, slip left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-2-cross-slip-right-3-hook",
   "text": "Two cross, three hook, two cross, slip right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-2-cross-slip-right",
   "text": "One jab, one jab, two cross, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-2-cross-slip-left",
   "text": "One jab, one jab, two cross, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-2-cross-slip-right-2-cross-3-hook",
   "text": "One jab, one jab, two cross, slip right, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-1-jab-2-cross-slip-left-2-cross-3-hook",
   "text": "One jab, one jab, two cross, slip left, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-body-hook-roll-left",
   "text": "One jab, two cross, body hook, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-body-hook-roll-right",
   "text": "One jab, two cross, body hook, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-body-hook-roll-left-3-hook-2-cross",
   "text": "One jab, two cross, body hook, roll left, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-body-hook-roll-right-3-hook-2-cross",
   "text": "One jab, two cross, body hook, roll right, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-pivot-left",
   "text": "One jab, two cross, three hook, two cross, pivot left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-pivot-right",
   "text": "One jab, two cross, three hook, two cross, pivot right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-pivot-left-3-hook",
   "text": "One jab, two cross, three hook, two cross, pivot left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-pivot-right-3-hook",
   "text": "One jab, two cross, three hook, two cross, pivot right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-parry-1-jab-2-cross",
   "text": "One jab, parry, one jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-step-back-1-jab-2-cross",
   "text": "One jab, step back, one jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-right-2-cross",
   "text": "One jab, two cross, slip right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-left-2-cross",
   "text": "One jab, two cross, slip left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-roll-right-2-cross",
   "text": "One jab, two cross, roll right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-roll-left-2-cross",
   "text": "One jab, two cross, roll left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-pivot-left-3-hook",
   "text": "One jab, two cross, pivot left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-pivot-right-3-hook",
   "text": "One jab, two cross, pivot right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-roll-right-2-cross",
   "text": "Two cross, three hook, roll right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-roll-left-2-cross",
   "text": "Two cross, three hook, roll left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-body-hook-pivot-left-3-hook",
   "text": "Two cross, body hook, pivot left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-body-hook-pivot-right-3-hook",
   "text": "Two cross, body hook, pivot right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-left-3-hook-2-cross",
   "text": "One jab, two cross, slip left, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-right-3-hook-2-cross",
   "text": "One jab, two cross, slip right, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-left-body-hook",
   "text": "One jab, two cross, three hook, slip left, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-right-body-hook",
   "text": "One jab, two cross, three hook, slip right, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-left-5-uppercut-2-cross",
   "text": "One jab, two cross, three hook, slip left, five uppercut, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-right-5-uppercut-2-cross",
   "text": "One jab, two cross, three hook, slip right, five uppercut, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-roll-right-2-cross-3-hook-2-cross",
   "text": "One jab, two cross, three hook, roll right, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-roll-left-2-cross-3-hook-2-cross",
   "text": "One jab, two cross, three hook, roll left, two cross, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-roll-left-3-hook",
   "text": "One jab, two cross, three hook, roll left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-roll-right-3-hook",
   "text": "One jab, two cross, three hook, roll right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-block-2-cross-3-hook",
   "text": "One jab, two cross, block, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-pull-back-1-jab-2-cross",
   "text": "Two cross, three hook, pull back, one jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-step-in-1-jab-1-jab-step-back-6-rear-uppercut",
   "text": "Step in, one jab, one jab, step back, six rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-slip-right-2-cross-slip-left-3-hook",
   "text": "One jab, slip right, two cross, slip left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-slip-left-2-cross-slip-right-3-hook",
   "text": "One jab, slip left, two cross, slip right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-pivot-left-3-hook-2-cross",
   "text": "One jab, two cross, three hook, pivot left, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-pivot-right-3-hook-2-cross",
   "text": "One jab, two cross, three hook, pivot right, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-2-cross-duck-2-cross",
   "text": "Two cross, three hook, two cross, duck, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-right-2-cross-roll-left-3-hook",
   "text": "One jab, two cross, slip right, two cross, roll left, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-left-2-cross-roll-right-3-hook",
   "text": "One jab, two cross, slip left, two cross, roll right, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-right-5-uppercut",
   "text": "One jab, two cross, slip right, five uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-left-5-uppercut",
   "text": "One jab, two cross, slip left, five uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-right-2-cross-3-hook",
   "text": "One jab, two cross, slip right, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-left-2-cross-3-hook",
   "text": "One jab, two cross, slip left, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-slip-left-2-cross",
   "text": "Two cross, three hook, slip left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-slip-right-2-cross",
   "text": "Two cross, three hook, slip right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-roll-right-2-cross",
   "text": "One jab, two cross, three hook, roll right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-roll-left-2-cross",
   "text": "One jab, two cross, three hook, roll left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-roll-right-2-cross",
   "text": "One jab, two cross, three hook, two cross, roll right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-roll-left-2-cross",
   "text": "One jab, two cross, three hook, two cross, roll left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-parry-2-cross-roll-left-3-hook-2-cross",
   "text": "One jab, parry, two cross, roll left, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-parry-2-cross-roll-right-3-hook-2-cross",
   "text": "One jab, parry, two cross, roll right, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-slip-left-slip-right",
   "text": "One jab, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-slip-right-slip-left",
   "text": "One jab, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-left-slip-right",
   "text": "One jab, two cross, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-right-slip-left",
   "text": "One jab, two cross, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-right-roll-left",
   "text": "One jab, two cross, slip right, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-slip-left-roll-right",
   "text": "One jab, two cross, slip left, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-left-roll-left",
   "text": "One jab, two cross, three hook, slip left, roll left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-slip-right-roll-right",
   "text": "One jab, two cross, three hook, slip right, roll right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-slip-left-slip-right",
   "text": "One jab, two cross, three hook, two cross, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-2-cross-slip-right-slip-left",
   "text": "One jab, two cross, three hook, two cross, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-pull-back-2-cross-slip-left-slip-right",
   "text": "One jab, two cross, pull back, two cross, slip left, slip right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-pull-back-2-cross-slip-right-slip-left",
   "text": "One jab, two cross, pull back, two cross, slip right, slip left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-shield-2-cross-3-hook",
   "text": "One jab, two cross, shield, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-parry-2-cross-shield-2-cross",
   "text": "One jab, parry, two cross, shield, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-shield-slip-body-hook-rear-body-hook",
   "text": "One jab, two cross, three hook, shield, slip, body hook, rear body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-3-hook-2-cross-3-hook",
   "text": "Three hook, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-3-hook-2-cross-3-hook",
   "text": "One jab, three hook, two cross, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-1-jab",
   "text": "Two cross, one jab!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-3-hook",
   "text": "One jab, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-2-cross-3-hook-4-rear-hook",
   "text": "Two cross, three hook, four rear hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-4-rear-hook-3-hook",
   "text": "Four rear hook, three hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-5-uppercut",
   "text": "One jab, five uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-rear-uppercut-5-uppercut",
   "text": "Six rear uppercut, five uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-6-rear-uppercut",
   "text": "One jab, six rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-6-rear-uppercut",
   "text": "One jab, two cross, six rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-6-rear-uppercut-3-hook-2-cross",
   "text": "Six rear uppercut, three hook, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-8-body-cross",
   "text": "One jab, eight body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-7-body-jab-2-cross",
   "text": "Seven body jab, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-6-rear-uppercut-body-hook",
   "text": "One jab, six rear uppercut, body hook!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-7-body-jab-8-body-cross",
   "text": "Seven body jab, eight body cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-4-rear-hook-5-uppercut",
   "text": "One jab, two cross, three hook, four rear hook, five uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-2-cross-3-hook-4-rear-hook-5-uppercut-6-rear-uppercut",
   "text": "One jab, two cross, three hook, four rear hook, five uppercut, six rear uppercut!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-step-in-1-jab-step-out",
   "text": "Step in, one jab, step out!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pivot-left-2-cross",
   "text": "Pivot left, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-pivot-right-2-cross",
   "text": "Pivot right, two cross!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-circle-right",
   "text": "One jab, circle right!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  },
  {
   "slug": "seq-1-jab-circle-left",
   "text": "One jab, circle left!",
-  "style": "seq"
+  "style": "seq",
+  "prev": "One, two. "
  }
 ]
