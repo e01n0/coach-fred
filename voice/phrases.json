@@ -701,22 +701,19 @@
   "slug": "1-m",
   "text": "one,",
   "style": "combo",
-  "prev": "One, two, ",
-  "next": " one, two."
+  "prev": "One, two, "
  },
  {
   "slug": "2-m",
   "text": "two,",
   "style": "combo",
-  "prev": "One, two, ",
-  "next": " one, two."
+  "prev": "One, two, "
  },
  {
   "slug": "3-m",
   "text": "three,",
   "style": "combo",
-  "prev": "One, two, ",
-  "next": " one, two."
+  "prev": "One, two, "
  },
  {
   "slug": "4-m",
@@ -932,8 +929,7 @@
   "slug": "parry-m",
   "text": "parry,",
   "style": "combo",
-  "prev": "One, two, ",
-  "next": " one, two."
+  "prev": "One, two, "
  },
  {
   "slug": "shield-m",

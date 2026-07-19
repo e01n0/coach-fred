@@ -147,3 +147,24 @@ python3 gen_pitch.py --pack fred   # -> voice/fred/pitch.json
 
 Clips with no `-m` twin (motivation lines) are reported by the script for
 re-rendering with `gen_voice.py --force --only <slugs>` — the real fix.
+
+## Tail bleed on -m takes (v44): gen_trim.py
+
+The `next_text` context that anchors the `-m` takes has a side effect:
+ElevenLabs sometimes renders a truncated onset of that next word at the end of
+the clip. Stitched into a combo, every word grows a ghost syllable ("three-w",
+"slip right-m"). `gen_trim.py` detects those tails (final energy blob against
+the end of the file, after a real gap, voiced like a word onset — with an
+energy guard so a burst-gap-vowel word like "two" can't be mistaken for bleed)
+and cuts them out of the MP3s in place. Run it after rendering, before
+`gen_pitch.py`:
+
+```bash
+python3 gen_trim.py --pack fred --dry-run   # preview the cuts
+python3 gen_trim.py --pack fred
+```
+
+Where no safe cut exists, re-render the clip; for chronic bleeders the fix is
+dropping `"next"` from the entry in `voice/phrases.json` (keep `prev` and the
+trailing comma — the read stays medial, and with no next word there is nothing
+to bleed).
