@@ -235,31 +235,31 @@
  },
  {
   "slug": "feint-jab",
-  "text": "Feint jab!",
+  "text": "Faint jab!",
   "style": "combo",
   "prev": "One, two, "
  },
  {
   "slug": "feint-cross",
-  "text": "Feint cross!",
+  "text": "Faint cross!",
   "style": "combo",
   "prev": "One, two, "
  },
  {
   "slug": "feint-hook",
-  "text": "Feint hook!",
+  "text": "Faint hook!",
   "style": "combo",
   "prev": "One, two, "
  },
  {
   "slug": "feint-level-change",
-  "text": "Feint level change!",
+  "text": "Faint level change!",
   "style": "combo",
   "prev": "One, two, "
  },
  {
   "slug": "feint",
-  "text": "Feint!",
+  "text": "Faint!",
   "style": "combo",
   "prev": "One, two, "
  },
@@ -438,7 +438,7 @@
  },
  {
   "slug": "feints-focus",
-  "text": "Feints focus",
+  "text": "Faints focus",
   "style": "cue"
  },
  {
@@ -972,35 +972,35 @@
  },
  {
   "slug": "feint-jab-m",
-  "text": "feint jab,",
+  "text": "faint jab,",
   "style": "combo",
   "prev": "One, two, ",
   "next": " one, two."
  },
  {
   "slug": "feint-cross-m",
-  "text": "feint cross,",
+  "text": "faint cross,",
   "style": "combo",
   "prev": "One, two, ",
   "next": " one, two."
  },
  {
   "slug": "feint-hook-m",
-  "text": "feint hook,",
+  "text": "faint hook,",
   "style": "combo",
   "prev": "One, two, ",
   "next": " one, two."
  },
  {
   "slug": "feint-level-change-m",
-  "text": "feint level change,",
+  "text": "faint level change,",
   "style": "combo",
   "prev": "One, two, ",
   "next": " one, two."
  },
  {
   "slug": "feint-m",
-  "text": "feint,",
+  "text": "faint,",
   "style": "combo",
   "prev": "One, two, ",
   "next": " one, two."

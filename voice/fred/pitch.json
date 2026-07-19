@@ -1,6 +1,6 @@
 {
-  "baseline": 128,
-  "threshold": 199,
+  "baseline": 130,
+  "threshold": 201,
   "avoid": [
     "hook",
     "push-through-it"

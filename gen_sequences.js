@@ -56,10 +56,14 @@ function partsFor(tokens, style){
   });
   return {atoms, units};
 }
+// Spoken-only respellings for words ElevenLabs mispronounces: "feint" rendered
+// as /faɪnt/ (rhyming with "pint"), so the TEXT says the homophone "faint".
+// Slugs, tokens and on-screen labels keep the true spelling.
+const respell = s => String(s).replace(/\bfeint\b/gi, m => m[0] === "F" ? "Faint" : "faint");
 // the text the whole clip should say: one connected phrase, emphasis last
 function textFor(units){
   const s = units.join(", ") + "!";
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  return respell(s.charAt(0).toUpperCase() + s.slice(1));
 }
 const flip = tokens => tokens.map(t =>
   t.replace(/\b(left|right)\b/gi, m => m.toLowerCase() === "left" ? "right" : "left"));
