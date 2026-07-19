@@ -541,7 +541,7 @@
       <details class="acc" id="drillAcc">
         <summary><span class="acc-t">Drill a combo</span><span class="cnt" id="drillState"></span></summary>
         <div class="acc-body">
-          <div class="note" style="margin-top:0;">Groove one combination for the whole session &mdash; the timer up top sets rounds and rest. <b>Build up</b> starts with the first two pieces and adds one each round, layers defence near the end, then mixes the finished combo into normal calling. <b>Speed</b> repeats it on a beat that tightens every round. <b>Repeat</b> holds a steady beat all the way.</div>
+          <div class="note" style="margin-top:0;">Groove one combination for the whole session &mdash; the timer up top sets rounds and rest. <b>Build up</b> builds the combo piece by piece <i>within</i> each round &mdash; two pieces first, one more at a time, then a defence layer, finishing with it mixed into normal calling &mdash; paced by your Pace dial. Later rounds start deeper in, and on alternating stance each stance builds up from scratch. <b>Speed</b> repeats it on a beat that tightens every round. <b>Repeat</b> holds a steady beat all the way.</div>
           <div class="field">
             <div class="seg tight" id="segDrill">
               <button data-v="off" class="on">Off</button>
@@ -561,7 +561,7 @@
               <select id="sDrillComboB"></select>
               <div class="note">Optional second combo &mdash; the corner alternates the two so you switch gears between reps.</div>
             </div>
-            <div class="field">
+            <div class="field" id="drillBeatField">
               <div class="field-label"><span>Call every</span></div>
               <div class="stepper" style="max-width:180px;" data-t="drill"><button data-st="drill" data-d="-1">&minus;</button><div class="sv" id="vDrill">8s</div><button data-st="drill" data-d="1">+</button></div>
               <div class="note" id="drillBeatNote"></div>
@@ -1810,15 +1810,21 @@
 
   /* ---------- combo selection + delivery ---------- */
   const BODYP = { off:0, some:0.25, lots:0.45 };
-  function progressFactor(){
-    if(cfg.level !== "build" || totalWork<=1) return 1;
+  // Which time the current round's stance has come up, and how many rounds that
+  // stance gets in total. With alternating stance each stance runs its own
+  // progression — what you built in orthodox shouldn't carry on in southpaw.
+  function stanceOcc(){
     if(cfg.stanceOn && cfg.stanceMode==="alternate"){
       const odd = (workCount % 2 === 1);
-      const occ = odd ? (workCount+1)/2 : workCount/2;            // which time this stance has come up
-      const tot = odd ? Math.ceil(totalWork/2) : Math.floor(totalWork/2);
-      return tot<=1 ? 1 : Math.min(1, Math.max(0, (occ-1)/(tot-1)));
+      return { occ: odd ? (workCount+1)/2 : workCount/2,
+               tot: odd ? Math.ceil(totalWork/2) : Math.floor(totalWork/2) };
     }
-    return Math.min(1, Math.max(0, (workCount-1)/(totalWork-1)));
+    return { occ: workCount, tot: totalWork };
+  }
+  function progressFactor(){
+    if(cfg.level !== "build" || totalWork<=1) return 1;
+    const {occ, tot} = stanceOcc();
+    return tot<=1 ? 1 : Math.min(1, Math.max(0, (occ-1)/(tot-1)));
   }
   function maxLevel(){
     if(cfg.level==="beginner") return 1;
@@ -1899,14 +1905,22 @@
       nextComboAt = Date.now() + rnd(...(G[cfg.pace]||G.steady))*1000;
       return;
     }
-    if(currentFormat==="drill"||currentFormat==="ladder"||currentFormat==="recall"){
-      // Fixed beat measured from the start of the call. If speech overran the
-      // interval, this lands in the past and the next call fires immediately.
-      nextComboAt = drillCallAt + (cfg.drillInterval||8)*1000;
+    if(currentFormat==="drill"||currentFormat==="recall"){
+      // Fixed beat measured from the start of the call — but never tighter
+      // than the combo physically takes to throw. scheduleNext runs when the
+      // call finishes, so the floor is throw time plus a breath from here.
+      nextComboAt = Math.max(drillCallAt + (cfg.drillInterval||8)*1000,
+                             Date.now() + ((n||1)*PERSHOT + 1.0)*1000);
       return;
     }
-    if(currentFormat==="speed"){ nextComboAt = drillCallAt + currentSpeedMs; return; }
+    if(currentFormat==="speed"){
+      nextComboAt = Math.max(drillCallAt + currentSpeedMs, Date.now() + (n||1)*PERSHOT*1000);
+      return;
+    }
     if(currentFormat==="burnout"){ nextComboAt = Date.now() + (n||1)*PERSHOT*0.55*1000; return; }
+    // Everything else — including Build up, which used to ride the fixed drill
+    // beat — paces off the Pace dial: throw time per shot plus a breather,
+    // with the fatigue arc below when it's enabled.
     let br = rnd(...(BREATHER[cfg.pace] || BREATHER.steady));
     // Fatigue shaping: a real corner eases the pace through the back half of a
     // round, then spikes it for the final push. Only on rounds long enough to
@@ -2124,10 +2138,23 @@
     }
     return {tokens: base.tokens.slice(), mix:true}; // final rung: mixed into normal calling
   }
-  function ladderForRound(base, r, R){
+  // Each round walks the ladder WITHIN the round — rung by rung as the clock
+  // runs down, finishing on the mix rung — instead of freezing one rung per
+  // round. The first round a stance sees the combo starts from the bottom;
+  // later rounds of that stance start deeper in (the early pieces are learned
+  // by then) so more of the round goes to the full combo and the mix. Stance
+  // progression is per stance: southpaw rebuilds from its own bottom rung.
+  function ladderPlan(base){
     const S = ladderStages(base);
-    const p = R<=1 ? 1 : (r-1)/(R-1);
-    return ladderAtStage(base, Math.floor(p*S));
+    const {occ, tot} = stanceOcc();
+    const p = tot<=1 ? 0 : Math.min(1, Math.max(0, (occ-1)/(tot-1)));
+    return {base, S, start: Math.min(S-2, Math.round(p*(S-2)))};
+  }
+  function ladderRung(){
+    const L = currentLadder;
+    const gone = 1 - Math.max(0, endAt-Date.now())/1000/Math.max(1, currentSegSecs);
+    const stage = L.start + Math.floor(Math.min(0.999, Math.max(0, gone))*(L.S - L.start));
+    return ladderAtStage(L.base, stage);
   }
   // Warm-up: easy footwork and light single shots, nothing that needs power.
   function warmupCall(){
@@ -2157,9 +2184,10 @@
       return;
     }
     if(currentFormat==="ladder"){
-      drillCallAt = Date.now();
-      if(currentLadder && currentLadder.mix && Math.random()<0.5){ deliver(selectCombo()); return; }
-      deliver(currentLadder ? {tokens: currentLadder.tokens.slice(), name:""} : drillCombo());
+      if(!currentLadder){ deliver(drillCombo()); return; }
+      const rung = ladderRung();
+      if(rung.mix && Math.random()<0.5){ deliver(selectCombo()); return; }
+      deliver({tokens: rung.tokens.slice(), name:""});
       return;
     }
     if(currentFormat==="pyramid"){ deliver({tokens: PYRAMID[pyrIdx++ % PYRAMID.length].slice(), name:""}); return; }
@@ -2346,7 +2374,7 @@
       recallRep = 0; camCueCount = 0;
       if(currentFormat==="ladder"){
         const base = drillBaseCombo();
-        currentLadder = base ? ladderForRound(base, workCount, totalWork) : null;
+        currentLadder = base ? ladderPlan(base) : null;
         if(!currentLadder) currentFormat = "combos";
       }
       if(currentFormat==="speed"){
@@ -2635,7 +2663,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v37";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v38";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2975,6 +3003,8 @@
     $("drillOverrideNote").style.display = drillish ? "block" : "none";   // ...and says so instead of just vanishing fields
     $("drillOpts").style.display = drillish ? "block" : "none";
     $("drillBField").style.display = (fmt==="drill"||fmt==="speed"||fmt==="recall") ? "block" : "none";
+    // Build up paces off the Pace dial + fatigue shaping, not the fixed beat
+    $("drillBeatField").style.display = fmt==="ladder" ? "none" : "block";
     [...$("segDrill").children].forEach(x=>x.classList.toggle("on", x.dataset.v===(drillish?fmt:"off")));
     $("drillState").textContent = drillish ? ({ladder:"build up", speed:"speed", drill:"repeat", recall:"recall"})[fmt] : "";
     if(drillish){ $("drillAcc").open = true; renderDrillPicker(); }
