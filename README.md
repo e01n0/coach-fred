@@ -47,6 +47,10 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
 - **EMOM** — 10 × 1:00, one combo at the top of each minute
 - **Pyramid**, **Burnout**, **Footwork** — drill formats (below)
 - **Shadowbox** — 4 × 2:00, no bag needed (below)
+- **KB circuit** 4 × 3:00, **KB EMOM** 10 × 1:00, **Swing Tabata** 8 × 20/10 —
+  kettlebell strength & conditioning (below)
+- **Bag & bell** — 6 × 3:00 alternating bag round / bell round, the classic
+  hybrid session, built on Round by round mode
 
 ## Round types
 **Setup → Workout → Round type** changes what the corner calls during work:
@@ -58,6 +62,16 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
   circling, L-step, cut-the-angle), which flip left/right on southpaw rounds
 - **Shadowbox** — no bag needed: movement-first calling where footwork, feints
   and head movement carry the round, with crisp combos stitched between them
+- **Kettlebell** — called strength stations (swings, goblet squats, cleans,
+  rows…) on a fixed rotation: a 3:00 round works through five stations, a 1:00
+  round takes one, and two-sided moves get a *"switch sides"* call at the
+  halfway mark. An illustrated **Kettlebell guide** (with themable line-art
+  frames and coaching cues per exercise) appears in Setup whenever a session
+  has a bell round — and its cards double as the **exercise pool**: untick
+  anything you can't do and the rotation skips it. During rest before a bell
+  round, the screen **previews the next station's frames** so you see the
+  movement before the bell. Structures are sourced from boxing S&C coaching —
+  see [KETTLEBELL.md](KETTLEBELL.md)
 - **EMOM** — every minute on the minute: one combo at the top, rest the rest
 
 In **Round by round** mode each round can use a different type.

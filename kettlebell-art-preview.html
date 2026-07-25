@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kettlebell guide — art style prototype</title>
+<style>
+  :root{ color-scheme: dark light; }
+  *{ box-sizing:border-box; margin:0; }
+  body{
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#0c0a09; color:#f4efe6; padding:28px 20px 48px;
+  }
+  h1{ font-size:20px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+  p.note{ color:#8a827a; font-size:14px; max-width:60ch; margin-bottom:24px; line-height:1.5; }
+  .cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:18px; max-width:1100px; }
+  .card{
+    background:var(--canvas); color:var(--ink);
+    border:1px solid var(--line); border-radius:14px; padding:18px 16px 14px;
+  }
+  .card h2{
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:12px; font-weight:600;
+  }
+  .frames{ display:flex; gap:6px; }
+  .frame{ flex:1; text-align:center; }
+  .frame svg{ width:100%; height:auto; display:block; }
+  .step{
+    font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--accent); font-weight:700; margin-top:2px;
+  }
+  .cue{ font-size:12px; color:var(--muted); margin-top:3px; line-height:1.35; min-height:3.6em; }
+
+  /* the art itself: figure in theme ink, bell in theme accent, path hint muted */
+  .fig{ stroke:var(--ink); stroke-width:5; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .bell{ stroke:var(--accent); stroke-width:5; fill:none; stroke-linecap:round; }
+  .ball{ fill:var(--accent); stroke:none; }
+  .arc{ stroke:var(--muted); stroke-width:3; fill:none; stroke-dasharray:1 8; stroke-linecap:round; }
+  .gnd{ stroke:var(--ink); opacity:.18; stroke-width:3; stroke-linecap:round; }
+</style>
+</head>
+<body>
+
+<h1>Kettlebell swing — guide art prototype</h1>
+<p class="note">
+  One set of SVG symbols (three key positions), drawn once and reused in every card below.
+  The figure strokes <b>var(--ink)</b>, the bell strokes <b>var(--accent)</b> — so the art
+  reskins itself across all twenty themes with zero extra assets. Each frame is ~0.5&nbsp;KB of markup.
+</p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="kbg-hinge" viewBox="0 0 140 160">
+      <line class="gnd" x1="8" y1="152" x2="132" y2="152"/>
+      <line class="fig" x1="52" y1="148" x2="80" y2="148"/>
+      <polyline class="fig" points="62,146 66,116 46,92"/>
+      <line class="fig" x1="46" y1="92" x2="96" y2="55"/>
+      <circle class="fig" cx="106" cy="47" r="9"/>
+      <line class="fig" x1="92" y1="58" x2="72" y2="106"/>
+      <path class="bell" d="M64,111 Q72,102 80,111"/>
+      <circle class="ball" cx="72" cy="122" r="9"/>
+    </symbol>
+    <symbol id="kbg-snap" viewBox="0 0 140 160">
+      <line class="gnd" x1="8" y1="152" x2="132" y2="152"/>
+      <line class="fig" x1="48" y1="148" x2="72" y2="148"/>
+      <polyline class="fig" points="58,146 57,117 55,90"/>
+      <line class="fig" x1="55" y1="90" x2="61" y2="46"/>
+      <circle class="fig" cx="64" cy="31" r="9"/>
+      <line class="fig" x1="61" y1="50" x2="97" y2="72"/>
+      <path class="arc" d="M72,121 Q102,114 98,80"/>
+      <path class="bell" d="M89,77 Q97,68 105,77"/>
+      <circle class="ball" cx="97" cy="88" r="9"/>
+    </symbol>
+    <symbol id="kbg-lock" viewBox="0 0 140 160">
+      <line class="gnd" x1="8" y1="152" x2="132" y2="152"/>
+      <line class="fig" x1="44" y1="148" x2="68" y2="148"/>
+      <polyline class="fig" points="54,146 53,117 52,88"/>
+      <line class="fig" x1="52" y1="88" x2="52" y2="44"/>
+      <circle class="fig" cx="52" cy="28" r="9"/>
+      <line class="fig" x1="52" y1="52" x2="96" y2="60"/>
+      <path class="arc" d="M102,122 Q126,96 102,66"/>
+      <path class="bell" d="M88,66 Q96,57 104,66"/>
+      <circle class="ball" cx="96" cy="77" r="9"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="cards">
+
+  <div class="card" style="--canvas:#161311; --ink:#f4efe6; --accent:#e23b2e; --muted:#8a827a; --line:#332b26;">
+    <h2>Coach Fred</h2>
+    <div class="frames">
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-hinge"/></svg>
+        <div class="step">1 · Hinge</div><div class="cue">Hips back, flat back, bell behind the knees.</div></div>
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-snap"/></svg>
+        <div class="step">2 · Snap</div><div class="cue">Hips fire — arms stay loose ropes.</div></div>
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-lock"/></svg>
+        <div class="step">3 · Lockout</div><div class="cue">Tall and tight — the bell floats to chest.</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="--canvas:#0b0f10; --ink:#fcee0a; --accent:#02d7f2; --muted:#5f7d82; --line:#1d3036;">
+    <h2>Cyberpunk 2077</h2>
+    <div class="frames">
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-hinge"/></svg>
+        <div class="step">1 · Hinge</div><div class="cue">Hips back, flat back, bell behind the knees.</div></div>
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-snap"/></svg>
+        <div class="step">2 · Snap</div><div class="cue">Hips fire — arms stay loose ropes.</div></div>
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-lock"/></svg>
+        <div class="step">3 · Lockout</div><div class="cue">Tall and tight — the bell floats to chest.</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="--canvas:#eef2f8; --ink:#10223e; --accent:#d8243f; --muted:#5a6b86; --line:#c2cee0;">
+    <h2>Apollo Creed (light)</h2>
+    <div class="frames">
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-hinge"/></svg>
+        <div class="step">1 · Hinge</div><div class="cue">Hips back, flat back, bell behind the knees.</div></div>
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-snap"/></svg>
+        <div class="step">2 · Snap</div><div class="cue">Hips fire — arms stay loose ropes.</div></div>
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-lock"/></svg>
+        <div class="step">3 · Lockout</div><div class="cue">Tall and tight — the bell floats to chest.</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="--canvas:#7e1014; --ink:#f6ebe8; --accent:#ffd700; --muted:#d7a0a0; --line:#9e2a2c;">
+    <h2>Ivan Drago</h2>
+    <div class="frames">
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-hinge"/></svg>
+        <div class="step">1 · Hinge</div><div class="cue">Hips back, flat back, bell behind the knees.</div></div>
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-snap"/></svg>
+        <div class="step">2 · Snap</div><div class="cue">Hips fire — arms stay loose ropes.</div></div>
+      <div class="frame"><svg viewBox="0 0 140 160"><use href="#kbg-lock"/></svg>
+        <div class="step">3 · Lockout</div><div class="cue">Tall and tight — the bell floats to chest.</div></div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
