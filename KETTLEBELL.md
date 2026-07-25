@@ -104,7 +104,38 @@ free via the existing `slugify` convention. Until a pack is re-rendered,
 station — so the feature degrades gracefully, but shipping should include the
 rendered clips like every other call.
 
-### 5. Record & log integration
+### 5. Exercise guide (pics + how-to)
+
+A caller shouting *"snatch — go"* is useless if you've never seen one, so each
+exercise ships with a visual guide:
+
+- **Line-art SVG illustrations, not photos.** Two or three key-position frames
+  per exercise (e.g. swing: hinge → hip snap → lockout), drawn as simple
+  stroke figures with `stroke="currentColor"`. This matters for three reasons:
+  they're ~1–2 KB each so the offline PWA stays light (photos or GIFs would
+  dwarf the app shell); they inherit every one of the 20 themes automatically
+  (Drago's guide is Soviet red, Cyberpunk's is neon); and self-drawn art has
+  no licensing problem, unlike scraped exercise photos.
+- **A guide card per exercise:** the frames, 3–4 coaching cues in the corner's
+  voice ("hinge, don't squat — the bell floats, you don't lift it"), the
+  common fault to avoid, and which preset it appears in.
+- **Where it lives:** a guide pane inside Setup, opened from an ⓘ on each
+  exercise in the tickable pool — same interaction as the existing combo
+  tooltips. During a session, the **rest screen shows the next station's
+  frames** so you preview the movement before the bell, not during it.
+- **First-run nudge:** the first time a KB preset loads, the quick-start
+  toast offers "New to the bell? Open the guide" — one tap, dismissible,
+  never shown again.
+- **Safety line on the guide pane:** technique before load, 2–3 bell sessions
+  a week (per FightCamp/RDX guidance) — the same sourced-guidance tone the
+  README uses for round structures.
+
+Everything stays inline in `index.html` (SVGs are markup, so the
+self-contained/no-build rule holds and `sw.js` needs no new precache entries).
+If the art grows past taste, the fallback is a separate `kettlebell-guide.html`
+following the `reaction-drill.html` pattern.
+
+### 6. Record & log integration
 
 - `FORMAT_LABEL` entry so bells ring in ("Round three — kettlebell") and the
   session log shows KB days distinctly from bag days.
@@ -123,13 +154,16 @@ All in `index.html` (self-contained, no build step):
    switch-sides) instead of random-gap `deliver()` calls.
 4. `WORKOUTS` (~line 1076): the three preset cards (+ optional Bag & bell).
 5. Tickable pool UI: reuse the movement-checkbox pattern from Setup → Combos.
-6. `voice/phrases.json` + `gen_voice.py` run for both packs.
-7. `FORMAT_LABEL`, session-log summary line.
+6. Guide art: one inline SVG `<symbol>` per exercise (`id="kb-swing"` …),
+   referenced from the pool's ⓘ guide pane and the rest-screen preview.
+7. `voice/phrases.json` + `gen_voice.py` run for both packs.
+8. `FORMAT_LABEL`, session-log summary line.
 
 ## Phasing
 
 - **Phase 1** — format + 3 presets + clips + log label. Complete feature.
-- **Phase 2** — Bag & bell hybrid card; per-exercise tick pool with levels.
+- **Phase 2** — exercise guide (SVG frames, cue cards, rest-screen preview,
+  first-run nudge); Bag & bell hybrid card; per-exercise tick pool with levels.
 - **Phase 3** — rep-target calls ("swings — fifteen"), KB block in a future
   program (the 4-week program's S&C day), bell-rounds lifetime total.
 
