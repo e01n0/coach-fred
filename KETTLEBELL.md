@@ -130,6 +130,11 @@ exercise ships with a visual guide:
   a week (per FightCamp/RDX guidance) — the same sourced-guidance tone the
   README uses for round structures.
 
+A working prototype of the art style lives in
+[`kettlebell-art-preview.html`](kettlebell-art-preview.html) — the swing's
+three frames (hinge → snap → lockout) drawn once as `<symbol>`s and rendered
+across four real theme palettes, including Apollo's light scheme.
+
 Everything stays inline in `index.html` (SVGs are markup, so the
 self-contained/no-build rule holds and `sw.js` needs no new precache entries).
 If the art grows past taste, the fallback is a separate `kettlebell-guide.html`
