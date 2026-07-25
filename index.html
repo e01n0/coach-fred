@@ -296,6 +296,10 @@
      accent — so all twenty themes reskin the art for free */
   .kbcard{border:1px solid var(--line);border-radius:12px;padding:10px 12px 8px;margin-top:10px;background:var(--canvas-2);}
   .kbcard h4{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;}
+  .kbhead{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .kbcard.off .kbx, .kbcard.off .note{opacity:.35;}
+  .kbnext{display:flex;gap:10px;justify-content:center;align-items:flex-end;}
+  .kbnext svg{height:92px;width:auto;}
   .kbcard .kbside{color:var(--prep);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;font-weight:600;}
   .kbx{display:flex;gap:6px;margin:4px 0 0;justify-content:center;}
   .kbx svg{width:31%;max-width:110px;height:auto;}
@@ -583,11 +587,9 @@
         </div>
       </details>
 
-      <details class="acc" id="kbAcc" style="display:none;">
-        <summary><span class="acc-t">Kettlebell guide</span><span class="cnt"></span></summary>
-        <div class="acc-body">
-          <div class="note" style="margin-top:0;">The corner calls these as stations &mdash; a 3:00 round rotates through five, an EMOM round takes one per minute. Two-sided moves get a <b>switch sides</b> call at the halfway mark. Technique before load: start light, 2&ndash;3 bell sessions a week.</div>
-          <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+      <!-- kettlebell guide art: defs live OUTSIDE the accordion so the rest
+           screen's next-station preview can <use> them while it's closed -->
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
             <symbol id="kbx-swing1" viewBox="0 0 140 160"><line class="kgnd" x1="8" y1="152" x2="132" y2="152"/><line class="kfig" x1="52" y1="148" x2="80" y2="148"/><polyline class="kfig" points="62,146 66,116 46,92"/><line class="kfig" x1="46" y1="92" x2="96" y2="55"/><circle class="kfig" cx="106" cy="47" r="9"/><line class="kfig" x1="92" y1="58" x2="72" y2="106"/><path class="kbell" d="M64,111 Q72,102 80,111"/><circle class="kball" cx="72" cy="122" r="9"/></symbol>
             <symbol id="kbx-swing2" viewBox="0 0 140 160"><line class="kgnd" x1="8" y1="152" x2="132" y2="152"/><line class="kfig" x1="48" y1="148" x2="72" y2="148"/><polyline class="kfig" points="58,146 57,117 55,90"/><line class="kfig" x1="55" y1="90" x2="61" y2="46"/><circle class="kfig" cx="64" cy="31" r="9"/><line class="kfig" x1="61" y1="50" x2="97" y2="72"/><path class="karc" d="M72,121 Q102,114 98,80"/><path class="kbell" d="M89,77 Q97,68 105,77"/><circle class="kball" cx="97" cy="88" r="9"/></symbol>
             <symbol id="kbx-swing3" viewBox="0 0 140 160"><line class="kgnd" x1="8" y1="152" x2="132" y2="152"/><line class="kfig" x1="44" y1="148" x2="68" y2="148"/><polyline class="kfig" points="54,146 53,117 52,88"/><line class="kfig" x1="52" y1="88" x2="52" y2="44"/><circle class="kfig" cx="52" cy="28" r="9"/><line class="kfig" x1="52" y1="52" x2="96" y2="60"/><path class="karc" d="M102,122 Q126,96 102,66"/><path class="kbell" d="M88,66 Q96,57 104,66"/><circle class="kball" cx="96" cy="77" r="9"/></symbol>
@@ -605,28 +607,32 @@
             <symbol id="kbx-sj2" viewBox="0 0 140 160"><line class="kgnd" x1="8" y1="152" x2="132" y2="152"/><polyline class="kfig" points="70,74 62,100 58,126"/><polyline class="kfig" points="70,74 78,100 82,126"/><line class="kfig" x1="70" y1="30" x2="70" y2="74"/><circle class="kfig" cx="70" cy="16" r="8"/><line class="kfig" x1="62" y1="36" x2="48" y2="14"/><line class="kfig" x1="78" y1="36" x2="92" y2="14"/><path class="karc" d="M56,134 L54,148"/><path class="karc" d="M84,134 L86,148"/></symbol>
             <symbol id="kbx-halo2" viewBox="0 0 140 160"><line class="kgnd" x1="8" y1="152" x2="132" y2="152"/><line class="kfig" x1="50" y1="148" x2="62" y2="148"/><line class="kfig" x1="78" y1="148" x2="90" y2="148"/><polyline class="kfig" points="64,88 58,118 56,146"/><polyline class="kfig" points="76,88 82,118 84,146"/><line class="kfig" x1="70" y1="40" x2="70" y2="88"/><circle class="kfig" cx="70" cy="26" r="9"/><line class="kfig" x1="58" y1="46" x2="84" y2="24"/><line class="kfig" x1="82" y1="46" x2="90" y2="30"/><path class="karc" d="M44,30 A26,18 0 0 1 96,32"/><path class="kbell" d="M84,26 Q91,19 98,26"/><circle class="kball" cx="91" cy="36" r="7"/></symbol>
           </defs></svg>
-          <div class="kbcard"><h4>Swings</h4>
+      <details class="acc" id="kbAcc" style="display:none;">
+        <summary><span class="acc-t">Kettlebell guide</span><span class="cnt" id="kbState"></span></summary>
+        <div class="acc-body">
+          <div class="note" style="margin-top:0;">The corner calls these as stations &mdash; a 3:00 round rotates through five, an EMOM round takes one per minute. Two-sided moves get a <b>switch sides</b> call at the halfway mark. Untick anything you can&rsquo;t do (or don&rsquo;t have room for) and the rotation skips it. Technique before load: start light, 2&ndash;3 bell sessions a week.</div>
+          <div class="kbcard"><div class="kbhead"><h4>Swings</h4><label class="switch"><input type="checkbox" data-kb="swings" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-swing1"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-swing2"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-swing3"/></svg></div>
             <div class="note">Hinge, don&rsquo;t squat &mdash; hips back, flat back, then snap them through. Arms are ropes; the bell floats to chest height.</div></div>
-          <div class="kbcard"><h4>Goblet squats</h4>
+          <div class="kbcard"><div class="kbhead"><h4>Goblet squats</h4><label class="switch"><input type="checkbox" data-kb="goblet" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-frontrack"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-goblet2"/></svg></div>
             <div class="note">Bell tight to the chest, elbows inside the knees &mdash; sit between the heels and drive up tall.</div></div>
-          <div class="kbcard"><h4>Clean and press<span class="kbside">switch sides</span></h4>
+          <div class="kbcard"><div class="kbhead"><h4>Clean and press<span class="kbside">switch sides</span></h4><label class="switch"><input type="checkbox" data-kb="cleanpress" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-cp1"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-cp2"/></svg></div>
             <div class="note">Zip the bell up the body to the rack, then punch the ceiling. Swap hands on the <b>switch sides</b> call.</div></div>
-          <div class="kbcard"><h4>Single-leg deadlift<span class="kbside">switch sides</span></h4>
+          <div class="kbcard"><div class="kbhead"><h4>Single-leg deadlift<span class="kbside">switch sides</span></h4><label class="switch"><input type="checkbox" data-kb="sldl" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-sldl1"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-sldl2"/></svg></div>
             <div class="note">Hips square, back flat &mdash; reach the bell down as the free leg drifts back, then squeeze up tall.</div></div>
-          <div class="kbcard"><h4>Rotational swings</h4>
+          <div class="kbcard"><div class="kbhead"><h4>Rotational swings</h4><label class="switch"><input type="checkbox" data-kb="rotswings" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-rot1"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-rot2"/></svg></div>
             <div class="note">Swing across the body &mdash; hips and shoulders turn together. Power from the ground up, like a hook.</div></div>
-          <div class="kbcard"><h4>Rows<span class="kbside">switch sides</span></h4>
+          <div class="kbcard"><div class="kbhead"><h4>Rows<span class="kbside">switch sides</span></h4><label class="switch"><input type="checkbox" data-kb="rows" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-row1"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-row2"/></svg></div>
             <div class="note">Flat back, pull the bell to the ribs, elbow tight &mdash; control it back down.</div></div>
-          <div class="kbcard"><h4>Squat jumps</h4>
+          <div class="kbcard"><div class="kbhead"><h4>Squat jumps</h4><label class="switch"><input type="checkbox" data-kb="squatjumps" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-sj1"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-sj2"/></svg></div>
             <div class="note">No bell &mdash; sit low, explode up, land soft and ready to go again.</div></div>
-          <div class="kbcard"><h4>Halos<span class="kbside">switch sides</span></h4>
+          <div class="kbcard"><div class="kbhead"><h4>Halos<span class="kbside">switch sides</span></h4><label class="switch"><input type="checkbox" data-kb="halos" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-frontrack"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-halo2"/></svg></div>
             <div class="note">Circle the bell tight around your head, ribs down &mdash; shoulders working, guard staying honest.</div></div>
         </div>
@@ -1116,14 +1122,14 @@
   // 4-round circuit (see KETTLEBELL.md). Called as stations on a fixed rotation;
   // two-sided moves get a "switch sides" call at the station's midpoint.
   const KB_EXERCISES = [
-    {id:"swings",     name:"swings",              twoSided:false},
-    {id:"goblet",     name:"goblet squats",       twoSided:false},
-    {id:"cleanpress", name:"clean and press",     twoSided:true},
-    {id:"sldl",       name:"single-leg deadlift", twoSided:true},
-    {id:"rotswings",  name:"rotational swings",   twoSided:false},
-    {id:"rows",       name:"rows",                twoSided:true},
-    {id:"squatjumps", name:"squat jumps",         twoSided:false},
-    {id:"halos",      name:"halos",               twoSided:true}
+    {id:"swings",     name:"swings",              twoSided:false, frames:["kbx-swing1","kbx-swing2","kbx-swing3"]},
+    {id:"goblet",     name:"goblet squats",       twoSided:false, frames:["kbx-frontrack","kbx-goblet2"]},
+    {id:"cleanpress", name:"clean and press",     twoSided:true,  frames:["kbx-cp1","kbx-cp2"]},
+    {id:"sldl",       name:"single-leg deadlift", twoSided:true,  frames:["kbx-sldl1","kbx-sldl2"]},
+    {id:"rotswings",  name:"rotational swings",   twoSided:false, frames:["kbx-rot1","kbx-rot2"]},
+    {id:"rows",       name:"rows",                twoSided:true,  frames:["kbx-row1","kbx-row2"]},
+    {id:"squatjumps", name:"squat jumps",         twoSided:false, frames:["kbx-sj1","kbx-sj2"]},
+    {id:"halos",      name:"halos",               twoSided:true,  frames:["kbx-frontrack","kbx-halo2"]}
   ];
   const FORMATS = [
     ["combos","Combos (caller)","The corner calls combinations from your ticked pool."],
@@ -1166,7 +1172,17 @@
        all-out swing Tabata — sources in KETTLEBELL.md. */
     {id:"kbcircuit",label:"KB circuit",sub:"4 × 3:00",  cfg:{mode:"uniform",rounds:4,work:180,rest:60,format:"kettlebell",level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",pace:"steady"}},
     {id:"kbemom",   label:"KB EMOM",   sub:"10 × 1:00", cfg:{mode:"uniform",rounds:10,work:60,rest:0,format:"kettlebell",level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",pace:"steady"}},
-    {id:"kbtabata", label:"Swing Tabata",sub:"8 × 20/10",cfg:{mode:"uniform",rounds:8,work:20,rest:10,prep:10,format:"kettlebell",kbFocus:"swings",level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",pace:"relentless"}}
+    {id:"kbtabata", label:"Swing Tabata",sub:"8 × 20/10",cfg:{mode:"uniform",rounds:8,work:20,rest:10,prep:10,format:"kettlebell",kbFocus:"swings",level:"intermediate",uniformFocus:"all",uniformMoveFocus:"none",pace:"relentless"}},
+    /* The classic hybrid session — bag round, bell round, repeat — built on
+       round-by-round mode, per FightCamp's circuit/finisher pattern. */
+    {id:"bagbell",  label:"Bag & bell",sub:"6 × 3:00",  cfg:{mode:"custom",level:"intermediate",pace:"steady",progTouched:true,program:[
+      {label:"Round 1", work:180, rest:60, focus:"all", format:"combos"},
+      {label:"Round 2", work:180, rest:60, focus:"all", format:"kettlebell"},
+      {label:"Round 3", work:180, rest:60, focus:"all", format:"combos"},
+      {label:"Round 4", work:180, rest:60, focus:"all", format:"kettlebell"},
+      {label:"Round 5", work:180, rest:60, focus:"all", format:"combos"},
+      {label:"Round 6", work:180, rest:0,  focus:"all", format:"kettlebell"}
+    ]}}
   ];
   const PRESETS_VER = 12;
   const MOVE_VER = 4;
@@ -1506,6 +1522,7 @@
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
     format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true, camOn:false, playInSilent:true,
     drillComboId:null, drillComboB:null, drillInterval:8,
+    kbFocus:null, kbOff:[],   // kettlebell: single-exercise lock (Swing Tabata) + unticked exercises
     theme:"apollo",
     library:null, custom:[], movement:null
   };
@@ -2235,9 +2252,16 @@
   // a 1:00 EMOM or 20s Tabata round = 1) and announce each at its boundary.
   // The rotation pointer persists across rounds so a session works through the
   // whole list; kbFocus (Swing Tabata) locks every station to one exercise.
+  function kbPool(){
+    let pool = cfg.kbFocus ? KB_EXERCISES.filter(e=>e.id===cfg.kbFocus)
+             : KB_EXERCISES.filter(e=>!(cfg.kbOff||[]).includes(e.id));
+    return pool.length ? pool : KB_EXERCISES;   // everything unticked: the full list beats silence
+  }
+  // The exercise the next kettlebell station will call — kbIdx points at the
+  // first unconsumed slot, so a rest screen can preview it without advancing.
+  function kbPeek(){ const p=kbPool(); return p[kbIdx % p.length]; }
   function kbBuildPlan(secs){
-    const pool = cfg.kbFocus ? KB_EXERCISES.filter(e=>e.id===cfg.kbFocus) : KB_EXERCISES;
-    if(!pool.length) return [];
+    const pool = kbPool();
     const n = Math.max(1, Math.floor(secs/35));
     const len = secs/n*1000;
     const plan = [];
@@ -2599,6 +2623,19 @@
       say("Warm up, nice and loose", "warm");
     } else if(seg.type==="rest"){
       stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null);
+      // next round is a bell round: preview its opening station's frames where
+      // the combos usually sit, so the movement is seen before the bell, not
+      // during it. (The camera's guard read below still outranks the caption.)
+      const kbNx = schedule[i+1];
+      if(kbNx && kbNx.type==="work" && (kbNx.format||"combos")==="kettlebell"){
+        const ex = kbPeek();
+        if(ex){
+          comboNumbers.innerHTML = `<span class="kbnext">` +
+            ex.frames.map(f=>`<svg viewBox="0 0 140 160"><use href="#${f}"/></svg>`).join("") + `</span>`;
+          comboNames.textContent = `Next: ${ex.name}`;
+          comboNumbers.classList.remove("hit"); void comboNumbers.offsetWidth; comboNumbers.classList.add("hit");
+        }
+      }
       // between rounds, put the guard watch's read where the combos usually sit
       if(cfg.camOn && camS.rounds.length){
         const last = camS.rounds[camS.rounds.length-1];
@@ -2866,7 +2903,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v48";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v49";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -2941,7 +2978,7 @@
     "Tick combos to put them in the pool &mdash; the corner calls from ticked ones at random. Build your own under <b>Build a combo</b>."); }
 
   function openSetup(pane){
-    renderLibrary(); renderMovement(); renderProgram(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats();
+    renderLibrary(); renderMovement(); renderProgram(); renderKbPool(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats();
     if(pane){
       [...$("tabs").children].forEach(x=> x.classList.toggle("on", x.dataset.pane===pane));
       ["workout","combos","more"].forEach(p=> $("pane-"+p).classList.toggle("on", p===pane));
@@ -2966,7 +3003,7 @@
   function tutCloseSheet(){ sheet.classList.remove("open"); }
   function tutOpenPane(pane){
     if(!sheet.classList.contains("open")){
-      renderLibrary(); renderMovement(); renderProgram(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats();
+      renderLibrary(); renderMovement(); renderProgram(); renderKbPool(); buildFocusSelect($("uniformFocus"), cfg.uniformFocus); renderStats();
       sheet.classList.add("open");
     }
     [...$("tabs").children].forEach(x=> x.classList.toggle("on", x.dataset.pane===pane));
@@ -3220,9 +3257,31 @@
       : "One rep per call on a steady beat. If a call runs long, the next waits.";
     const f = FORMATS.find(x=>x[0]===fmt);
     $("formatNote").textContent = f ? f[2] : "";
-    // the illustrated exercise guide only earns its space on a kettlebell session
-    $("kbAcc").style.display = (cfg.mode==="uniform" && fmt==="kettlebell") ? "" : "none";
+    updateKbAcc();
   }
+  // The illustrated exercise guide only earns its space when a kettlebell
+  // round is actually in the session — uniform format or any custom round.
+  function updateKbAcc(){
+    const on = (cfg.mode==="uniform" && (cfg.format||"combos")==="kettlebell")
+            || (cfg.mode==="custom" && (cfg.program||[]).some(r=>(r.format||"combos")==="kettlebell"));
+    $("kbAcc").style.display = on ? "" : "none";
+  }
+  /* kettlebell pool: the guide cards double as the tick list */
+  function renderKbPool(){
+    const off = new Set(cfg.kbOff||[]);
+    document.querySelectorAll('#kbAcc input[data-kb]').forEach(inp=>{
+      inp.checked = !off.has(inp.dataset.kb);
+      inp.closest('.kbcard').classList.toggle('off', off.has(inp.dataset.kb));
+    });
+    const on = KB_EXERCISES.filter(e=>!off.has(e.id)).length;
+    $("kbState").textContent = on===KB_EXERCISES.length ? "" : `${on}/${KB_EXERCISES.length}`;
+  }
+  $("kbAcc").addEventListener("change", e=>{
+    const inp = e.target.closest("input[data-kb]"); if(!inp) return;
+    const off = new Set(cfg.kbOff||[]);
+    inp.checked ? off.delete(inp.dataset.kb) : off.add(inp.dataset.kb);
+    cfg.kbOff = [...off]; save(); renderKbPool();
+  });
   $("segDrill").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
     cfg.format = b.dataset.v==="off" ? "combos" : b.dataset.v;
@@ -3508,6 +3567,7 @@
     if(defaulted) save();   // a defaulted drill pick must persist, not just render
     const t=$("vTotalC"); if(t) t.textContent = `${n} rds · ${fmtS(programTotal())}`;
     updateSessionLine();
+    updateKbAcc();   // a round's type may have flipped kettlebell on or off
   }
   $("progList").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
@@ -3922,7 +3982,7 @@
     applyTheme(cfg.theme);
     loadVoices();
     initUI();
-    renderLibrary(); renderMovement(); renderProgram();
+    renderLibrary(); renderMovement(); renderProgram(); renderKbPool();
     buildFocusSelect($("uniformFocus"), cfg.uniformFocus);
     reset();
   }

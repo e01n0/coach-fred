@@ -1,10 +1,10 @@
 # Kettlebell rounds — feature proposal
 
-> **Status:** Phase 1 is shipped (v48) — the `kettlebell` format, the three
-> Quick-start presets, and the illustrated exercise guide (an accordion in
-> Setup → Workout, shown when the format is picked). The ten new voice
-> phrases are rendered into both packs (Fred and Cal) and pitch-audited, so
-> the corner calls the stations out loud like everything else.
+> **Status:** Phases 1 and 2 are shipped (v49) — the `kettlebell` format, all
+> four Quick-start presets (KB circuit, KB EMOM, Swing Tabata, Bag & bell),
+> the illustrated exercise guide whose cards double as the tickable pool, the
+> rest-screen next-station preview, and the voice clips rendered into both
+> packs (Fred and Cal) and pitch-audited. Remaining ideas live in Phase 3.
 
 Bring strength & conditioning into the corner: the coach calls kettlebell
 stations the same way he calls combos, so a bag session and a bell session live
