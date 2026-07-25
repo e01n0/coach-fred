@@ -1,11 +1,10 @@
 # Kettlebell rounds — feature proposal
 
 > **Status:** Phase 1 is shipped (v48) — the `kettlebell` format, the three
-> Quick-start presets, the voice phrases, and the illustrated exercise guide
-> (an accordion in Setup → Workout, shown when the format is picked). The
-> voice clips themselves still need rendering: `python3 gen_voice.py --pack
-> fred` / `--pack cal` with an ElevenLabs key picks up the new phrases; until
-> then the corner shows the station on screen and keeps time silently.
+> Quick-start presets, and the illustrated exercise guide (an accordion in
+> Setup → Workout, shown when the format is picked). The ten new voice
+> phrases are rendered into both packs (Fred and Cal) and pitch-audited, so
+> the corner calls the stations out loud like everything else.
 
 Bring strength & conditioning into the corner: the coach calls kettlebell
 stations the same way he calls combos, so a bag session and a bell session live
