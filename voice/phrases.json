@@ -1058,6 +1058,65 @@
   "next": " one, two."
  },
  {
+  "slug": "kettlebell-round",
+  "text": "Kettlebell round",
+  "style": "cue"
+ },
+ {
+  "slug": "swings",
+  "text": "Swings!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "goblet-squats",
+  "text": "Goblet squats!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "clean-and-press",
+  "text": "Clean and press!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "single-leg-deadlift",
+  "text": "Single-leg deadlift!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "rotational-swings",
+  "text": "Rotational swings!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "rows",
+  "text": "Rows!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "squat-jumps",
+  "text": "Squat jumps!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "halos",
+  "text": "Halos!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "switch-sides",
+  "text": "Switch sides!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
   "slug": "seq-1-1",
   "text": "One, one!",
   "style": "seq",
