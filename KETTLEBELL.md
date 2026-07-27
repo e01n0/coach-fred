@@ -1,10 +1,13 @@
 # Kettlebell rounds — feature proposal
 
-> **Status:** Phases 1 and 2 are shipped (v49) — the `kettlebell` format, all
-> four Quick-start presets (KB circuit, KB EMOM, Swing Tabata, Bag & bell),
-> the illustrated exercise guide whose cards double as the tickable pool, the
-> rest-screen next-station preview, and the voice clips rendered into both
-> packs (Fred and Cal) and pitch-audited. Remaining ideas live in Phase 3.
+> **Status:** Phases 1 and 2 are shipped, plus the first field-feedback round
+> (v50) — the `kettlebell` format, all four Quick-start presets (KB circuit,
+> KB EMOM, Swing Tabata, Bag & bell), the illustrated guide whose cards
+> double as the tickable pool, station frames shown during the round itself,
+> the rest-screen next-station preview, spoken rep targets (Reps per
+> station), per-round station picking in Round by round mode, and a stance
+> fix so alternation skips bell rounds. Voice clips (stations, switch sides,
+> rep counts) are rendered into both packs and pitch-audited.
 
 Bring strength & conditioning into the corner: the coach calls kettlebell
 stations the same way he calls combos, so a bag session and a bell session live

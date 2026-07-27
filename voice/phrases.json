@@ -1117,6 +1117,42 @@
   "prev": "One, two, "
  },
  {
+  "slug": "five",
+  "text": "Five!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "ten",
+  "text": "Ten!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "fifteen",
+  "text": "Fifteen!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "twenty",
+  "text": "Twenty!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "twenty-five",
+  "text": "Twenty five!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
+  "slug": "thirty",
+  "text": "Thirty!",
+  "style": "combo",
+  "prev": "One, two, "
+ },
+ {
   "slug": "seq-1-1",
   "text": "One, one!",
   "style": "seq",
