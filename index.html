@@ -298,8 +298,11 @@
   .kbcard h4{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;}
   .kbhead{display:flex;justify-content:space-between;align-items:center;gap:10px;}
   .kbcard.off .kbx, .kbcard.off .note{opacity:.35;}
-  .kbnext{display:flex;gap:10px;justify-content:center;align-items:flex-end;}
-  .kbnext svg{height:92px;width:auto;}
+  .kbnext{display:flex;gap:12px;justify-content:center;align-items:flex-end;}
+  .kbnext svg{height:clamp(92px,17vh,150px);width:auto;}
+  .kbselrow{display:flex;flex-wrap:wrap;gap:6px;}
+  .kbchip{border:1px solid var(--line);background:transparent;color:var(--steel);border-radius:999px;padding:6px 11px;font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
+  .kbchip.on{background:color-mix(in srgb, var(--tape) 14%, transparent);color:var(--tape);border-color:var(--steel);}
   .kbcard .kbside{color:var(--prep);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;font-weight:600;}
   .kbx{display:flex;gap:6px;margin:4px 0 0;justify-content:center;}
   .kbx svg{width:31%;max-width:110px;height:auto;}
@@ -611,6 +614,19 @@
         <summary><span class="acc-t">Kettlebell guide</span><span class="cnt" id="kbState"></span></summary>
         <div class="acc-body">
           <div class="note" style="margin-top:0;">The corner calls these as stations &mdash; a 3:00 round rotates through five, an EMOM round takes one per minute. Two-sided moves get a <b>switch sides</b> call at the halfway mark. Untick anything you can&rsquo;t do (or don&rsquo;t have room for) and the rotation skips it. Technique before load: start light, 2&ndash;3 bell sessions a week.</div>
+          <div class="field" style="margin-top:10px;">
+            <div class="field-label"><span>Reps per station</span></div>
+            <div class="seg tight" id="segKbReps">
+              <button data-v="0" class="on">Off</button>
+              <button data-v="5">5</button>
+              <button data-v="10">10</button>
+              <button data-v="15">15</button>
+              <button data-v="20">20</button>
+              <button data-v="25">25</button>
+              <button data-v="30">30</button>
+            </div>
+            <div class="note">Called with each station, EMOM style &mdash; hit the number, rest what&rsquo;s left. Count per side on switch-sides moves. Off paces by time alone.</div>
+          </div>
           <div class="kbcard"><div class="kbhead"><h4>Swings</h4><label class="switch"><input type="checkbox" data-kb="swings" checked><span class="slider"></span></label></div>
             <div class="kbx"><svg viewBox="0 0 140 160"><use href="#kbx-swing1"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-swing2"/></svg><svg viewBox="0 0 140 160"><use href="#kbx-swing3"/></svg></div>
             <div class="note">Hinge, don&rsquo;t squat &mdash; hips back, flat back, then snap them through. Arms are ropes; the bell floats to chest height.</div></div>
@@ -1522,7 +1538,7 @@
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
     format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true, camOn:false, playInSilent:true,
     drillComboId:null, drillComboB:null, drillInterval:8,
-    kbFocus:null, kbOff:[],   // kettlebell: single-exercise lock (Swing Tabata) + unticked exercises
+    kbFocus:null, kbOff:[], kbReps:0,   // kettlebell: single-exercise lock (Swing Tabata), unticked exercises, rep target (0 = time-based)
     theme:"apollo",
     library:null, custom:[], movement:null
   };
@@ -1630,6 +1646,7 @@
   let schedule = [];
   let segIndex = 0;
   let workCount = 0, totalWork = 0, currentFocus = "all", currentStance = null;
+  let boxCount = 0, totalBox = 0;   // boxing (non-kettlebell) rounds only — stance alternates over these
   let phase = "idle";
   let endAt = 0, pausedRemaining = 0, running = false, tickId = null, nextComboAt = 0;
   let wakeLock = null;
@@ -2001,10 +2018,12 @@
   // stance gets in total. With alternating stance each stance runs its own
   // progression — what you built in orthodox shouldn't carry on in southpaw.
   function stanceOcc(){
+    // Alternation runs over boxing rounds only — a kettlebell round has no
+    // stance, and letting it consume a turn left every bag round southpaw.
     if(cfg.stanceOn && cfg.stanceMode==="alternate"){
-      const odd = (workCount % 2 === 1);
-      return { occ: odd ? (workCount+1)/2 : workCount/2,
-               tot: odd ? Math.ceil(totalWork/2) : Math.floor(totalWork/2) };
+      const odd = (boxCount % 2 === 1);
+      return { occ: odd ? (boxCount+1)/2 : boxCount/2,
+               tot: odd ? Math.ceil(totalBox/2) : Math.floor(totalBox/2) };
     }
     return { occ: workCount, tot: totalWork };
   }
@@ -2133,9 +2152,16 @@
         else if(t!=="again" && t!=="reset" && currentFormat!=="kettlebell") sessionCounts.moves++;
       });
     }
-    comboNumbers.innerHTML = tokens.map(t=> isDigit(t) ? `<span>${esc(t)}</span>` : `<span class="mv">${esc(orient(t))}</span>`).join("");
-    const names = tokens.map(t=> isDigit(t) ? PUNCH[t] : orient(t)).join(" \u00b7 ");
-    comboNames.textContent = combo.name ? `${combo.name.toUpperCase()}  \u2014  ${names}` : names;
+    if(combo.frames){
+      // kettlebell stations show the exercise's guide frames, not token text
+      comboNumbers.innerHTML = `<span class="kbnext">` +
+        combo.frames.map(f=>`<svg viewBox="0 0 140 160"><use href="#${f}"/></svg>`).join("") + `</span>`;
+      comboNames.textContent = combo.label || tokens.join(" \u00b7 ");
+    } else {
+      comboNumbers.innerHTML = tokens.map(t=> isDigit(t) ? `<span>${esc(t)}</span>` : `<span class="mv">${esc(orient(t))}</span>`).join("");
+      const names = tokens.map(t=> isDigit(t) ? PUNCH[t] : orient(t)).join(" \u00b7 ");
+      comboNames.textContent = combo.name ? `${combo.name.toUpperCase()}  \u2014  ${names}` : names;
+    }
     comboNumbers.classList.remove("hit"); void comboNumbers.offsetWidth; comboNumbers.classList.add("hit");
 
     cancelSpeech(); clearDeliver();
@@ -2252,24 +2278,38 @@
   // a 1:00 EMOM or 20s Tabata round = 1) and announce each at its boundary.
   // The rotation pointer persists across rounds so a session works through the
   // whole list; kbFocus (Swing Tabata) locks every station to one exercise.
-  function kbPool(){
-    let pool = cfg.kbFocus ? KB_EXERCISES.filter(e=>e.id===cfg.kbFocus)
+  // Spoken rep targets ("swings — fifteen"), EMOM style: hit the number, rest
+  // what's left of the station.
+  const KB_REP_WORDS = {5:"five",10:"ten",15:"fifteen",20:"twenty",25:"twenty five",30:"thirty"};
+  // sel = a round's hand-picked station list (Round by round); it overrides
+  // the guide's ticked pool and the Swing Tabata lock.
+  function kbPool(sel){
+    let pool = (sel && sel.length) ? KB_EXERCISES.filter(e=>sel.includes(e.id))
+             : cfg.kbFocus ? KB_EXERCISES.filter(e=>e.id===cfg.kbFocus)
              : KB_EXERCISES.filter(e=>!(cfg.kbOff||[]).includes(e.id));
     return pool.length ? pool : KB_EXERCISES;   // everything unticked: the full list beats silence
   }
   // The exercise the next kettlebell station will call — kbIdx points at the
   // first unconsumed slot, so a rest screen can preview it without advancing.
-  function kbPeek(){ const p=kbPool(); return p[kbIdx % p.length]; }
-  function kbBuildPlan(secs){
-    const pool = kbPool();
+  function kbPeek(sel){ const p=kbPool(sel); return p[(sel&&sel.length ? 0 : kbIdx) % p.length]; }
+  function kbBuildPlan(secs, sel){
+    const pool = kbPool(sel);
     const n = Math.max(1, Math.floor(secs/35));
     const len = secs/n*1000;
+    const reps = cfg.kbReps|0;
     const plan = [];
+    // a hand-picked round starts at its own top; otherwise continue the
+    // session's rotation so consecutive rounds work through the whole pool
+    let ptr = (sel && sel.length) ? 0 : kbIdx;
     for(let i=0;i<n;i++){
-      const ex = pool[kbIdx++ % pool.length];
-      plan.push({at:i*len, tokens:[ex.name]});
-      if(ex.twoSided && len>=24000) plan.push({at:i*len + len/2, tokens:["switch sides"]});
+      const ex = pool[ptr++ % pool.length];
+      const tokens = [ex.name];
+      if(reps && KB_REP_WORDS[reps]) tokens.push(KB_REP_WORDS[reps]);
+      plan.push({at:i*len, tokens, frames:ex.frames, label: reps ? `${ex.name} × ${reps}` : ex.name});
+      if(ex.twoSided && len>=24000)
+        plan.push({at:i*len + len/2, tokens:["switch sides"], frames:ex.frames, label:`${ex.name} — switch sides`});
     }
+    if(!(sel && sel.length)) kbIdx = ptr;
     return plan;
   }
   // Shadowbox: no bag to lean on, so the corner keeps you moving — footwork,
@@ -2415,7 +2455,8 @@
       if(!kbPlan.length){ nextComboAt = Date.now()+3600000; return; }
       const due = (endAt - currentSegSecs*1000) + kbPlan[0].at;
       if(Date.now() < due-250){ nextComboAt = due; return; }
-      deliver({tokens: kbPlan.shift().tokens.slice(), name:""});
+      const ev = kbPlan.shift();
+      deliver({tokens: ev.tokens.slice(), name:"", frames: ev.frames, label: ev.label});
       return;
     }
     if(currentFormat==="shadow"){ deliver(shadowCall()); return; }
@@ -2566,12 +2607,13 @@
     } else {
       const p = cfg.program;
       p.forEach((r,i)=>{
-        seg.push({type:"work", secs:r.work, label:r.label||`Round ${i+1}`, focus:r.focus, format:r.format||"combos", moveFocus:r.moveFocus||"none", drillComboId:r.drillComboId||null});
+        seg.push({type:"work", secs:r.work, label:r.label||`Round ${i+1}`, focus:r.focus, format:r.format||"combos", moveFocus:r.moveFocus||"none", drillComboId:r.drillComboId||null, kbSel:r.kbSel||null});
         if(r.rest>0 && i<p.length-1) seg.push({type:"rest", secs:r.rest});
       });
     }
     schedule = seg;
     totalWork = seg.filter(s=>s.type==="work").length;
+    totalBox  = seg.filter(s=>s.type==="work" && s.format!=="kettlebell").length;
   }
 
   function startPhaseTimer(seconds){
@@ -2593,7 +2635,9 @@
     if(seg.type==="work"){
       workCount++; currentFocus = seg.focus;
       currentFormat = seg.format || "combos"; pyrIdx = 0; emomDone = false;
-      kbPlan = currentFormat==="kettlebell" ? kbBuildPlan(seg.secs) : [];
+      const isKB = currentFormat==="kettlebell";
+      if(!isKB) boxCount++;
+      kbPlan = isKB ? kbBuildPlan(seg.secs, seg.kbSel) : [];
       currentMoveFocus = seg.moveFocus || "none";
       lastTokens = null;
       currentDrillId = seg.drillComboId || null;
@@ -2610,7 +2654,8 @@
       }
       stateLabel.textContent = seg.label;
       idleHint.style.display="none";
-      const st = stanceFor(workCount); currentStance = st; updateStanceBadge(st);
+      // a bell round has no stance — don't show one, and don't burn a turn
+      const st = isKB ? null : stanceFor(boxCount); currentStance = st; updateStanceBadge(st);
       const fmtSay = currentFormat!=="combos" ? `. ${FORMAT_LABEL[currentFormat].split(" (")[0]}` : "";
       const focusSay = hasShotFocus() ? `. ${SHOT_FOCUS_BY_ID[currentMoveFocus].name} focus` : "";
       playBell(2); buzz([180,80,180]);
@@ -2628,7 +2673,7 @@
       // during it. (The camera's guard read below still outranks the caption.)
       const kbNx = schedule[i+1];
       if(kbNx && kbNx.type==="work" && (kbNx.format||"combos")==="kettlebell"){
-        const ex = kbPeek();
+        const ex = kbPeek(kbNx.kbSel);
         if(ex){
           comboNumbers.innerHTML = `<span class="kbnext">` +
             ex.frames.map(f=>`<svg viewBox="0 0 140 160"><use href="#${f}"/></svg>`).join("") + `</span>`;
@@ -2678,7 +2723,7 @@
       restLeadFired = true;
       const nxt = schedule[segIndex+1];
       if(nxt && nxt.type==="work"){
-        const st = stanceFor(workCount+1);
+        const st = (nxt.format||"combos")==="kettlebell" ? null : stanceFor(boxCount+1);
         const fmtSay = (nxt.format && nxt.format!=="combos") ? `. ${FORMAT_LABEL[nxt.format].split(" (")[0]}` : "";
         const f = (nxt.moveFocus && nxt.moveFocus!=="none" && SHOT_FOCUS_BY_ID[nxt.moveFocus]) ? `. ${SHOT_FOCUS_BY_ID[nxt.moveFocus].name} focus` : "";
         say(`Ten seconds. ${roundCallText(workCount+1)}` + (st ? `. ${st}` : "") + fmtSay + f, "firm");
@@ -2835,7 +2880,7 @@
     clearDeliver(); delivering=false;
     releaseWake();
     buildSchedule();
-    phase="idle"; segIndex=0; workCount=0;
+    phase="idle"; segIndex=0; workCount=0; boxCount=0;
     kbPlan=[]; kbIdx=0;
     sessionCounts = {punches:0, shots:{}, moves:0};
     app.className="";
@@ -2903,7 +2948,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v49";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v50";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -3275,12 +3320,19 @@
     });
     const on = KB_EXERCISES.filter(e=>!off.has(e.id)).length;
     $("kbState").textContent = on===KB_EXERCISES.length ? "" : `${on}/${KB_EXERCISES.length}`;
+    [...$("segKbReps").children].forEach(x=>x.classList.toggle("on", +x.dataset.v===(cfg.kbReps|0)));
   }
   $("kbAcc").addEventListener("change", e=>{
     const inp = e.target.closest("input[data-kb]"); if(!inp) return;
     const off = new Set(cfg.kbOff||[]);
     inp.checked ? off.delete(inp.dataset.kb) : off.add(inp.dataset.kb);
     cfg.kbOff = [...off]; save(); renderKbPool();
+  });
+  $("segKbReps").addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    cfg.kbReps = +b.dataset.v || 0;
+    [...$("segKbReps").children].forEach(x=>x.classList.toggle("on", x===b));
+    save();
   });
   $("segDrill").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
@@ -3536,6 +3588,13 @@
       const drillPick = rfmt==="drill" ? `
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Combo to drill</div>
         <select data-i="${idx}" data-k="drillComboId">${comboOptionsHTML(r.drillComboId, false)}</select>` : "";
+      const kbPick = rfmt==="kettlebell" ? `
+        <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Stations this round</div>
+        <div class="kbselrow">${KB_EXERCISES.map(e=>{
+          const on = !r.kbSel || r.kbSel.includes(e.id);
+          return `<button class="kbchip ${on?"on":""}" data-act="kbx" data-i="${idx}" data-id="${e.id}">${e.name}</button>`;
+        }).join("")}</div>
+        <div class="note" style="margin-top:6px;">Tap to pick this round&rsquo;s rotation &mdash; a hand-picked round starts from its first station. All off falls back to the guide&rsquo;s ticked pool.</div>` : "";
       card.innerHTML = head + `
         <div class="prog-body">
         <div class="dur-row">
@@ -3549,7 +3608,7 @@
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Combos</div>
         <select data-i="${idx}" data-k="focus" ${rfmt!=="combos"?"disabled":""}>${focusOpts}</select>
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Round type</div>
-        <select data-i="${idx}" data-k="format">${fmtOpts}</select>${drillPick}
+        <select data-i="${idx}" data-k="format">${fmtOpts}</select>${drillPick}${kbPick}
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Shot focus</div>
         <select data-i="${idx}" data-k="moveFocus" ${focusApplies?"":"disabled"}>${mfOpts}</select>
         <div class="cap" style="font-size:12px;color:var(--steel);text-transform:uppercase;letter-spacing:.07em;margin:9px 0 5px;">Round name</div>
@@ -3581,6 +3640,13 @@
     else if(act==="work-"){ p[i].work=Math.max(15,p[i].work-15); }
     else if(act==="rest+"){ p[i].rest=Math.min(300,p[i].rest+15); }
     else if(act==="rest-"){ p[i].rest=Math.max(0,p[i].rest-15); }
+    else if(act==="kbx"){
+      const r=p[i];
+      if(!r.kbSel) r.kbSel = KB_EXERCISES.map(e=>e.id);
+      const id=b.dataset.id, ix=r.kbSel.indexOf(id);
+      ix>=0 ? r.kbSel.splice(ix,1) : r.kbSel.push(id);
+      if(r.kbSel.length===KB_EXERCISES.length) r.kbSel=null;   // everything on = follow the pool
+    }
     else return;
     renumberGeneric(p);
     cfg.progTouched = true;

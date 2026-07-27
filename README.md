@@ -68,10 +68,16 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
   halfway mark. An illustrated **Kettlebell guide** (with themable line-art
   frames and coaching cues per exercise) appears in Setup whenever a session
   has a bell round — and its cards double as the **exercise pool**: untick
-  anything you can't do and the rotation skips it. During rest before a bell
-  round, the screen **previews the next station's frames** so you see the
-  movement before the bell. Structures are sourced from boxing S&C coaching —
-  see [KETTLEBELL.md](KETTLEBELL.md)
+  anything you can't do and the rotation skips it. The guide art also carries
+  the workout itself: each station's frames fill the screen while you work,
+  and rest screens **preview the next station** before the bell. An optional
+  **rep target** (Reps per station, in the guide) has the corner call the
+  number with each station, EMOM style — "swings, fifteen" — per side on
+  switch-sides moves. In **Round by round** mode each bell round can
+  **hand-pick its stations** (chips in the round editor). Stance alternation
+  skips bell rounds, so alternating stance stays honest through a hybrid
+  session. Structures are sourced from boxing S&C coaching — see
+  [KETTLEBELL.md](KETTLEBELL.md)
 - **EMOM** — every minute on the minute: one combo at the top, rest the rest
 
 In **Round by round** mode each round can use a different type.
