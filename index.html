@@ -300,6 +300,7 @@
   .kbcard.off .kbx, .kbcard.off .note{opacity:.35;}
   .kbnext{display:flex;gap:12px;justify-content:center;align-items:flex-end;}
   .kbnext svg{height:clamp(92px,17vh,150px);width:auto;}
+  .kb-upnext{display:none;margin-top:6px;font-weight:700;font-size:clamp(11px,3vw,14px);letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb, var(--tape) 52%, transparent);}
   .kbselrow{display:flex;flex-wrap:wrap;gap:6px;}
   .kbchip{border:1px solid var(--line);background:transparent;color:var(--steel);border-radius:999px;padding:6px 11px;font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
   .kbchip.on{background:color-mix(in srgb, var(--tape) 14%, transparent);color:var(--tape);border-color:var(--steel);}
@@ -480,6 +481,7 @@
     <div class="combo">
       <div class="combo-numbers" id="comboNumbers"></div>
       <div class="combo-names" id="comboNames"></div>
+      <div class="kb-upnext" id="kbUpNext"></div>
       <div class="idle-hint" id="idleHint">Tap start. Combos get called out loud while the round runs. Keep your hands up.</div>
     </div>
   </main>
@@ -1663,6 +1665,8 @@
   const $ = id => document.getElementById(id);
   const app=$("app"), clock=$("clock"), stateLabel=$("stateLabel");
   const comboNumbers=$("comboNumbers"), comboNames=$("comboNames"), idleHint=$("idleHint");
+  const kbUpNextEl=$("kbUpNext");
+  function setKbUpNext(txt){ kbUpNextEl.style.display = txt ? "block" : "none"; kbUpNextEl.textContent = txt || ""; }
   const startBtn=$("startBtn"), resetBtn=$("resetBtn"), skipBtn=$("skipBtn");
   const roundNow=$("roundNow"), roundTotal=$("roundTotal"), dots=$("dots"), sheet=$("sheet");
 
@@ -2157,7 +2161,9 @@
       comboNumbers.innerHTML = `<span class="kbnext">` +
         combo.frames.map(f=>`<svg viewBox="0 0 140 160"><use href="#${f}"/></svg>`).join("") + `</span>`;
       comboNames.textContent = combo.label || tokens.join(" \u00b7 ");
+      setKbUpNext(combo.next ? `Up next \u2014 ${combo.next}` : "Last station");
     } else {
+      setKbUpNext(null);
       comboNumbers.innerHTML = tokens.map(t=> isDigit(t) ? `<span>${esc(t)}</span>` : `<span class="mv">${esc(orient(t))}</span>`).join("");
       const names = tokens.map(t=> isDigit(t) ? PUNCH[t] : orient(t)).join(" \u00b7 ");
       comboNames.textContent = combo.name ? `${combo.name.toUpperCase()}  \u2014  ${names}` : names;
@@ -2305,7 +2311,7 @@
       const ex = pool[ptr++ % pool.length];
       const tokens = [ex.name];
       if(reps && KB_REP_WORDS[reps]) tokens.push(KB_REP_WORDS[reps]);
-      plan.push({at:i*len, tokens, frames:ex.frames, label: reps ? `${ex.name} × ${reps}` : ex.name});
+      plan.push({at:i*len, tokens, frames:ex.frames, label: reps ? `${ex.name} × ${reps}` : ex.name, station:ex.name});
       if(ex.twoSided && len>=24000)
         plan.push({at:i*len + len/2, tokens:["switch sides"], frames:ex.frames, label:`${ex.name} — switch sides`});
     }
@@ -2456,7 +2462,7 @@
       const due = (endAt - currentSegSecs*1000) + kbPlan[0].at;
       if(Date.now() < due-250){ nextComboAt = due; return; }
       const ev = kbPlan.shift();
-      deliver({tokens: ev.tokens.slice(), name:"", frames: ev.frames, label: ev.label});
+      deliver({tokens: ev.tokens.slice(), name:"", frames: ev.frames, label: ev.label, next: ev.next});
       return;
     }
     if(currentFormat==="shadow"){ deliver(shadowCall()); return; }
@@ -2638,6 +2644,17 @@
       const isKB = currentFormat==="kettlebell";
       if(!isKB) boxCount++;
       kbPlan = isKB ? kbBuildPlan(seg.secs, seg.kbSel) : [];
+      if(isKB && kbPlan.length){
+        // Annotate each event with what follows it: the round's next station,
+        // the next round's opener (kbIdx has already advanced past this
+        // round), a bag round, or nothing left at all.
+        const nx = schedule.slice(i+1).find(s=>s.type==="work");
+        const after = nx ? (((nx.format||"combos")==="kettlebell") ? kbPeek(nx.kbSel).name : "bag round") : null;
+        kbPlan.forEach((ev,k)=>{
+          const nxtSt = kbPlan.slice(k+1).find(e=>e.station);
+          ev.next = nxtSt ? nxtSt.station : after;
+        });
+      }
       currentMoveFocus = seg.moveFocus || "none";
       lastTokens = null;
       currentDrillId = seg.drillComboId || null;
@@ -2667,7 +2684,7 @@
       idleHint.style.display="none"; updateStanceBadge(null);
       say("Warm up, nice and loose", "warm");
     } else if(seg.type==="rest"){
-      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; updateStanceBadge(null);
+      stateLabel.textContent="Rest"; comboNumbers.innerHTML=""; comboNames.textContent=""; setKbUpNext(null); updateStanceBadge(null);
       // next round is a bell round: preview its opening station's frames where
       // the combos usually sit, so the movement is seen before the bell, not
       // during it. (The camera's guard read below still outranks the caption.)
@@ -2695,7 +2712,7 @@
         deliverTimers.push(setTimeout(()=>{ if(phase==="rest" && running) say(pick(REST_LINES), "calm"); }, 4200));
       }
     } else if(seg.type==="prep"){
-      stateLabel.textContent="Get ready"; comboNumbers.innerHTML=""; comboNames.textContent=""; idleHint.style.display="none"; updateStanceBadge(null);
+      stateLabel.textContent="Get ready"; comboNumbers.innerHTML=""; comboNames.textContent=""; setKbUpNext(null); idleHint.style.display="none"; updateStanceBadge(null);
     }
     paintDots();
     startPhaseTimer(seg.secs);
@@ -2887,7 +2904,7 @@
     stateLabel.textContent="Ready";
     const firstWork = schedule.find(s=>s.type==="work");
     clock.textContent = fmt(firstWork ? firstWork.secs : cfg.work);
-    comboNumbers.innerHTML=""; comboNames.textContent="";
+    comboNumbers.innerHTML=""; comboNames.textContent=""; setKbUpNext(null);
     idleHint.style.display="block";
     startBtn.textContent="Start round";
     skipBtn.disabled=true;
@@ -2948,7 +2965,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v50";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v51";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
