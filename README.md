@@ -51,6 +51,8 @@ heavy-bag interval work, FightCamp's HIIT/Tabata/EMOM guidance):
   kettlebell strength & conditioning (below)
 - **Bag & bell** — 6 × 3:00 alternating bag round / bell round, the classic
   hybrid session, built on Round by round mode
+- **Triple threat** — 6 × 3:00 cycling bag round / shadow round / bell round,
+  all three modes in one session: hit, move, lift
 
 ## Round types
 **Setup → Workout → Round type** changes what the corner calls during work:

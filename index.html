@@ -1200,6 +1200,16 @@
       {label:"Round 4", work:180, rest:60, focus:"all", format:"kettlebell"},
       {label:"Round 5", work:180, rest:60, focus:"all", format:"combos"},
       {label:"Round 6", work:180, rest:0,  focus:"all", format:"kettlebell"}
+    ]}},
+    /* All three modes in one session — hit the bag, step off and shadowbox,
+       pick up the bell — twice through, ending on the strength finisher. */
+    {id:"triple",   label:"Triple threat",sub:"6 × 3:00",cfg:{mode:"custom",level:"intermediate",pace:"steady",progTouched:true,program:[
+      {label:"Round 1", work:180, rest:60, focus:"all", format:"combos"},
+      {label:"Round 2", work:180, rest:60, focus:"all", format:"shadow"},
+      {label:"Round 3", work:180, rest:60, focus:"all", format:"kettlebell"},
+      {label:"Round 4", work:180, rest:60, focus:"all", format:"combos"},
+      {label:"Round 5", work:180, rest:60, focus:"all", format:"shadow"},
+      {label:"Round 6", work:180, rest:0,  focus:"all", format:"kettlebell"}
     ]}}
   ];
   const PRESETS_VER = 12;
@@ -2649,7 +2659,8 @@
         // the next round's opener (kbIdx has already advanced past this
         // round), a bag round, or nothing left at all.
         const nx = schedule.slice(i+1).find(s=>s.type==="work");
-        const after = nx ? (((nx.format||"combos")==="kettlebell") ? kbPeek(nx.kbSel).name : "bag round") : null;
+        const after = nx ? (((nx.format||"combos")==="kettlebell") ? kbPeek(nx.kbSel).name
+                          : nx.format==="shadow" ? "shadow round" : "bag round") : null;
         kbPlan.forEach((ev,k)=>{
           const nxtSt = kbPlan.slice(k+1).find(e=>e.station);
           ev.next = nxtSt ? nxtSt.station : after;
@@ -2965,7 +2976,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v51";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v52";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
