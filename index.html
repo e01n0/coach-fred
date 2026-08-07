@@ -12,7 +12,15 @@
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
-<title>Coach Fred</title>
+<title>Coach Fred — boxing round timer that calls combos out loud</title>
+<meta name="description" content="Free boxing round timer for the heavy bag that calls combinations out loud — your corner man between the bells. Round timer, HIIT, Tabata, EMOM, shadowboxing and kettlebell circuits. No account, no ads, works offline." />
+<link rel="canonical" href="https://coach-fred.app/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Coach Fred" />
+<meta property="og:title" content="Coach Fred — boxing round timer that calls combos out loud" />
+<meta property="og:description" content="Free boxing round timer for the heavy bag that calls combinations out loud. Round timer, HIIT, Tabata, EMOM, shadowboxing and kettlebell circuits. Works offline." />
+<meta property="og:url" content="https://coach-fred.app/" />
+<meta property="og:image" content="https://coach-fred.app/icon-512.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Semi+Condensed:wght@500;600;700&family=Chakra+Petch:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -2976,7 +2984,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v52";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v53";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();

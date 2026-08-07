@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /kettlebell-art-preview.html
+
+Sitemap: https://coach-fred.app/sitemap.xml
