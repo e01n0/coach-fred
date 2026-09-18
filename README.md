@@ -205,9 +205,14 @@ Drago's Soviet red, Ali's white-with-black-trim, Goku's orange gi, Scorpion's
 The choice is saved on your device.
 
 ## Notes
-- iOS only speaks after you tap Start. The coach plays through the mute
-  switch by default (Setup → More → Play on silent); turning that off makes it
-  duck under your music instead, but then the mute switch must be off.
+- iOS only speaks after you tap Start.
+- **Training to your own podcast or music?** Setup → More → **Music & podcasts**
+  decides how the corner shares an iPhone's speakers: *Coach only* (default)
+  speaks through the mute switch but stops whatever you had playing, *Duck it*
+  leaves it running and dips it under each call, *Mix* talks over it at full
+  level. Both sharing modes are silenced by the mute switch, so it has to be
+  off. Audio playing from another phone or speaker is never affected, and
+  Android mixes whichever you pick.
 - "Add to Home Screen" in Safari for fullscreen app behaviour.
 - Offline support and install require the page to be served over HTTPS or
   `localhost` (not opened as a `file://` URL).

@@ -518,13 +518,23 @@ function detectPunch(lm){
 // the voice + rate the user already picked in the main app (same-origin config).
 const speechOK='speechSynthesis' in window;
 let voiceOn=true, voiceCfg={voice:null, rate:1.25};
+// Share the phone's speakers the way the main app was told to (iOS Audio
+// Session, Safari 16.4+): 'solo' takes them from a podcast, 'duck' dips it
+// under each cue, 'mix' talks over it. Same setting as Setup -> More ->
+// Music & podcasts; without this the camera coach would always interrupt.
+const SESSION_TYPE={solo:'playback', duck:'transient', mix:'ambient'};
+let audioMix='solo';
 try{ voiceOn = localStorage.getItem('coachfred.cc.voice')!=='0'; }catch(e){}
 try{ const c=JSON.parse(localStorage.getItem('coachfred.v2')||'null');
      // cfg.speed is the app's multiplier (1 = neutral); very old profiles stored rate (1.25 = neutral)
-     if(c){ voiceCfg.voice=c.voice||null; voiceCfg.rate = c.speed ? 1.25*c.speed : (c.rate||1.25); } }catch(e){}
+     if(c){ voiceCfg.voice=c.voice||null; voiceCfg.rate = c.speed ? 1.25*c.speed : (c.rate||1.25);
+            audioMix = SESSION_TYPE[c.audioMix] ? c.audioMix : (c.playInSilent===false ? 'duck' : 'solo'); } }catch(e){}
+function shareAudio(){ try{ if(navigator.audioSession) navigator.audioSession.type=SESSION_TYPE[audioMix]; }catch(e){} }
+shareAudio();
 if(speechOK){ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') shareAudio(); });
 
-function primeSpeech(){ if(!speechOK) return; const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }
+function primeSpeech(){ shareAudio(); if(!speechOK) return; const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }
 function speak(text){
   if(!speechOK || !voiceOn) return;
   if(speechSynthesis.speaking || speechSynthesis.pending) return;   // never let cues back up behind the action
