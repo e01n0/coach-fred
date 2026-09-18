@@ -889,6 +889,13 @@
         </div>
         <div class="note">How the corner shares this phone&rsquo;s speakers with whatever else it&rsquo;s playing. <b>Coach only</b> speaks through the mute switch like a music app, but takes the speakers &mdash; your podcast or album stops for the session. <b>Duck it</b> leaves your audio running and dips it under each call. <b>Mix</b> talks over it at full level without dipping. Both sharing modes need the mute switch <b>off</b> (an iOS limit for web apps) &mdash; tap one and you&rsquo;ll hear the coach straight away, so you know. Audio playing from another phone or speaker is never affected, and Android shares the speakers whichever you pick.</div>
       </div>
+      <div class="field" id="handBackField">
+        <div class="toggle-row">
+          <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Hand it back on rest</span>
+          <label class="switch"><input type="checkbox" id="sHandBack" checked><span class="slider"></span></label>
+        </div>
+        <div class="note">iPhone only. Through the quiet middle of a rest &mdash; and once the last bell has rung &mdash; the corner lets go of the speakers so your podcast picks itself back up, then takes them again a few seconds before the count-in. Rests shorter than about 35 seconds have no room for it. iOS has the final say on whether the other app actually resumes; either way the coach gets the speakers back for the round.</div>
+      </div>
       <div class="field">
         <div class="toggle-row">
           <span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:15px;">Voice check</span>
@@ -1558,7 +1565,7 @@
     progTouched:false,   // false = Round by round seeds itself from the uniform timer
     pace:"relaxed", moveMix:"light", level:"beginner", bodyMix:"some", voice:"pack:fred",
     stanceOn:true, stanceMode:"orthodox", startStance:"orthodox", callStyle:"both", speed:1,
-    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true, camOn:false, playInSilent:true,
+    format:"combos", fatigueOn:true, warmupOn:false, bellOn:false, vibrateOn:true, camOn:false, playInSilent:true, restHandBack:true,
     drillComboId:null, drillComboB:null, drillInterval:8,
     kbFocus:null, kbOff:[], kbReps:0,   // kettlebell: single-exercise lock (Swing Tabata), unticked exercises, rep target (0 = time-based)
     theme:"apollo",
@@ -1721,17 +1728,77 @@
   const SESSION_TYPE = { solo:"playback", duck:"transient", mix:"ambient" };
   const audioMix = () => SESSION_TYPE[cfg.audioMix] ? cfg.audioMix
                        : (cfg.playInSilent===false ? "duck" : "solo");
+  let sessionLent = false;   // true while the speakers are on loan (see below)
   function duckOtherAudio(){
     try{
-      if(navigator.audioSession) navigator.audioSession.type = SESSION_TYPE[audioMix()];
+      if(navigator.audioSession)
+        navigator.audioSession.type = sessionLent ? "ambient" : SESSION_TYPE[audioMix()];
     }catch(e){}
   }
+  /* ---------- iOS: hand the speakers back between rounds ----------
+     In "Coach only" the corner holds the audio session for the whole workout,
+     so a podcast stops at the first bell and stays stopped until you close the
+     app. iOS only lets the interrupted app pick up again when OUR session
+     actually deactivates — which WebKit does once nothing is playing — so
+     through the quiet middle of a rest (and after the final bell) we drop to a
+     mixable category AND suspend the AudioContext, then take it all back a few
+     seconds before the next thing the coach has to say.
+     Best effort by design: iOS decides whether the other app resumes, and
+     every clip resumes a suspended context before it plays, so a loan that
+     doesn't come back cleanly costs latency, never the call. */
+  const LEND_LEAD_IN = 8;      // s into a rest before the coast is clear ("Rest" + a breathing line)
+  const LEND_TAIL    = 2.5;    // s of slack to reclaim in before the next scheduled cue
+  const LEND_MIN     = 10;     // don't bother handing back for less than this
+  const LEND_AFTER_CUE = 3.5;  // s to let an unscheduled cue finish before lending again
+  let lendTimer = null, lendPlan = null;   // lendPlan = the rest we're currently in
+  const handBackOn = () => cfg.restHandBack!==false && audioMix()==="solo" && !!navigator.audioSession;
+  function clearLend(){ if(lendTimer) clearTimeout(lendTimer); lendTimer=null; }
+  function lendSpeakers(){
+    if(sessionLent || !handBackOn()) return;
+    sessionLent = true;
+    duckOtherAudio();                                   // mixable from here on
+    // suspending is the part iOS watches: WebKit deactivates the session, and
+    // deactivation is what tells the other app it can start again
+    try{ if(actx && actx.state==="running") actx.suspend().catch(()=>{}); }catch(e){}
+  }
+  function takeSpeakersBack(){
+    clearLend();
+    if(sessionLent){
+      sessionLent = false;
+      duckOtherAudio();
+      try{ if(actx && actx.state!=="running") actx.resume().catch(()=>{}); }catch(e){}
+    }
+    // Every cue reclaims first (see playClipSeq), and a rest has cues in it —
+    // the breathing line, a skipped-into round. One of them mustn't cost the
+    // whole rest its loan, so re-arm across whatever quiet is left.
+    if(lendPlan && phase==="rest" && running)
+      scheduleLend(Math.max(0,(endAt-Date.now())/1000), lendPlan.total, LEND_AFTER_CUE);
+  }
+  // Schedule a loan across the quiet stretch of a rest. `left` is how much of
+  // the rest is still to run, `total` its full length (which sets where the
+  // next cue lands: a lead-in at 12s on rests of 20s+, else the 3-2-1).
+  function scheduleLend(left, total, minDelay){
+    clearLend();
+    if(!handBackOn()) return;
+    const cueAt = total>=20 ? 12 : 3;
+    const lendIn    = Math.max(minDelay||0, LEND_LEAD_IN - (total-left));
+    const reclaimIn = left - cueAt - LEND_TAIL;
+    if(reclaimIn - lendIn < LEND_MIN) return;    // too short a rest to be worth it
+    lendTimer = setTimeout(()=>{
+      if(phase!=="rest" || !running) return;
+      lendSpeakers();
+      lendTimer = setTimeout(takeSpeakersBack, (reclaimIn-lendIn)*1000);
+    }, lendIn*1000);
+  }
+  // Hand back after a beat — long enough for whatever is mid-sentence to land.
+  function lendSoon(ms){ clearLend(); if(handBackOn()) lendTimer = setTimeout(lendSpeakers, ms); }
   // Haptic cue at round changes (Android — iOS Safari doesn't expose vibrate).
   function buzz(pattern){ try{ if(cfg.vibrateOn!==false && navigator.vibrate) navigator.vibrate(pattern); }catch(e){} }
   // Optional ring-bell, synthesised in WebAudio (no clip, works offline):
   // a few detuned sine partials with a fast strike and a long decay.
   function playBell(strikes){
     if(!cfg.bellOn) return;
+    takeSpeakersBack();
     const c = ensureCtx(); if(!c) return;
     if(c.state==="suspended") c.resume().catch(()=>{});
     let t = c.currentTime + 0.02;
@@ -1952,6 +2019,7 @@
   function playClipSeq(slugs, tone, onend, fallback){
     let ended = false;
     const finish = ()=>{ if(ended) return; ended = true; if(onend) onend(); };
+    takeSpeakersBack();   // never let our own loan silence a call
     const c = ensureCtx(); if(!c || !slugs.length){ finish(); return; }
     if(c.state==="suspended") c.resume().catch(()=>{});
     const gen = ++clipGen;
@@ -2676,6 +2744,7 @@
   function loadSegment(i){
     const seg = schedule[i];
     if(!seg){ finish(); return; }
+    takeSpeakersBack();   // bell and round call come first, whatever we lent
     clearDeliver(); delivering=false;
     if(phase==="work") camBank();   // bank the finished round's camera tallies
     phase = seg.type;
@@ -2763,6 +2832,8 @@
     }
     paintDots();
     startPhaseTimer(seg.secs);
+    lendPlan = seg.type==="rest" ? {total:seg.secs} : null;
+    if(seg.type==="rest") scheduleLend(seg.secs, seg.secs);
   }
   function advance(){ segIndex++; if(segIndex>=schedule.length) finish(); else loadSegment(segIndex); }
 
@@ -2805,8 +2876,9 @@
     if(remaining<=0){ if(phase==="work") onRoundComplete(); advance(); }
   }
   function run(){ running=true; startBtn.textContent="Pause"; acquireWake(); if(tickId) clearInterval(tickId); tickId=setInterval(tick,200); }
-  function pause(){ running=false; startBtn.textContent="Resume"; pausedRemaining=Math.max(0,endAt-Date.now()); clearInterval(tickId); tickId=null; cancelSpeech(); clearDeliver(); delivering=false; releaseWake(); }
-  function resume(){ endAt=Date.now()+pausedRemaining; if(phase==="work"||phase==="warmup") nextComboAt=Date.now()+700; run(); }
+  function pause(){ running=false; startBtn.textContent="Resume"; pausedRemaining=Math.max(0,endAt-Date.now()); clearInterval(tickId); tickId=null; cancelSpeech(); clearDeliver(); delivering=false; releaseWake(); lendSoon(1500); }
+  function resume(){ takeSpeakersBack(); endAt=Date.now()+pausedRemaining; if(phase==="work"||phase==="warmup") nextComboAt=Date.now()+700; run();
+    if(phase==="rest") scheduleLend(Math.max(0,(endAt-Date.now())/1000), currentSegSecs); }
   function skip(){
     if(phase!=="work" && phase!=="rest" && phase!=="prep" && phase!=="warmup") return;
     // Credit the round if it's skipped inside its final ten seconds —
@@ -2826,6 +2898,8 @@
     phase="done"; app.className="done"; running=false; skipBtn.disabled=true; clearInterval(tickId); tickId=null;
     updateCamHud();
     playBell(3); buzz([200,100,200,100,400]);
+    lendPlan = null;
+    lendSoon(3000);   // workout's over — give the podcast its speakers back
     onSessionComplete();
     // a loaded program session, completed, advances the plan — before the
     // session is recorded, so finishing week 4 lands the "Program graduate"
@@ -2943,6 +3017,7 @@
     cancelSpeech();
     clearDeliver(); delivering=false;
     releaseWake();
+    lendPlan = null; lendSoon(1200);
     buildSchedule();
     phase="idle"; segIndex=0; workCount=0; boxCount=0;
     kbPlan=[]; kbIdx=0;
@@ -3012,7 +3087,7 @@
   });
   resetBtn.addEventListener("click", reset);
   // Visible build tag so it's obvious which version is loaded (caching check).
-  const APP_VERSION = "v54";   // keep in step with CACHE in sw.js
+  const APP_VERSION = "v55";   // keep in step with CACHE in sw.js
   $("appVersion").textContent = "Coach Fred " + APP_VERSION;
   // the HUD status line shows the loaded build instead of decorative hex
   document.querySelector(".hud-sys").innerHTML = "SYS<b>//</b>" + APP_VERSION.toUpperCase();
@@ -3142,7 +3217,7 @@
     {h:"Build your own", b:"Open <b>Build a combo</b> and tap <b>Punches</b> and <b>Movement</b> &mdash; each one stacks into the box at the top so you can see the combo take shape. Name it, hit <b>Save</b>, and it joins your pool.", at:()=>{ tutOpenPane("combos"); return tutOpenAcc($("stage")).closest(".builder"); }},
     {h:"Pick your fighter", b:"In <b>More &rarr; Theme</b>, reskin the whole app. Rocky, Apollo and Iron Mike, or go off-script with <b>Cyberpunk 2077</b>, <b>Ryu</b>, <b>Scorpion</b>, <b>Goku</b> and <b>Vegeta</b>. Tap one and the whole corner changes.", at:()=>{ tutOpenPane("more"); return tutOpenAcc($("themeGrid")); }},
     {h:"Turn the sound on", b:"The coach is a recorded human voice and plays <b>even on silent</b>. Turn the volume up, set <b>Voice speed</b>, then hit <b>Test voice</b> to check it. On iPhone the coach only speaks <b>after you tap Start</b>.", at:()=>{ tutOpenPane("more"); return $("testVoice").closest(".field"); }},
-    {h:"Training to your own audio?", b:"By default the corner takes an iPhone&rsquo;s speakers, so a podcast or album stops while you work. Under <b>Music &amp; podcasts</b> switch to <b>Duck it</b> and your audio keeps playing, dipping under each call &mdash; or <b>Mix</b> to talk straight over it. Both need the <b>mute switch off</b>. Playing from another speaker? Nothing to change.", at:()=>{ tutOpenPane("more"); return $("segAudioMix").closest(".field"); }},
+    {h:"Training to your own audio?", b:"By default the corner takes an iPhone&rsquo;s speakers, so a podcast or album stops while you work &mdash; though <b>Hand it back on rest</b> gives them up through the quiet middle of each rest and once the last bell rings. Want it playing during the round too? Under <b>Music &amp; podcasts</b> pick <b>Duck it</b> and your audio keeps running, dipping under each call &mdash; or <b>Mix</b> to talk straight over it. Both need the <b>mute switch off</b>. Playing from another speaker? Nothing to change.", at:()=>{ tutOpenPane("more"); return $("segAudioMix").closest(".field"); }},
     {h:"Install it", b:"Add Coach Fred to your home screen so it opens fullscreen and works offline.<br><br><b>iPhone / iPad (Safari):</b> tap <b>Share</b> <span style=\"font-size:1.1em;\">&#x2191;</span>, scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.<br><br><b>Android (Chrome):</b> tap the <b>&#8942;</b> menu (top-right), then <b>Install app</b> &mdash; or <b>Add to Home screen</b>. Replay this tour any time with the <b>?</b> up top."}
   ];
   // First run auto-opens a 3-step intro; the full 13-step tour lives behind "?".
@@ -3422,14 +3497,22 @@
   $("sFatigue").addEventListener("change", e=>{ cfg.fatigueOn=e.target.checked; save(); });
   $("sBell").addEventListener("change", e=>{ cfg.bellOn=e.target.checked; save(); if(cfg.bellOn){ ensureAudio(); playBell(1); } });
   $("sVibe").addEventListener("change", e=>{ cfg.vibrateOn=e.target.checked; save(); if(cfg.vibrateOn) buzz(120); });
+  // Handing the speakers back only means anything when we took them in the
+  // first place — in duck/mix your audio never stopped.
+  function syncAudioMixUI(){ $("handBackField").style.display = audioMix()==="solo" ? "block" : "none"; }
   $("segAudioMix").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
     [...e.currentTarget.children].forEach(x=>x.classList.remove("on")); b.classList.add("on");
     cfg.audioMix = b.dataset.v;
     cfg.playInSilent = (cfg.audioMix==="solo");   // legacy field, kept in step
     save();
+    syncAudioMixUI();
     duckOtherAudio(); ensureAudio(); primeSpeech();
     say("Coach Fred, ready to work.");   // instant proof it plays (or ducks) as configured
+  });
+  $("sHandBack").addEventListener("change", e=>{
+    cfg.restHandBack = e.target.checked; save();
+    if(!cfg.restHandBack) takeSpeakersBack();
   });
   $("sCam").addEventListener("change", e=>{ cfg.camOn=e.target.checked; save(); });
   $("sWarmup").addEventListener("change", e=>{ cfg.warmupOn=e.target.checked; save(); refreshTimerUI(); if(phase==="idle") reset(); });
@@ -3909,6 +3992,8 @@
     $("sBell").checked = !!cfg.bellOn;
     $("sVibe").checked = cfg.vibrateOn !== false;
     [...$("segAudioMix").children].forEach(x=>x.classList.toggle("on", x.dataset.v===audioMix()));
+    $("sHandBack").checked = cfg.restHandBack !== false;
+    syncAudioMixUI();
     $("sCam").checked = !!cfg.camOn;
     $("sWarmup").checked = !!cfg.warmupOn;
     [...$("segPace").children].forEach(x=>x.classList.toggle("on", x.dataset.v===cfg.pace));

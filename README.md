@@ -213,6 +213,12 @@ The choice is saved on your device.
   level. Both sharing modes are silenced by the mute switch, so it has to be
   off. Audio playing from another phone or speaker is never affected, and
   Android mixes whichever you pick.
+- Staying on *Coach only*? **Hand it back on rest** (on by default) drops the
+  audio session through the quiet middle of every rest longer than ~35s, and
+  again after the final bell, so your podcast picks itself back up between
+  rounds. The coach reclaims the speakers a few seconds before the count-in.
+  iOS decides whether the other app actually resumes, so treat it as a bonus —
+  the coach is never the thing that goes quiet.
 - "Add to Home Screen" in Safari for fullscreen app behaviour.
 - Offline support and install require the page to be served over HTTPS or
   `localhost` (not opened as a `file://` URL).
